@@ -1,0 +1,45 @@
+{
+  "_comment": "Skeleton patch input for share-public/python_scripts/patch_dbc.py. One criterion per achievement. Type 68 = ACHIEVEMENT_CRITERIA_TYPE_SCRIPT_EVENT. The asset_id encodes the bucket as continent_id * 100 + creature_type so the row is unique and human-readable, even though server-side completion is triggered directly via AchievementMgr::CompletedAchievement and does not consult this row at runtime.",
+  "_columns": [
+    "id", "achievement", "type", "asset_id", "quantity",
+    "start_event", "start_asset", "flags", "description_lang",
+    "completionFlag", "groupFlag", "timerStartEvent", "timer_asset",
+    "timer_time", "showOrder"
+  ],
+  "entries": [
+    {
+      "id": 60002,
+      "achievement": 30002,
+      "type": 68,
+      "asset_id": 2,
+      "quantity": 1,
+      "start_event": 0,
+      "start_asset": 0,
+      "flags": 0,
+      "description_lang": "Slay every Dragonkin entry in the Eastern Kingdoms.",
+      "completionFlag": 0,
+      "groupFlag": 0,
+      "timerStartEvent": 0,
+      "timer_asset": 0,
+      "timer_time": 0,
+      "showOrder": 0
+    },
+    {
+      "id": 60007,
+      "achievement": 30007,
+      "type": 68,
+      "asset_id": 7,
+      "quantity": 1,
+      "start_event": 0,
+      "start_asset": 0,
+      "flags": 0,
+      "description_lang": "Slay every Humanoid entry in the Eastern Kingdoms.",
+      "completionFlag": 0,
+      "groupFlag": 0,
+      "timerStartEvent": 0,
+      "timer_asset": 0,
+      "timer_time": 0,
+      "showOrder": 0
+    }
+  ]
+}

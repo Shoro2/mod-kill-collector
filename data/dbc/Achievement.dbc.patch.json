@@ -1,0 +1,40 @@
+{
+  "_comment": "Skeleton patch input for share-public/python_scripts/patch_dbc.py. Each entry will be appended to Achievement.dbc. Locale fields are filled with the English string for all 16 locales in a follow-up step. category=9000 corresponds to a new 'Kill Collector' category that should be added via Achievement_Category.dbc (or by reusing an existing category id if a separate category is undesired).",
+  "_columns": [
+    "id", "faction", "mapId", "name_lang", "description_lang",
+    "category", "points", "orderInGroup", "flags", "iconId",
+    "reward_lang", "minimumCriteria", "shares_criteria"
+  ],
+  "entries": [
+    {
+      "id": 30002,
+      "faction": -1,
+      "mapId": -1,
+      "name_lang": "Eastern Kingdoms: Dragonkin",
+      "description_lang": "Slay at least one of every Dragonkin in the Eastern Kingdoms (open world and instances).",
+      "category": 9000,
+      "points": 10,
+      "orderInGroup": 0,
+      "flags": 0,
+      "iconId": 0,
+      "reward_lang": "",
+      "minimumCriteria": 1,
+      "shares_criteria": 0
+    },
+    {
+      "id": 30007,
+      "faction": -1,
+      "mapId": -1,
+      "name_lang": "Eastern Kingdoms: Humanoids",
+      "description_lang": "Slay at least one of every Humanoid in the Eastern Kingdoms (open world and instances).",
+      "category": 9000,
+      "points": 10,
+      "orderInGroup": 0,
+      "flags": 0,
+      "iconId": 0,
+      "reward_lang": "",
+      "minimumCriteria": 1,
+      "shares_criteria": 0
+    }
+  ]
+}
