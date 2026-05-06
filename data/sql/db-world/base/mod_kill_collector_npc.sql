@@ -1,0 +1,7 @@
+-- mod-kill-collector: vendor NPC (placeholder)
+--
+-- Phase 2 of this module will introduce a vendor that exchanges
+-- Hunter's Tokens (item 80001) for rewards. The creature_template
+-- row and npc_vendor inventory will be defined in a follow-up
+-- migration. This file exists so the SQL directory layout is
+-- complete from day one.
