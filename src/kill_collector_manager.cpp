@@ -1,5 +1,10 @@
 #include "kill_collector_manager.h"
 
+namespace
+{
+    constexpr uint32 PLACEHOLDER_TOTAL_SENTINEL = 999999;
+}
+
 KillCollectorMgr* KillCollectorMgr::instance()
 {
     static KillCollectorMgr inst;
@@ -82,6 +87,20 @@ void KillCollectorMgr::LoadCachesFromWorldDB()
     LOG_INFO("module",
              ">> KillCollector: loaded {} continent-map mappings, {} buckets, {} expected mob entries.",
              _mapToContinent.size(), _expectedTotals.size(), totalEntries);
+
+    size_t placeholderCount = 0;
+    for (auto const& kv : _expectedTotals)
+        if (kv.second >= PLACEHOLDER_TOTAL_SENTINEL)
+            ++placeholderCount;
+
+    if (placeholderCount > 0)
+        LOG_WARN("module",
+                 ">> KillCollector: {} of {} bucket totals are PLACEHOLDERS (>= {}). "
+                 "Achievements WILL NOT TRIGGER for those buckets. Run "
+                 "tools/generate_kill_collector_data.py against your world DB "
+                 "and apply data/sql/db-world/updates/mod_kill_collector_totals_seed.sql "
+                 "to populate real values.",
+                 placeholderCount, _expectedTotals.size(), PLACEHOLDER_TOTAL_SENTINEL);
 }
 
 uint32 KillCollectorMgr::ResolveContinent(uint32 mapId) const
@@ -200,7 +219,9 @@ void KillCollectorMgr::HandleCreatureKill(Player* killer, Creature* killed)
 
     uint32 newCount = ++s.progressByBucket[bucket];
     auto itTotal = _expectedTotals.find(bucket);
-    bool const completed = (itTotal != _expectedTotals.end() && newCount >= itTotal->second);
+    bool const completed = (itTotal != _expectedTotals.end()
+                            && itTotal->second < PLACEHOLDER_TOTAL_SENTINEL
+                            && newCount >= itTotal->second);
     PersistProgress(guid, continent, type, newCount, completed);
 
     if (completed)

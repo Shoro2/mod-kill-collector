@@ -15,6 +15,30 @@ AzerothCore WotLK module that rewards players for collecting unique creature kil
 - Vendor NPC that exchanges tokens for rewards (mounts, transmog, consumables).
 - GM commands (`.killcollector reset|backfill|stats`).
 
+## Placeholders
+
+The module ships with **placeholder seed data** so it builds and runs out of the box without an external generator step. Specifically:
+
+- `data/sql/db-world/base/mod_kill_collector_totals_placeholder.sql` populates `mod_kill_collector_totals` with all 36 buckets (4 continents x 9 creature types). Every `expected_total` is the sentinel value **999999**, which is large enough that no continent will ever satisfy the threshold by accident.
+- `data/dbc/Achievement.dbc.patch.json` and `data/dbc/Achievement_Criteria.dbc.patch.json` contain the corresponding 36 + 36 placeholder rows ready for `patch_dbc.py`. IDs already follow the canonical layout (`30000 + slot * 10 + creature_type`), so you can ship the patched DBCs immediately and only the totals need to be updated later.
+
+When the worldserver loads, the manager logs a `LOG_WARN` for every placeholder bucket - watch your log for the line:
+
+```
+>> KillCollector: 36 of 36 bucket totals are PLACEHOLDERS (>= 999999). ...
+```
+
+Replace the placeholders by running the generator against your live world DB:
+
+```bash
+pip install mysql-connector-python
+python3 tools/generate_kill_collector_data.py \
+    --user acore --password acore --database acore_world
+mysql -u acore -p acore_world < data/sql/db-world/updates/mod_kill_collector_totals_seed.sql
+```
+
+Then re-patch the DBCs from the regenerated JSON files (see `data/dbc/README.md`) and restart the worldserver. The warning disappears once every bucket has a real total.
+
 ## Installation
 
 1. Clone this repo into `azerothcore-wotlk/modules/mod-kill-collector/`.
