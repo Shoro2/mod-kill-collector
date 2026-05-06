@@ -1,0 +1,104 @@
+#
+# mod-kill-collector configuration
+#
+# This file contains the runtime configuration for the Kill Collector module.
+# Copy this file to mod_kill_collector.conf and adjust as needed.
+#
+
+[worldserver]
+
+########################################
+#  Master switch
+########################################
+#
+#    KillCollector.Enable
+#        Description: Enable the Kill Collector module.
+#        Default:     1 - Enabled
+#                     0 - Disabled
+#
+
+KillCollector.Enable = 1
+
+########################################
+#  Token reward
+########################################
+#
+#    KillCollector.TokenItemId
+#        Description: item_template.entry of the token awarded on first unique kill.
+#        Default:     80001
+#
+#    KillCollector.TokensPerFirstKill
+#        Description: How many tokens to award per first kill.
+#        Default:     1
+#
+#    KillCollector.AnnounceFirstKill
+#        Description: Whisper a notification to the player on each first kill.
+#        Default:     1 - Enabled
+#
+
+KillCollector.TokenItemId = 80001
+KillCollector.TokensPerFirstKill = 1
+KillCollector.AnnounceFirstKill = 1
+
+########################################
+#  Filtering: which kills count
+########################################
+#
+#    KillCollector.IncludeOpenWorld / IncludeInstances
+#        Description: Whether kills in open-world maps / instances count.
+#        Default:     Both 1 (Enabled).
+#
+#    KillCollector.IncludeCritters / IncludeTotems / IncludeNonCombatPets
+#        Description: Whether kills against these creature types count.
+#        Default:     0 (Disabled).
+#
+#    KillCollector.RequireHostile
+#        Description: Only count kills against creatures hostile to the player.
+#        Default:     1
+#
+#    KillCollector.MinLevelDelta
+#        Description: Skip if (mob_level - player_level) is below this delta.
+#                     Use -100 to disable the filter entirely.
+#        Default:     -10
+#
+#    KillCollector.CountPetKills
+#        Description: Count kills made by pets/guardians of the player.
+#        Default:     1
+#
+
+KillCollector.IncludeOpenWorld = 1
+KillCollector.IncludeInstances = 1
+KillCollector.IncludeCritters = 0
+KillCollector.IncludeTotems = 0
+KillCollector.IncludeNonCombatPets = 0
+KillCollector.RequireHostile = 1
+KillCollector.MinLevelDelta = -10
+KillCollector.CountPetKills = 1
+
+########################################
+#  Achievements
+########################################
+#
+#    KillCollector.AchievementsEnable
+#        Description: Enable achievement granting.
+#        Default:     1
+#
+#    KillCollector.AchievementIdBase
+#        Description: Base ID for the custom DBC achievements (informational).
+#                     The actual mapping is stored in mod_kill_collector_totals.
+#        Default:     30000
+#
+
+KillCollector.AchievementsEnable = 1
+KillCollector.AchievementIdBase = 30000
+
+########################################
+#  Logging
+########################################
+#
+#    KillCollector.LogVerbose
+#        Description: Verbose logging for debugging (logs every counted kill).
+#        Default:     0
+#
+
+KillCollector.LogVerbose = 0
