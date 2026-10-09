@@ -15,7 +15,8 @@
 1. Reads `mod_kill_collector_continent_maps` (overrides) and `mod_kill_collector_achievements` (buckets;
    their continents are the tracked continents).
 2. Reads every spawn once: `creature` x `creature_template`, without spawns that only exist during a game
-   event (`game_event_creature`) or outside phase 1.
+   event (`game_event_creature` with a positive `eventEntry`; a negative one only hides the spawn during
+   the event) or outside phase 1.
 3. Per spawn: continent = override, else the map itself if it is a tracked continent, else its entrance map
    (`MapEntry::entrance_map`) if that is one; battleground and arena maps never count. The bucket must exist.
    Skipped: `UNIT_FLAG_NON_ATTACKABLE | IMMUNE_TO_PC | NOT_SELECTABLE`, `CREATURE_FLAG_EXTRA_TRIGGER`,
