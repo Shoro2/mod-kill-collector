@@ -1,0 +1,84 @@
+name    mod-kill-collector: first kills pay a token, the party collects too
+# Server-side test bot run (mod-fl-testbots), T1. Needs KillCollector.Enable = 1 and this folder in
+# TestBots.ScenarioDirs.
+#
+# A mage and a priest in one party: the mage kills, the priest only stands next to the creature.
+# 1. The first Snapjaw (2408, the Hillsbrad river) pays both a Hunter's Token (920200) and counts as
+#    collected for both.
+# 2. A second Snapjaw (the same entry) pays nothing.
+# 3. A Rot Hide Brute (1939, Silverpine, a new entry) pays both again.
+# The places and the kill (three triggered Arcane Explosions, 42921, after `approach` and a `wait 1s`)
+# come from mod-loot-filter's scenario. `.killcollector reset` (the director, the selected bot) empties
+# each bot's collection first, `destroy` its tokens, so every run starts from nothing.
+timeout 240s
+
+bot a mage
+bot h priest
+group party
+
+place 0 -217.3 -1112.8 36.5
+require a alive
+require h alive
+do gm target a
+as gm .killcollector reset
+expect output has "collection reset"
+do gm target h
+as gm .killcollector reset
+expect output has "collection reset"
+do a destroy 920200
+do h destroy 920200
+
+log 1 - a first kill pays the killer and the party member next to it
+pick t1 creature:2408 near a
+require t1 alive
+do a approach t1
+do h approach t1
+wait 1s
+do a cast 42921 triggered
+do a cast 42921 triggered
+do a cast 42921 triggered
+waitfor t1 dead timeout 5s
+wait 1s
+expect a item 920200 == 1
+expect h item 920200 == 1
+as a .killcollector status
+expect output has "1 different creatures killed"
+as h .killcollector status
+expect output has "1 different creatures killed"
+
+log 2 - the same creature again pays nothing
+place 0 -89.6 -1107.8 36.2
+pick t2 creature:2408 near a
+require t2 alive
+do a approach t2
+do h approach t2
+wait 1s
+do a cast 42921 triggered
+do a cast 42921 triggered
+do a cast 42921 triggered
+waitfor t2 dead timeout 5s
+wait 1s
+expect a item 920200 == 1
+expect h item 920200 == 1
+
+log 3 - a new creature pays again
+place 0 705 610 45
+pick g1 creature:1939 near a
+require g1 alive
+do a approach g1
+do h approach g1
+wait 1s
+do a cast 42921 triggered
+do a cast 42921 triggered
+do a cast 42921 triggered
+waitfor g1 dead timeout 5s
+wait 1s
+expect a item 920200 == 2
+expect h item 920200 == 2
+as a .killcollector status
+expect output has "2 different creatures killed"
+
+cleanup
+do a destroy 920200
+do h destroy 920200
+log kill collector tokens done

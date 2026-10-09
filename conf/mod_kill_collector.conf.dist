@@ -1,7 +1,6 @@
 #
 # mod-kill-collector configuration
 #
-# This file contains the runtime configuration for the Kill Collector module.
 # Copy this file to mod_kill_collector.conf and adjust as needed.
 #
 
@@ -10,95 +9,79 @@
 ########################################
 #  Master switch
 ########################################
-#
 #    KillCollector.Enable
 #        Description: Enable the Kill Collector module.
 #        Default:     1 - Enabled
 #                     0 - Disabled
-#
 
 KillCollector.Enable = 1
 
 ########################################
 #  Token reward
 ########################################
-#
 #    KillCollector.TokenItemId
-#        Description: item_template.entry of the token awarded on first unique kill.
-#        Default:     80001
-#
+#        Description: item_template.entry of the token a first kill pays (0 = no token).
+#        Default:     920200 ("Hunter's Token", this module's SQL)
 #    KillCollector.TokensPerFirstKill
-#        Description: How many tokens to award per first kill.
+#        Description: How many tokens one first kill pays. Tokens that do not fit into the bags arrive by mail.
 #        Default:     1
-#
 #    KillCollector.AnnounceFirstKill
-#        Description: Whisper a notification to the player on each first kill.
+#        Description: Tell the player in chat about every newly collected creature.
 #        Default:     1 - Enabled
-#
 
-KillCollector.TokenItemId = 80001
+KillCollector.TokenItemId = 920200
 KillCollector.TokensPerFirstKill = 1
 KillCollector.AnnounceFirstKill = 1
 
 ########################################
-#  Filtering: which kills count
+#  Which kills count
 ########################################
+#    Every player the kill rewards collects the creature: the killer and the members of the tapping group
+#    in range, also when a pet or totem landed the blow. Kills in battlegrounds and arenas never count.
 #
 #    KillCollector.IncludeOpenWorld / IncludeInstances
-#        Description: Whether kills in open-world maps / instances count.
-#        Default:     Both 1 (Enabled).
-#
+#        Description: Whether kills on open-world maps / in dungeons and raids count.
+#        Default:     1 / 1
 #    KillCollector.IncludeCritters / IncludeTotems / IncludeNonCombatPets
-#        Description: Whether kills against these creature types count.
-#        Default:     0 (Disabled).
-#
-#    KillCollector.RequireHostile
-#        Description: Only count kills against creatures hostile to the player.
-#        Default:     1
-#
+#        Description: Whether kills of these creature types count.
+#        Default:     0 / 0 / 0
 #    KillCollector.MinLevelDelta
-#        Description: Skip if (mob_level - player_level) is below this delta.
-#                     Use -100 to disable the filter entirely.
-#        Default:     -10
-#
-#    KillCollector.CountPetKills
-#        Description: Count kills made by pets/guardians of the player.
-#        Default:     1
-#
+#        Description: Skip a kill if (creature level - player level) is below this value,
+#                     e.g. -10 = creatures more than ten levels below the player do not count.
+#                     -100 switches the filter off.
+#        Default:     -100
 
 KillCollector.IncludeOpenWorld = 1
 KillCollector.IncludeInstances = 1
 KillCollector.IncludeCritters = 0
 KillCollector.IncludeTotems = 0
 KillCollector.IncludeNonCombatPets = 0
-KillCollector.RequireHostile = 1
-KillCollector.MinLevelDelta = -10
-KillCollector.CountPetKills = 1
+KillCollector.MinLevelDelta = -100
 
 ########################################
 #  Achievements
 ########################################
+#    One achievement per continent and creature type (mod_kill_collector_achievements): it completes when
+#    the player has killed every creature of that type the continent spawns (its dungeons and raids
+#    included) that the player's team can attack.
 #
 #    KillCollector.AchievementsEnable
-#        Description: Enable achievement granting.
-#        Default:     1
-#
-#    KillCollector.AchievementIdBase
-#        Description: Base ID for the custom DBC achievements (informational).
-#                     The actual mapping is stored in mod_kill_collector_totals.
-#        Default:     30000
-#
+#        Description: Grant the achievements. Switch it on only once the clients have the Achievement.dbc
+#                     rows (client patch) and the server has them (Achievement.dbc or achievement_dbc).
+#        Default:     0 - Disabled
+#    KillCollector.Expected.SkipNpcFlagCreatures
+#        Description: Leave creatures with an NPC flag (vendors, trainers, quest givers, ...) out of the
+#                     achievement lists, so a completed list never means raiding the other team's cities.
+#        Default:     1 - Enabled
 
-KillCollector.AchievementsEnable = 1
-KillCollector.AchievementIdBase = 30000
+KillCollector.AchievementsEnable = 0
+KillCollector.Expected.SkipNpcFlagCreatures = 1
 
 ########################################
 #  Logging
 ########################################
-#
 #    KillCollector.LogVerbose
-#        Description: Verbose logging for debugging (logs every counted kill).
-#        Default:     0
-#
+#        Description: Log every newly collected creature.
+#        Default:     0 - Disabled
 
 KillCollector.LogVerbose = 0

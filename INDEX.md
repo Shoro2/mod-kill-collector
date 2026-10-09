@@ -1,9 +1,9 @@
 # mod-kill-collector - index
 
-- [README.md](README.md) - Phase-1 features, placeholders, install, schema
-- [CLAUDE.md](CLAUDE.md) - what it is, why it is not in FL, ids and collisions, next steps
+- [README.md](README.md) - what it does, installation, configuration, schema
+- [CLAUDE.md](CLAUDE.md) - purpose, ids, status, next steps
 - [data_structure.md](data_structure.md) - files, tables, config keys
-- [functions.md](functions.md) - kill hook, filters, token, achievement buckets, generator
+- [functions.md](functions.md) - hooks, the expected sets, tokens, achievements, commands
 - [log.md](log.md) - change log, newest first
-- [todo.md](todo.md) - open work (the integration blockers)
-- [data/dbc/README.md](data/dbc/README.md), [tools/README.md](tools/README.md) - DBC patch and generator notes
+- [todo.md](todo.md) - open work
+- [tests/kill_collector_tokens.tbs](tests/kill_collector_tokens.tbs) - bot scenario (mod-fl-testbots)

@@ -1,0 +1,132 @@
+-- mod-kill-collector: world DB
+--
+-- mod_kill_collector_continent_maps: the maps whose continent the Map.dbc entrance does not give. Forgotten
+--   Land's own maps form the fifth continent 727 (their entrance maps are those of the stock maps they were
+--   copied from); -1 = creatures on that map never count (test and development maps, the death knight
+--   start, transports). Every other map counts for itself when it is a continent, else for its entrance
+--   map; battlegrounds and arenas never count.
+-- mod_kill_collector_achievements: one achievement per continent and creature type,
+--   id = 30000 + 10 * continent slot (0 Eastern Kingdoms, 1 Kalimdor, 2 Outland, 3 Northrend, 4 Forgotten Land)
+--   + creature type. Registered in the vault's 06-custom-ids.md (30001-30050).
+
+CREATE TABLE IF NOT EXISTS `mod_kill_collector_continent_maps` (
+    `map_id`       INT UNSIGNED NOT NULL,
+    `continent_id` INT NOT NULL COMMENT 'a continent of mod_kill_collector_achievements, -1 = never counts',
+    `comment`      VARCHAR(100) NOT NULL DEFAULT '',
+    PRIMARY KEY (`map_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+DELETE FROM `mod_kill_collector_continent_maps`;
+INSERT INTO `mod_kill_collector_continent_maps` (`map_id`, `continent_id`, `comment`) VALUES
+(727, 727, 'ForgottenLand (Azealia)'),
+(729, 727, 'Mountains'),
+(733, 727, 'Hell'),
+(734, 727, 'BlackrockSpire 4.0'),
+(735, 727, 'Twin Peaks CTF'),
+(736, 727, 'Hall of the Guardian (teleport hub)'),
+(737, 727, 'Twisting Nether'),
+(738, 727, 'Nak''Talim'),
+(739, 727, 'Xala'),
+(740, 727, 'Ak''tazia'),
+(741, 727, 'Azealia Under'),
+(742, 727, 'Conclave'),
+(743, 727, 'Hoto'),
+(744, 727, 'Genetic'),
+(745, 727, 'Murloc City'),
+(746, 727, 'Trondam / Azalan'),
+(747, 727, 'Akleia / Miningaze'),
+(748, 727, 'Yelma'),
+(749, 727, 'AbyArena'),
+(750, 727, 'Quel''Thalas'),
+(751, 727, 'Portocean'),
+(752, 727, 'Sunwell copies'),
+(753, 727, 'Arathi redecoration'),
+(760, 727, 'The Forgotten Depths (PDv2)'),
+(770, 727, 'The Endless Chronicle'),
+(13, -1, 'Testing (class test area)'),
+(451, -1, 'Development Land'),
+(582, -1, 'Transport: Rut''theran to Auberdine'),
+(584, -1, 'Transport: Menethil to Theramore'),
+(586, -1, 'Transport: Exodar to Auberdine'),
+(587, -1, 'Transport: Feathermoon Ferry'),
+(588, -1, 'Transport: Menethil to Auberdine'),
+(589, -1, 'Transport: Orgrimmar to Grom''Gol'),
+(590, -1, 'Transport: Grom''Gol to Undercity'),
+(591, -1, 'Transport: Undercity to Orgrimmar'),
+(592, -1, 'Transport: Borean Tundra Test'),
+(593, -1, 'Transport: Booty Bay to Ratchet'),
+(594, -1, 'Transport: Howling Fjord Sister Mercy (Quest)'),
+(596, -1, 'Transport: Naglfar'),
+(609, -1, 'Ebon Hold (death knight start, phased)'),
+(610, -1, 'Transport: Tirisfal to Vengeance Landing'),
+(612, -1, 'Transport: Menethil to Valgarde'),
+(613, -1, 'Transport: Orgrimmar to Warsong Hold'),
+(614, -1, 'Transport: Stormwind to Valiance Keep'),
+(620, -1, 'Transport: Moa''ki to Unu''pe'),
+(621, -1, 'Transport: Moa''ki to Kamagua'),
+(622, -1, 'Transport: Orgrim''s Hammer'),
+(623, -1, 'Transport: The Skybreaker'),
+(641, -1, 'Transport: Alliance Airship BG'),
+(642, -1, 'Transport: HordeAirshipBG'),
+(647, -1, 'Transport: Orgrimmar to Thunder Bluff'),
+(672, -1, 'Transport: The Skybreaker (Icecrown Citadel Raid)'),
+(673, -1, 'Transport: Orgrim''s Hammer (Icecrown Citadel Raid)'),
+(712, -1, 'Transport: The Skybreaker (IC Dungeon)'),
+(713, -1, 'Transport: Orgrim''s Hammer (IC Dungeon)'),
+(754, -1, 'Dev-Micro-Szenarien');
+
+CREATE TABLE IF NOT EXISTS `mod_kill_collector_achievements` (
+    `continent_id`   INT UNSIGNED NOT NULL COMMENT 'the continent (its map id)',
+    `creature_type`  TINYINT UNSIGNED NOT NULL COMMENT 'CreatureType',
+    `achievement_id` INT UNSIGNED NOT NULL COMMENT 'Achievement.dbc id (client patch, Achievement.dbc or achievement_dbc)',
+    PRIMARY KEY (`continent_id`, `creature_type`),
+    UNIQUE KEY `achievement_id` (`achievement_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+DELETE FROM `mod_kill_collector_achievements`;
+INSERT INTO `mod_kill_collector_achievements` (`continent_id`, `creature_type`, `achievement_id`) VALUES
+(0, 1, 30001),
+(0, 2, 30002),
+(0, 3, 30003),
+(0, 4, 30004),
+(0, 5, 30005),
+(0, 6, 30006),
+(0, 7, 30007),
+(0, 9, 30009),
+(0, 10, 30010),
+(1, 1, 30011),
+(1, 2, 30012),
+(1, 3, 30013),
+(1, 4, 30014),
+(1, 5, 30015),
+(1, 6, 30016),
+(1, 7, 30017),
+(1, 9, 30019),
+(1, 10, 30020),
+(530, 1, 30021),
+(530, 2, 30022),
+(530, 3, 30023),
+(530, 4, 30024),
+(530, 5, 30025),
+(530, 6, 30026),
+(530, 7, 30027),
+(530, 9, 30029),
+(530, 10, 30030),
+(571, 1, 30031),
+(571, 2, 30032),
+(571, 3, 30033),
+(571, 4, 30034),
+(571, 5, 30035),
+(571, 6, 30036),
+(571, 7, 30037),
+(571, 9, 30039),
+(571, 10, 30040),
+(727, 1, 30041),
+(727, 2, 30042),
+(727, 3, 30043),
+(727, 4, 30044),
+(727, 5, 30045),
+(727, 6, 30046),
+(727, 7, 30047),
+(727, 9, 30049),
+(727, 10, 30050);

@@ -1,61 +1,63 @@
 # mod-kill-collector
 
-A May 2026 prototype ("Phase 1") of a kill-collection system: the first kill of every creature entry pays a
-token item, and killing every creature entry of one creature type on a continent (open world plus its
-dungeons and raids) grants a custom achievement. It was **never integrated into Forgotten Land**: it is not in
-the workbench's module folder, not on the host, no vault document mentions it, and its seed data is
-placeholder data whose ids partly collide with FL content (below). Full description: [README.md](README.md).
+Forgotten Land's creature collection: the first kill of every creature entry pays a Hunter's Token, and
+killing every creature of one creature type on a continent grants an achievement (switched off until the
+client patch ships). Every player the kill rewards collects the creature, the tapping group included. The
+operator decided on 2026-10-10 to adopt the May 2026 prototype ("mod-kill-collector übernehmen"); this
+branch is that adoption. Full description: [README.md](README.md).
 
 ## Ids and tables
 
-| What | Value | FL check (2026-10-09) |
-|---|---|---|
-| Token item | `item_template` **80001** "Hunter's Token" (`KillCollector.TokenItemId`); the base SQL deletes and re-inserts the row | **collision**: on the workbench 80001 is FL's "Venom Gland" (class 12, used by one creature loot row and one quest's required items) |
-| Achievements | **30001-30040** (36 rows, `30000 + slot*10 + creature_type`), category 9000 | free in the server `Achievement.dbc` and in `achievement_dbc`; FL client patch-9 not checked; category 9000 not shipped; not in the vault's `06-custom-ids.md` |
-| Criteria | **60001-60040**, type 68 | free server-side; type 68 is `ACHIEVEMENT_CRITERIA_TYPE_USE_GAMEOBJECT` in this core, not "SCRIPT_EVENT" as the JSON says |
-| Characters DB | `mod_kill_collector_kills` (guid, entry), `mod_kill_collector_progress` (guid, continent, type) | not created on the workbench |
-| World DB | `mod_kill_collector_continent_maps` (continents 0, 1, 530, 571 and their stock instances), `mod_kill_collector_totals` (36 buckets, placeholder `expected_total` 999999) | not created; FL's own maps (e.g. 727 Azealia) are not listed |
-| C++ | `KillCollectorWorldScript`, `KillCollectorPlayerScript`, singleton `KillCollectorMgr` (`sKillCollectorMgr`) | never built against FL's core (not verified) |
-| Config | `mod_kill_collector.conf`, `KillCollector.*` | not deployed |
+| What | Value |
+|---|---|
+| Token item | `item_template` **920200** "Hunter's Token" (FL item band 920200-920209 belongs to this module; `KillCollector.TokenItemId`) |
+| Achievements | **30001-30050** = 30000 + 10 x continent slot (0 Eastern Kingdoms, 1 Kalimdor, 2 Outland, 3 Northrend, 4 Forgotten Land 727) + creature type (1-7, 9, 10); 45 rows in `mod_kill_collector_achievements`. Server and client `Achievement.dbc` rows are not written yet |
+| Continents | 0, 1, 530, 571 and 727 (Forgotten Land): its own maps 727-753, 760 and 770 by override; every other map by its Map.dbc / `map_dbc` entrance map |
+| Never counts | maps 13 (class test area), 451, 609 (death knight start), 754 (dev), every transport, battlegrounds and arenas |
+| Characters DB | `mod_kill_collector_kills` (guid, entry, map_id, creature_type, first_kill_time) |
+| World DB | `mod_kill_collector_continent_maps` (map_id, continent_id, comment; -1 = never counts), `mod_kill_collector_achievements` (continent_id, creature_type, achievement_id), three `command` rows |
+| Commands | `.killcollector status` (players), `.killcollector reload` / `reset [name]` (administrators) |
+| C++ | `KillCollectorMgr` (`sKillCollectorMgr`), `KillCollectorWorldScript`, `KillCollectorPlayerScript`, `KillCollectorCommandScript` |
+| Config | `mod_kill_collector.conf`, `KillCollector.*` |
 
 ## Status and progress
 
-- Where it runs: nowhere. Not built (absent from `azerothcore-wotlk/modules`), not on the host, no MIG
-  entry; players see nothing.
-- Evidence: **T0** (code and placeholder data, 2026-05-06). The last commit message says the worldserver
-  "builds, runs, and grants tokens immediately" - not verified for FL's core; there is no build or boot record.
-- Done (prototype): kill hook with a per-player cache, token on a first kill, bucket progress and the
-  achievement grant through `AchievementMgr::CompletedAchievement`, a placeholder seed that cannot complete
-  any achievement, the generator `tools/generate_kill_collector_data.py`, DBC patch JSON for `patch_dbc.py`.
+- Where it runs: nowhere yet. Not in the workbench's `azerothcore-wotlk/modules`, not on the host, no MIG
+  entry.
+- Evidence: **T0** (code and data on branch `claude/kill-collector-adopt-433902b4`, 2026-10-10). Not built:
+  the workbench was reserved for HOST11. The bucket sizes were measured offline with the module's rules on
+  the workbench data (2026-10-10, per team): Eastern Kingdoms ~2,200-2,400 creatures, Kalimdor ~1,730,
+  Outland ~1,580, Northrend ~1,600, Forgotten Land 262.
+- Done in the adoption: FL item id; `creature.id` (FL) instead of `id1`; FL's maps as a fifth continent;
+  continent resolution by override, then the map's entrance; per-team lists of attackable creatures (no
+  event-only, phased, unattackable, trigger or NPC-flag spawns); progress computed from the kills at login
+  (no stored counters); the group collects through `OnPlayerRewardKillRewarder`; tokens by mail when the
+  bags are full; a mutex for map threads; the kills of a deleted character go with it; `.killcollector`
+  commands; achievements without criteria rows (the prototype's criterion type 68 could have fired on a
+  gameobject use); placeholder totals, the old generator and the DBC JSON removed.
 
 ## Next steps
 
-1. (suggestion) The operator decides whether FL wants a kill-collection system at all: no vault plan, queue
-   row or decision exists for it.
-2. Only then, before any build: clear the blockers in [todo.md](todo.md) - a free item id for the token,
-   `creature.id` instead of `id1`, FL's maps in the continent table, a criterion type that cannot fire,
-   registered achievement ids - and run the generator against FL's world DB.
-3. README "Future Scope": an AIO progress window, the token vendor (`mod_kill_collector_npc.sql` is an empty
-   placeholder), `.killcollector reset|backfill|stats`.
+1. After HOST11, in a workbench slot from the coordinator: clone into `azerothcore-wotlk/modules`, cmake,
+   build, boot (errors log = the 87 baseline lines), deploy `mod_kill_collector.conf`, add `tests/` to
+   `TestBots.ScenarioDirs`, run `kill_collector_tokens`; then merge into `main`.
+2. Achievements: write the 45 rows (or only the non-empty buckets) into the client's `Achievement.dbc`
+   through the combined patch-9 builder, plus a category, and into `achievement_dbc`; check the ids
+   against patch-9 first; then `AchievementsEnable = 1`.
+3. The operator decides what the tokens buy (a token vendor) and whether enemy-city creatures belong in the
+   lists.
+4. Host: its own MIG entry and a window the operator approves.
 
 Open points in full: [todo.md](todo.md).
 
 ## Working here
 
 - Branch `claude/<topic>-<sessionId>`, merge into `main` and push (project rule: no pull requests).
-  Repository `Shoro2/mod-kill-collector`; the merged branch `claude/plan-kill-collector-module-5paoT` holds
-  nothing beyond `main`.
-- To try it: clone into `azerothcore-wotlk/modules/`, re-run CMake (a new module changes the source glob)
-  and build in `C:\wowstuff\dcore_bin`. The next boot applies its base SQL - including the DELETE of item
-  80001 - so fix the collision first. The repo's `CMakeLists.txt` is ignored by the core's module scan (it
-  includes only `<module>.cmake`).
-- New ids go through the vault registry `06-custom-ids.md`; achievement and criteria ids must stay at or
-  below 65535 (smallint in the characters DB, vault `chronicle-raid/11-id-allocation.md`). Client DBC rows
-  reach players only through the combined patch-9 builder (vault `13-bug-report-playbook.md` §3), not a
-  separate `patch-K.MPQ` as the README suggests.
-- Restart the workbench only with the workspace's `scripts\worldserver_restart.ps1` under
-  `tools\shared.lock`; any deployment to the host needs a MIG entry in share-public
-  `docs/World of Warcraft/forgotten-land/15-host-migration-log.md`.
-- Vault: no document mentions this module; relevant are `06-custom-ids.md`, `09-db-tables.md`,
-  `chronicle-raid/11-id-allocation.md`, `13-bug-report-playbook.md`.
+- Never clone it into `azerothcore-wotlk/modules` outside an agreed workbench slot: the next build and boot
+  of any session would pick it up and apply its SQL.
+- New ids go through the vault registry `06-custom-ids.md`; achievement ids stay at or below 65535
+  (smallint in the characters DB). Client DBC rows reach players only through the combined patch-9 builder.
+- Restart the workbench only with `scripts\worldserver_restart.ps1`; any host deployment needs a MIG entry
+  in share-public `docs/World of Warcraft/forgotten-land/15-host-migration-log.md`.
+- Tests: `tests/kill_collector_tokens.tbs` (bots, TBOT accounts).
 - Doc set: INDEX.md, CLAUDE.md, data_structure.md, functions.md, log.md (newest first), todo.md.

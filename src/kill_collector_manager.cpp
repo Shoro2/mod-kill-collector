@@ -1,9 +1,25 @@
 #include "kill_collector_manager.h"
 
-namespace
-{
-    constexpr uint32 PLACEHOLDER_TOTAL_SENTINEL = 999999;
-}
+#include "Chat.h"
+#include "Config.h"
+#include "Creature.h"
+#include "CreatureData.h"
+#include "DBCStores.h"
+#include "DatabaseEnv.h"
+#include "Item.h"
+#include "Log.h"
+#include "Mail.h"
+#include "Map.h"
+#include "ObjectMgr.h"
+#include "Player.h"
+#include "SharedDefines.h"
+#include "UnitDefines.h"
+#include "World.h"
+
+#include <algorithm>
+#include <map>
+
+using namespace KillCollector;
 
 KillCollectorMgr* KillCollectorMgr::instance()
 {
@@ -13,269 +29,434 @@ KillCollectorMgr* KillCollectorMgr::instance()
 
 void KillCollectorMgr::LoadConfig()
 {
-    _enabled            = sConfigMgr->GetOption<bool>("KillCollector.Enable", false);
-    _tokenItemId        = sConfigMgr->GetOption<uint32>("KillCollector.TokenItemId", KillCollector::DEFAULT_TOKEN_ITEM_ID);
-    _tokensPerKill      = sConfigMgr->GetOption<uint32>("KillCollector.TokensPerFirstKill", 1);
-    _announceFirstKill  = sConfigMgr->GetOption<bool>("KillCollector.AnnounceFirstKill", true);
+    _enabled              = sConfigMgr->GetOption<bool>("KillCollector.Enable", false);
+    _tokenItemId          = sConfigMgr->GetOption<uint32>("KillCollector.TokenItemId", DEFAULT_TOKEN_ITEM_ID);
+    _tokensPerKill        = sConfigMgr->GetOption<uint32>("KillCollector.TokensPerFirstKill", 1);
+    _announceFirstKill    = sConfigMgr->GetOption<bool>("KillCollector.AnnounceFirstKill", true);
 
-    _includeOpenWorld    = sConfigMgr->GetOption<bool>("KillCollector.IncludeOpenWorld", true);
-    _includeInstances    = sConfigMgr->GetOption<bool>("KillCollector.IncludeInstances", true);
-    _includeCritters     = sConfigMgr->GetOption<bool>("KillCollector.IncludeCritters", false);
-    _includeTotems       = sConfigMgr->GetOption<bool>("KillCollector.IncludeTotems", false);
-    _includeNonCombatPets= sConfigMgr->GetOption<bool>("KillCollector.IncludeNonCombatPets", false);
-    _requireHostile      = sConfigMgr->GetOption<bool>("KillCollector.RequireHostile", true);
-    _minLevelDelta       = sConfigMgr->GetOption<int32>("KillCollector.MinLevelDelta", -10);
-    _countPetKills       = sConfigMgr->GetOption<bool>("KillCollector.CountPetKills", true);
+    _includeOpenWorld     = sConfigMgr->GetOption<bool>("KillCollector.IncludeOpenWorld", true);
+    _includeInstances     = sConfigMgr->GetOption<bool>("KillCollector.IncludeInstances", true);
+    _includeCritters      = sConfigMgr->GetOption<bool>("KillCollector.IncludeCritters", false);
+    _includeTotems        = sConfigMgr->GetOption<bool>("KillCollector.IncludeTotems", false);
+    _includeNonCombatPets = sConfigMgr->GetOption<bool>("KillCollector.IncludeNonCombatPets", false);
+    _minLevelDelta        = sConfigMgr->GetOption<int32>("KillCollector.MinLevelDelta", -100);
 
-    _achievementsEnable  = sConfigMgr->GetOption<bool>("KillCollector.AchievementsEnable", true);
-    _achievementIdBase   = sConfigMgr->GetOption<uint32>("KillCollector.AchievementIdBase", KillCollector::DEFAULT_ACHIEVEMENT_ID_BASE);
-    _logVerbose          = sConfigMgr->GetOption<bool>("KillCollector.LogVerbose", false);
+    _skipNpcFlagCreatures = sConfigMgr->GetOption<bool>("KillCollector.Expected.SkipNpcFlagCreatures", true);
+    _achievementsEnable   = sConfigMgr->GetOption<bool>("KillCollector.AchievementsEnable", false);
+    _logVerbose           = sConfigMgr->GetOption<bool>("KillCollector.LogVerbose", false);
 }
 
-void KillCollectorMgr::LoadCachesFromWorldDB()
+int32 KillCollectorMgr::ResolveContinent(Data const& data, uint32 mapId)
 {
-    _expectedMobs.clear();
-    _expectedTotals.clear();
-    _achievementByBucket.clear();
-    _mapToContinent.clear();
+    // 1. An explicit row: Forgotten Land's own maps, and the maps whose creatures never count.
+    auto itOverride = data.continentByMap.find(mapId);
+    if (itOverride != data.continentByMap.end())
+        return itOverride->second;
 
-    if (QueryResult result = WorldDatabase.Query("SELECT continent_id, map_id FROM mod_kill_collector_continent_maps"))
+    // 2. A tracked continent itself.
+    if (data.continents.count(mapId))
+        return int32(mapId);
+
+    // 3. A dungeon or raid: the continent its entrance is on (Map.dbc / map_dbc). Battlegrounds never count.
+    MapEntry const* map = sMapStore.LookupEntry(mapId);
+    if (!map || map->IsBattlegroundOrArena())
+        return EXCLUDED_MAP;
+    if (map->entrance_map >= 0 && data.continents.count(uint32(map->entrance_map)))
+        return map->entrance_map;
+
+    return EXCLUDED_MAP;
+}
+
+void KillCollectorMgr::LoadData()
+{
+    auto data = std::make_shared<Data>();
+
+    if (QueryResult result = WorldDatabase.Query("SELECT map_id, continent_id FROM mod_kill_collector_continent_maps"))
     {
         do
         {
             Field* f = result->Fetch();
-            _mapToContinent[f[1].Get<uint32>()] = f[0].Get<uint32>();
+            data->continentByMap[f[0].Get<uint32>()] = f[1].Get<int32>();
         } while (result->NextRow());
     }
 
-    if (QueryResult result = WorldDatabase.Query("SELECT continent_id, creature_type, expected_total, achievement_id FROM mod_kill_collector_totals"))
-    {
-        do
-        {
-            Field* f = result->Fetch();
-            uint32 continent = f[0].Get<uint32>();
-            uint8 type = f[1].Get<uint8>();
-            uint64 bucket = KillCollector::BucketKey(continent, type);
-            _expectedTotals[bucket] = f[2].Get<uint32>();
-            _achievementByBucket[bucket] = f[3].Get<uint32>();
-        } while (result->NextRow());
-    }
-
-    // Build expected-mob set: distinct creature_template.entry per (continent, type),
-    // restricted to entries that are actually spawned on tracked maps.
     if (QueryResult result = WorldDatabase.Query(
-        "SELECT DISTINCT ct.entry, ct.type, mkc.continent_id "
-        "FROM creature_template ct "
-        "JOIN creature c ON c.id1 = ct.entry "
-        "JOIN mod_kill_collector_continent_maps mkc ON mkc.map_id = c.map "
-        "WHERE ct.type IN (1,2,3,4,5,6,7,9,10)"))
+            "SELECT continent_id, creature_type, achievement_id FROM mod_kill_collector_achievements"))
     {
         do
         {
             Field* f = result->Fetch();
-            uint32 entry = f[0].Get<uint32>();
-            uint8 type = f[1].Get<uint8>();
-            uint32 continent = f[2].Get<uint32>();
-            _expectedMobs[KillCollector::BucketKey(continent, type)].insert(entry);
+            uint32 const continent = f[0].Get<uint32>();
+            data->achievementByBucket[BucketKey(continent, f[1].Get<uint8>())] = f[2].Get<uint32>();
+            data->continents.insert(continent);
         } while (result->NextRow());
     }
 
-    size_t totalEntries = 0;
-    for (auto const& kv : _expectedMobs)
-        totalEntries += kv.second.size();
+    FactionTemplateEntry const* teamFaction[TEAM_COUNT] =
+    {
+        sFactionTemplateStore.LookupEntry(ALLIANCE_PLAYER_FACTION_TEMPLATE),
+        sFactionTemplateStore.LookupEntry(HORDE_PLAYER_FACTION_TEMPLATE)
+    };
 
-    LOG_INFO("module",
-             ">> KillCollector: loaded {} continent-map mappings, {} buckets, {} expected mob entries.",
-             _mapToContinent.size(), _expectedTotals.size(), totalEntries);
+    // The expected set of a bucket: every creature entry spawned on the continent (its dungeons and raids
+    // included) that a player of the team can attack. Spawns that only exist during a game event or outside
+    // the normal phase, triggers, unattackable creatures and (by default) NPCs with a service flag are left
+    // out: nobody could ever complete a bucket that holds them.
+    std::unordered_map<uint64, std::unordered_set<uint32>> sets[TEAM_COUNT];
+    if (teamFaction[0] && teamFaction[1])
+    {
+        if (QueryResult result = WorldDatabase.Query(
+                "SELECT DISTINCT c.map, c.id, ct.type, ct.faction, ct.npcflag, ct.unit_flags, ct.flags_extra "
+                "FROM creature c JOIN creature_template ct ON ct.entry = c.id "
+                "WHERE (c.phaseMask & 1) <> 0 AND NOT EXISTS "
+                "(SELECT 1 FROM game_event_creature gec WHERE gec.guid = c.guid AND gec.eventEntry > 0)"))
+        {
+            uint32 const unattackable = UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_NOT_SELECTABLE;
+            do
+            {
+                Field* f = result->Fetch();
+                uint32 const mapId = f[0].Get<uint16>();
+                uint32 const entry = f[1].Get<uint32>();
+                uint8 const type = f[2].Get<uint8>();
+                uint32 const faction = f[3].Get<uint16>();
+                uint32 const npcflag = f[4].Get<uint32>();
+                uint32 const unitFlags = f[5].Get<uint32>();
+                uint32 const flagsExtra = f[6].Get<uint32>();
 
-    size_t placeholderCount = 0;
-    for (auto const& kv : _expectedTotals)
-        if (kv.second >= PLACEHOLDER_TOTAL_SENTINEL)
-            ++placeholderCount;
+                int32 const continent = ResolveContinent(*data, mapId);
+                if (continent == EXCLUDED_MAP)
+                    continue;
 
-    if (placeholderCount > 0)
-        LOG_WARN("module",
-                 ">> KillCollector: {} of {} bucket totals are PLACEHOLDERS (>= {}). "
-                 "Achievements WILL NOT TRIGGER for those buckets. Run "
-                 "tools/generate_kill_collector_data.py against your world DB "
-                 "and apply data/sql/db-world/updates/mod_kill_collector_totals_seed.sql "
-                 "to populate real values.",
-                 placeholderCount, _expectedTotals.size(), PLACEHOLDER_TOTAL_SENTINEL);
+                uint64 const bucket = BucketKey(uint32(continent), type);
+                if (!data->achievementByBucket.count(bucket))
+                    continue;
+
+                if ((unitFlags & unattackable) || (flagsExtra & CREATURE_FLAG_EXTRA_TRIGGER))
+                    continue;
+                if (_skipNpcFlagCreatures && npcflag)
+                    continue;
+
+                FactionTemplateEntry const* creatureFaction = sFactionTemplateStore.LookupEntry(faction);
+                if (!creatureFaction)
+                    continue;
+
+                for (uint8 team = 0; team < TEAM_COUNT; ++team)
+                    if (!creatureFaction->IsFriendlyTo(*teamFaction[team]))
+                        sets[team][bucket].insert(entry);
+            } while (result->NextRow());
+        }
+    }
+    else
+        LOG_ERROR("module", ">> KillCollector: FactionTemplate {} or {} is missing; no creature can count.",
+                  ALLIANCE_PLAYER_FACTION_TEMPLATE, HORDE_PLAYER_FACTION_TEMPLATE);
+
+    for (uint8 team = 0; team < TEAM_COUNT; ++team)
+    {
+        for (auto const& [bucket, entries] : sets[team])
+        {
+            data->expectedSize[team][bucket] = uint32(entries.size());
+            for (uint32 entry : entries)
+                data->bucketsByEntry[team][entry].push_back(bucket);
+        }
+    }
+
+    // One line per continent: how many creatures each team can collect there.
+    std::map<uint32, std::pair<uint32, uint32>> perContinent;
+    for (uint32 continent : data->continents)
+        perContinent[continent] = { 0, 0 };
+    for (uint8 team = 0; team < TEAM_COUNT; ++team)
+        for (auto const& [bucket, size] : data->expectedSize[team])
+            (team ? perContinent[BucketContinent(bucket)].second : perContinent[BucketContinent(bucket)].first) += size;
+
+    LOG_INFO("module", ">> KillCollector: {} continents, {} achievement buckets, {} map overrides.",
+             data->continents.size(), data->achievementByBucket.size(), data->continentByMap.size());
+    for (auto const& [continent, sizes] : perContinent)
+        LOG_INFO("module", ">> KillCollector: continent {}: {} creatures for the Alliance, {} for the Horde.",
+                 continent, sizes.first, sizes.second);
+
+    if (_tokenItemId && !sObjectMgr->GetItemTemplate(_tokenItemId))
+        LOG_ERROR("module", ">> KillCollector: token item {} does not exist; first kills pay nothing.", _tokenItemId);
+
+    std::lock_guard<std::mutex> guard(_lock);
+    _data = data;
+    for (auto& [guid, state] : _online)
+        ComputeProgress(*data, state);
 }
 
-uint32 KillCollectorMgr::ResolveContinent(uint32 mapId) const
+void KillCollectorMgr::ComputeProgress(Data const& data, PlayerState& state)
 {
-    auto it = _mapToContinent.find(mapId);
-    return (it != _mapToContinent.end()) ? it->second : 0xFFFFFFFFu;
+    state.progress.clear();
+    auto const& buckets = data.bucketsByEntry[state.team];
+    for (uint32 entry : state.killed)
+    {
+        auto it = buckets.find(entry);
+        if (it == buckets.end())
+            continue;
+        for (uint64 bucket : it->second)
+            ++state.progress[bucket];
+    }
 }
 
-void KillCollectorMgr::LoadPlayerStateOnLogin(Player* player)
+std::vector<uint32> KillCollectorMgr::CompletedAchievements(Data const& data, PlayerState const& state)
 {
-    if (!player)
-        return;
+    std::vector<uint32> done;
+    for (auto const& [bucket, count] : state.progress)
+    {
+        auto size = data.expectedSize[state.team].find(bucket);
+        if (size == data.expectedSize[state.team].end() || !size->second || count < size->second)
+            continue;
+        auto achievement = data.achievementByBucket.find(bucket);
+        if (achievement != data.achievementByBucket.end())
+            done.push_back(achievement->second);
+    }
+    return done;
+}
 
-    ObjectGuid::LowType guid = player->GetGUID().GetCounter();
-    PlayerKillSet& s = _online[guid];
-    s.killedEntries.clear();
-    s.progressByBucket.clear();
+void KillCollectorMgr::LoadState(Player* player)
+{
+    ObjectGuid::LowType const guid = player->GetGUID().GetCounter();
 
+    PlayerState state;
+    state.team = player->GetTeamId() == TEAM_HORDE ? 1 : 0;
     if (QueryResult result = CharacterDatabase.Query("SELECT entry FROM mod_kill_collector_kills WHERE guid = {}", guid))
     {
         do
         {
-            s.killedEntries.insert(result->Fetch()[0].Get<uint32>());
+            state.killed.insert(result->Fetch()[0].Get<uint32>());
         } while (result->NextRow());
     }
 
-    if (QueryResult result = CharacterDatabase.Query(
-            "SELECT continent_id, creature_type, kill_count FROM mod_kill_collector_progress WHERE guid = {}", guid))
-    {
-        do
-        {
-            Field* f = result->Fetch();
-            s.progressByBucket[KillCollector::BucketKey(f[0].Get<uint32>(), f[1].Get<uint8>())] = f[2].Get<uint32>();
-        } while (result->NextRow());
-    }
+    std::lock_guard<std::mutex> guard(_lock);
+    if (_data)
+        ComputeProgress(*_data, state);
+    _online[guid] = std::move(state);
 }
 
-void KillCollectorMgr::FlushPlayerStateOnLogout(Player* player)
+void KillCollectorMgr::OnLogin(Player* player)
+{
+    if (!_enabled || !player)
+        return;
+
+    LoadState(player);
+    if (!_achievementsEnable)
+        return;
+
+    // A bucket can be complete at login: achievements were switched on later, or the bucket shrank.
+    std::vector<uint32> done;
+    {
+        std::lock_guard<std::mutex> guard(_lock);
+        auto it = _online.find(player->GetGUID().GetCounter());
+        if (it != _online.end() && _data)
+            done = CompletedAchievements(*_data, it->second);
+    }
+    GrantAchievements(player, done);
+}
+
+void KillCollectorMgr::OnLogout(Player* player)
 {
     if (!player)
         return;
+    std::lock_guard<std::mutex> guard(_lock);
     _online.erase(player->GetGUID().GetCounter());
 }
 
-bool KillCollectorMgr::PassesFilters(Player* killer, Creature* killed) const
+bool KillCollectorMgr::PassesKillFilters(Player* player, Creature* killed) const
 {
-    if (!killer || !killed)
+    if (player->IsGameMaster())
         return false;
-    if (killed->IsPet() || killed->IsTotem())
+    if (killed->IsPet() || killed->IsTotem() || killed->IsCharmedOwnedByPlayerOrPlayer())
         return false;
 
     CreatureTemplate const* ct = killed->GetCreatureTemplate();
     if (!ct)
         return false;
-
-    if (!_includeCritters && ct->type == CREATURE_TYPE_CRITTER)
+    if (ct->type == CREATURE_TYPE_GAS_CLOUD)
         return false;
-    if (!_includeTotems && ct->type == CREATURE_TYPE_TOTEM)
+    if (ct->type == CREATURE_TYPE_CRITTER && !_includeCritters)
         return false;
-    if (!_includeNonCombatPets && ct->type == CREATURE_TYPE_NON_COMBAT_PET)
+    if (ct->type == CREATURE_TYPE_TOTEM && !_includeTotems)
         return false;
-
-    bool const inInstance = killed->GetMap() && killed->GetMap()->Instanceable();
-    if (inInstance && !_includeInstances)
-        return false;
-    if (!inInstance && !_includeOpenWorld)
+    if (ct->type == CREATURE_TYPE_NON_COMBAT_PET && !_includeNonCombatPets)
         return false;
 
-    if (_requireHostile && !killed->IsHostileTo(killer))
+    Map const* map = killed->GetMap();
+    if (!map || map->IsBattlegroundOrArena())
+        return false;
+    if (map->Instanceable() ? !_includeInstances : !_includeOpenWorld)
         return false;
 
-    if (_minLevelDelta > -100)
-    {
-        int32 delta = static_cast<int32>(killed->GetLevel()) - static_cast<int32>(killer->GetLevel());
-        if (delta < _minLevelDelta)
-            return false;
-    }
+    if (_minLevelDelta > -100 && int32(killed->GetLevel()) - int32(player->GetLevel()) < _minLevelDelta)
+        return false;
 
     return true;
 }
 
-void KillCollectorMgr::HandleCreatureKill(Player* killer, Creature* killed)
+void KillCollectorMgr::OnKillCredit(Player* player, Creature* killed)
 {
-    if (!_enabled || !PassesFilters(killer, killed))
+    if (!_enabled || !player || !killed || !PassesKillFilters(player, killed))
         return;
 
-    uint32 entry = killed->GetEntry();
-    uint8 type = killed->GetCreatureTemplate()->type;
-    uint32 mapId = killer->GetMapId();
-    uint32 continent = ResolveContinent(mapId);
+    ObjectGuid::LowType const guid = player->GetGUID().GetCounter();
+    uint32 const entry = killed->GetEntry();
 
-    ObjectGuid::LowType guid = killer->GetGUID().GetCounter();
-    PlayerKillSet& s = _online[guid];
-
-    if (!s.killedEntries.insert(entry).second)
-        return; // already collected
-
-    PersistKill(guid, entry, mapId, type);
-    AwardToken(killer);
-
-    if (_announceFirstKill && killer->GetSession())
-        ChatHandler(killer->GetSession()).PSendSysMessage(
-            "|cff00ff00[Kill Collector]|r New unique kill! +{} token.", _tokensPerKill);
-
-    if (_logVerbose)
-        LOG_INFO("module", "KillCollector: guid={} entry={} type={} map={} continent={}",
-                 guid, entry, uint32(type), mapId, continent);
-
-    if (continent == 0xFFFFFFFFu || !_achievementsEnable)
-        return;
-
-    uint64 bucket = KillCollector::BucketKey(continent, type);
-    auto itExpected = _expectedMobs.find(bucket);
-    if (itExpected == _expectedMobs.end() || !itExpected->second.count(entry))
-        return; // entry not part of any tracked achievement bucket
-
-    uint32 newCount = ++s.progressByBucket[bucket];
-    auto itTotal = _expectedTotals.find(bucket);
-    bool const completed = (itTotal != _expectedTotals.end()
-                            && itTotal->second < PLACEHOLDER_TOTAL_SENTINEL
-                            && newCount >= itTotal->second);
-    PersistProgress(guid, continent, type, newCount, completed);
-
-    if (completed)
-        TryCompleteAchievement(killer, continent, type);
-}
-
-void KillCollectorMgr::AwardToken(Player* player)
-{
-    if (_tokensPerKill > 0 && _tokenItemId > 0)
-        player->AddItem(_tokenItemId, _tokensPerKill);
-}
-
-void KillCollectorMgr::TryCompleteAchievement(Player* player, uint32 continentId, uint8 creatureType)
-{
-    auto it = _achievementByBucket.find(KillCollector::BucketKey(continentId, creatureType));
-    if (it == _achievementByBucket.end())
-        return;
-
-    AchievementEntry const* ach = sAchievementStore.LookupEntry(it->second);
-    if (!ach)
+    bool loaded;
     {
-        LOG_WARN("module",
-                 "KillCollector: configured achievement_id {} not found in DBC (continent={}, type={}).",
-                 it->second, continentId, uint32(creatureType));
-        return;
+        std::lock_guard<std::mutex> guard(_lock);
+        loaded = _online.count(guid) != 0;
+    }
+    if (!loaded)
+        LoadState(player); // the module was switched on after this player logged in
+
+    std::vector<uint32> earned;
+    size_t uniqueKills = 0;
+    {
+        std::lock_guard<std::mutex> guard(_lock);
+        auto it = _online.find(guid);
+        if (it == _online.end())
+            return;
+
+        PlayerState& state = it->second;
+        if (!state.killed.insert(entry).second)
+            return; // collected before
+        uniqueKills = state.killed.size();
+
+        if (_data)
+        {
+            auto const& buckets = _data->bucketsByEntry[state.team];
+            auto itBuckets = buckets.find(entry);
+            if (itBuckets != buckets.end())
+            {
+                for (uint64 bucket : itBuckets->second)
+                {
+                    uint32 const count = ++state.progress[bucket];
+                    auto size = _data->expectedSize[state.team].find(bucket);
+                    if (_achievementsEnable && size != _data->expectedSize[state.team].end() && count == size->second)
+                        earned.push_back(_data->achievementByBucket.at(bucket));
+                }
+            }
+        }
     }
 
-    player->GetAchievementMgr()->CompletedAchievement(ach);
-}
-
-void KillCollectorMgr::PersistKill(ObjectGuid::LowType guid, uint32 entry, uint32 mapId, uint8 type)
-{
     CharacterDatabase.Execute(
         "INSERT IGNORE INTO mod_kill_collector_kills (guid, entry, map_id, creature_type, first_kill_time) "
         "VALUES ({}, {}, {}, {}, UNIX_TIMESTAMP())",
-        guid, entry, mapId, uint32(type));
+        guid, entry, killed->GetMapId(), uint32(killed->GetCreatureTemplate()->type));
+
+    GiveTokens(player);
+
+    if (_announceFirstKill)
+        ChatHandler(player->GetSession()).PSendSysMessage(
+            "|cff00ff00[Kill Collector]|r New creature collected: {} ({} in total).", killed->GetName(), uniqueKills);
+
+    if (_logVerbose)
+        LOG_INFO("module", "KillCollector: guid {} collected entry {} on map {} ({} in total).",
+                 guid, entry, killed->GetMapId(), uniqueKills);
+
+    GrantAchievements(player, earned);
 }
 
-void KillCollectorMgr::PersistProgress(ObjectGuid::LowType guid, uint32 continentId, uint8 type, uint32 count, bool completed)
+void KillCollectorMgr::Reset(Player* player)
 {
-    if (completed)
+    ObjectGuid::LowType const guid = player->GetGUID().GetCounter();
+    CharacterDatabase.Execute("DELETE FROM mod_kill_collector_kills WHERE guid = {}", guid);
+
+    std::lock_guard<std::mutex> guard(_lock);
+    auto it = _online.find(guid);
+    if (it != _online.end())
     {
-        CharacterDatabase.Execute(
-            "INSERT INTO mod_kill_collector_progress (guid, continent_id, creature_type, kill_count, completed_at) "
-            "VALUES ({}, {}, {}, {}, UNIX_TIMESTAMP()) "
-            "ON DUPLICATE KEY UPDATE kill_count = VALUES(kill_count), completed_at = VALUES(completed_at)",
-            guid, continentId, uint32(type), count);
+        it->second.killed.clear();
+        it->second.progress.clear();
     }
-    else
+}
+
+void KillCollectorMgr::GiveTokens(Player* player)
+{
+    if (!_tokenItemId || !_tokensPerKill || !sObjectMgr->GetItemTemplate(_tokenItemId))
+        return;
+
+    // What fits goes into the bags, the rest by mail, so a full bag never swallows a token.
+    uint32 count = _tokensPerKill;
+    uint32 noSpace = 0;
+    ItemPosCountVec dest;
+    if (player->CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, _tokenItemId, count, &noSpace) != EQUIP_ERR_OK)
+        count -= std::min(noSpace, count);
+
+    uint32 toMail = _tokensPerKill;
+    if (count && !dest.empty())
     {
-        CharacterDatabase.Execute(
-            "INSERT INTO mod_kill_collector_progress (guid, continent_id, creature_type, kill_count) "
-            "VALUES ({}, {}, {}, {}) "
-            "ON DUPLICATE KEY UPDATE kill_count = VALUES(kill_count)",
-            guid, continentId, uint32(type), count);
+        if (Item* item = player->StoreNewItem(dest, _tokenItemId, true))
+        {
+            player->SendNewItem(item, count, true, false);
+            toMail -= count;
+        }
     }
+
+    if (!toMail)
+        return;
+
+    CharacterDatabaseTransaction trans = CharacterDatabase.BeginTransaction();
+    MailDraft draft("Kill Collector", "Your bags were full when you collected a new creature, so your tokens come by mail.");
+    if (Item* item = Item::CreateItem(_tokenItemId, toMail, player))
+    {
+        item->SaveToDB(trans);
+        draft.AddItem(item);
+    }
+    draft.SendMailTo(trans, MailReceiver(player), MailSender(player, MAIL_STATIONERY_GM));
+    CharacterDatabase.CommitTransaction(trans);
+}
+
+void KillCollectorMgr::GrantAchievements(Player* player, std::vector<uint32> const& achievementIds)
+{
+    for (uint32 id : achievementIds)
+    {
+        if (player->HasAchieved(id))
+            continue;
+        AchievementEntry const* achievement = sAchievementStore.LookupEntry(id);
+        if (!achievement)
+        {
+            LOG_ERROR("module", "KillCollector: achievement {} is not in Achievement.dbc / achievement_dbc.", id);
+            continue;
+        }
+        player->CompletedAchievement(achievement);
+    }
+}
+
+bool KillCollectorMgr::GetProgress(Player* player, uint32& uniqueKills, std::vector<ContinentProgress>& out)
+{
+    std::lock_guard<std::mutex> guard(_lock);
+    auto it = _online.find(player->GetGUID().GetCounter());
+    if (it == _online.end() || !_data)
+        return false;
+
+    PlayerState const& state = it->second;
+    uniqueKills = uint32(state.killed.size());
+
+    std::map<uint32, ContinentProgress> byContinent;
+    for (auto const& [bucket, achievementId] : _data->achievementByBucket)
+    {
+        auto size = _data->expectedSize[state.team].find(bucket);
+        uint32 const expected = size == _data->expectedSize[state.team].end() ? 0 : size->second;
+        if (!expected)
+            continue; // nothing of that type to collect there
+
+        auto progress = state.progress.find(bucket);
+        uint32 const killed = progress == state.progress.end() ? 0 : progress->second;
+
+        ContinentProgress& p = byContinent[BucketContinent(bucket)];
+        p.continentId = BucketContinent(bucket);
+        p.killed += std::min(killed, expected);
+        p.expected += expected;
+        ++p.achievementsTotal;
+        if (killed >= expected)
+            ++p.achievementsDone;
+    }
+
+    for (auto& [continent, p] : byContinent)
+    {
+        MapEntry const* map = sMapStore.LookupEntry(continent);
+        char const* name = map ? map->name[sWorld->GetDefaultDbcLocale()] : nullptr;
+        p.name = (name && *name) ? name : std::to_string(continent);
+        out.push_back(p);
+    }
+    return true;
 }

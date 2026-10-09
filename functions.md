@@ -1,62 +1,57 @@
 # Functions
 
-Prototype code (2026-05-06), never built or run on Forgotten Land; everything below is from reading the code.
+## Lifecycle
 
-## Scripts and lifecycle
+| When | What |
+|---|---|
+| config load (`OnAfterConfigLoad`) | `LoadConfig()` reads `KillCollector.*`; on a reload (`.reload config`) also `LoadData()` |
+| startup (`OnStartup`) | `LoadData()` - after the DBC stores and the world database are loaded |
+| login | `LoadState()`: the character's kills (`SELECT entry ... WHERE guid`), its team, the progress per bucket; with achievements on, grants every bucket that is already complete |
+| logout | drops the online state |
+| character deleted | `DELETE` of its kills inside the deletion transaction |
 
-| Script | Hook | What |
+## LoadData
+
+1. Reads `mod_kill_collector_continent_maps` (overrides) and `mod_kill_collector_achievements` (buckets;
+   their continents are the tracked continents).
+2. Reads every spawn once: `creature` x `creature_template`, without spawns that only exist during a game
+   event (`game_event_creature`) or outside phase 1.
+3. Per spawn: continent = override, else the map itself if it is a tracked continent, else its entrance map
+   (`MapEntry::entrance_map`) if that is one; battleground and arena maps never count. The bucket must exist.
+   Skipped: `UNIT_FLAG_NON_ATTACKABLE | IMMUNE_TO_PC | NOT_SELECTABLE`, `CREATURE_FLAG_EXTRA_TRIGGER`,
+   any `npcflag` (unless `Expected.SkipNpcFlagCreatures = 0`), a faction template that does not exist.
+4. Per team (Alliance = player faction template 1, Horde = 2): the entry joins the bucket when its faction
+   template is not friendly to the team's (`FactionTemplateEntry::IsFriendlyTo`).
+5. Builds per team `expectedSize[bucket]` and `bucketsByEntry[entry]` (an entry spawned on two continents
+   is in both), logs one line per continent and team, swaps the data in under the lock and recomputes the
+   online players' progress.
+
+## A kill
+
+`OnPlayerRewardKillRewarder` fires for every player the kill rewards (the killer, the group members within
+reward distance, the owner of a pet or totem); the victim must be a creature. `OnKillCredit`:
+
+1. Filters: not in GM mode; not a pet, totem or player-charmed creature; not a gas cloud, nor a critter /
+   totem / non-combat pet unless configured; not in a battleground or arena; open world / instance
+   switches; `MinLevelDelta`.
+2. Under the lock: the entry joins the player's collection - nothing more happens if it was there; each
+   bucket of the player's team that holds the entry counts one up; a bucket that reaches its size names its
+   achievement (achievements on).
+3. Outside the lock: `INSERT IGNORE` into `mod_kill_collector_kills`, the tokens (`CanStoreNewItem` /
+   `StoreNewItem` / `SendNewItem`, the rest by mail from the player with the GM stationery), the chat line
+   "New creature collected: <name> (<n> in total).", the achievements (`Player::CompletedAchievement`,
+   skipped when already earned or missing from `sAchievementStore`).
+
+## Commands
+
+| Command | Security | What |
 |---|---|---|
-| `KillCollectorWorldScript` | `OnAfterConfigLoad(bool)` | `LoadConfig()`; when enabled also `LoadCachesFromWorldDB()` (so `.reload config` reloads the caches too) |
-| `KillCollectorPlayerScript` | `OnPlayerLogin(Player*)` | `LoadPlayerStateOnLogin`: the character's killed entries and bucket counts into memory (only while enabled) |
-| | `OnPlayerLogout(Player*)` | `FlushPlayerStateOnLogout`: drops the cache (rows are written at kill time) |
-| | `OnPlayerCreatureKill(Player* killer, Creature* killed)` | `HandleCreatureKill` |
+| `.killcollector status` | player | "Kill Collector: <n> different creatures killed." and per continent "<name>: <killed> of <expected> creatures, <done> of <total> achievements." (buckets with nothing to collect are left out) |
+| `.killcollector reload` | administrator, console | `LoadData()` |
+| `.killcollector reset [name]` | administrator | the named or selected online player, else the invoker: deletes its kills, empties its collection; earned achievements stay |
 
-`KillCollectorMgr` is a function-local static singleton (`KillCollectorMgr::instance()`, macro
-`sKillCollectorMgr`).
+## Thread safety
 
-## Caches (`LoadCachesFromWorldDB`)
-
-- `_mapToContinent` from `mod_kill_collector_continent_maps`.
-- `_expectedTotals` and `_achievementByBucket` from `mod_kill_collector_totals`, keyed by
-  `BucketKey(continent, type) = continent << 8 | type`.
-- `_expectedMobs`: distinct `creature_template.entry` per bucket that have a spawn on a tracked map, types 1-7,
-  9, 10 - the query joins `creature c ON c.id1 = ct.entry`. **FL's core and world DB name that column `id`**,
-  so on FL this query fails and the set stays empty (see todo).
-- Logs `>> KillCollector: loaded <maps> continent-map mappings, <buckets> buckets, <entries> expected mob
-  entries.` and a warning while any bucket total is at or above the sentinel 999999.
-
-## The kill (`HandleCreatureKill`)
-
-1. Return unless enabled and `PassesFilters`: no pets or totems; critters, totems and non-combat pets only
-   when their `Include*` key is on; open world / instances by `IncludeOpenWorld` / `IncludeInstances`
-   (`Map::Instanceable()`); hostile to the killer when `RequireHostile`; `victim level - killer level >=
-   MinLevelDelta` unless `MinLevelDelta` is -100 or lower.
-2. Continent = the killer's map through `_mapToContinent` (unknown map: no achievement progress).
-3. A repeat kill of the same entry returns; a first kill: `INSERT IGNORE` into `mod_kill_collector_kills`,
-   `AddItem(TokenItemId, TokensPerFirstKill)`, chat line `[Kill Collector] New unique kill! +<n> token.`
-   when `AnnounceFirstKill`.
-4. Achievements (if `AchievementsEnable` and the entry belongs to the bucket's expected set): increment the
-   bucket count, upsert `mod_kill_collector_progress`; when the count reaches a real total (below 999999)
-   `TryCompleteAchievement` looks the id up in `sAchievementStore` (a missing DBC row logs a warning) and calls
-   `GetAchievementMgr()->CompletedAchievement`.
-
-All SQL is plain formatted strings with numeric values from the server (no prepared statements, no player
-text).
-
-## Achievement layout
-
-`achievement_id = AchievementIdBase + slot * 10 + creature_type`, slots 0 Eastern Kingdoms, 1 Kalimdor,
-2 Outland, 3 Northrend, creature types 1-7, 9, 10 (8 = critter skipped) -> 30001-30040, criteria
-60001-60040 with the same offsets. Each achievement has one dummy criterion; completion is forced by the
-server, so the client only needs the DBC rows to display it.
-
-## Generator (`tools/generate_kill_collector_data.py`)
-
-Python with `mysql-connector-python`; flags `--host --port --user --password --database`,
-`--achievement-base` (30000), `--criteria-base` (60000), `--category-id` (9000), `--out-sql`, `--out-ach`,
-`--out-cri`, `--include-empty`. Counts the distinct spawned entries per bucket (same `c.id1` join) and writes
-`data/sql/db-world/updates/mod_kill_collector_totals_seed.sql` plus the two DBC patch JSON files.
-
-## Config
-
-Keys and defaults: [data_structure.md](data_structure.md).
+Kills arrive from map threads, logins and commands from other threads: `_online` and the data pointer are
+only touched under `_lock`; database writes, items, mail, chat and achievements happen after the lock is
+released. The data is immutable once loaded and replaced as a whole.
