@@ -17,6 +17,7 @@
 | `data/sql/db-world/base/mod_kill_collector_command.sql` | `command` rows `killcollector status / reload / reset` |
 | `conf/mod_kill_collector.conf.dist` | every config key with its default |
 | `tests/kill_collector_tokens.tbs` | bot scenario: first kills, the party, a repeated entry |
+| `tests/kill_collector_edges.tbs` | bot scenario: relog, reload, full bags (the token by mail) |
 | `tests/kill_collector_achievement.tbs` | bot scenario: the three Oddities of the Forgotten Land complete their list, achievement 30050 |
 
 Every SQL file is idempotent (`CREATE TABLE IF NOT EXISTS`, `DELETE` + `INSERT`): the core's updater

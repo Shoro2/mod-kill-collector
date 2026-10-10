@@ -1,5 +1,6 @@
 # Log (newest first)
 
+- 2026-10-10 test: Relog, reload and full bags; every scenario respawns its creatures (runs 592-594)
 - 2026-10-10 feat(DB): The achievements' server rows, and a bot scenario that completes a list (run 584)
 - 2026-10-10 docs: Record the workbench test (T1, bot run 583) (632b78e)
 - 2026-10-10 docs: Say which game-event spawns the lists leave out (2caef62)

@@ -8,6 +8,8 @@ name    mod-kill-collector: completing a list grants its achievement
 # in the party, so the mage collects through the group's kill reward. After the third creature the list is
 # complete; `.killcollector status` counts the achievement for the Forgotten Land. That the character holds
 # 30050 is checked in `character_achievement` after the run (bots save at logout).
+# Each creature is respawned by the director (`.respawn` on the picked one, which replaces the object, so
+# it is picked again) before its kill: the scenario runs again while an earlier run's corpse still lies there.
 timeout 180s
 
 bot a mage
@@ -20,6 +22,10 @@ as gm .killcollector reset
 expect output has "collection reset"
 
 log 1 - Poisonous Mushroom
+pick m creature:30435 near a
+do gm target m
+as gm .respawn
+wait 1s
 pick m creature:30435 near a
 require m alive
 do a approach m
@@ -34,6 +40,10 @@ expect output has "1 different creatures killed"
 log 2 - Void Stone
 place 727 13711.4 11947.7 -49
 pick v creature:86123 near a
+do gm target v
+as gm .respawn
+wait 1s
+pick v creature:86123 near a
 require v alive
 do a approach v
 wait 1s
@@ -44,6 +54,10 @@ wait 1s
 
 log 3 - Enchanted Zol'maz weapon completes the list
 place 727 12044.3 11658.8 -85.3
+pick w creature:86156 near a
+do gm target w
+as gm .respawn
+wait 1s
 pick w creature:86156 near a
 require w alive
 do a approach w

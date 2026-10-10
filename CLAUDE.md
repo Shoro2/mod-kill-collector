@@ -32,7 +32,9 @@ description: [README.md](README.md).
   member, a repeated entry pays nothing, a new entry pays again, `.killcollector status / reset`); bot run
   584 of `kill_collector_achievement` PASSED 11/0 (completing "Oddities of the Forgotten Land" granted
   30050, saved in `character_achievement`); the probe client (CRTEST1) lists the "Kill Collector" category
-  with its 45 achievements. No T2.
+  with its 45 achievements. Review runs back to back (2026-10-10): 592 `kill_collector_edges` 16/0 (a relog
+  keeps the collection, `.killcollector reload` keeps the progress, full bags send the token by mail), 593
+  `kill_collector_tokens` 19/0, 594 `kill_collector_achievement` 11/0. No T2.
 - Done in the adoption: FL item id; `creature.id` (FL) instead of `id1`; FL's maps as a fifth continent;
   continent resolution by override, then the map's entrance; per-team lists of attackable creatures (no
   event-only, phased, unattackable, trigger or NPC-flag spawns); progress computed from the kills at login

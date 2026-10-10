@@ -7,7 +7,6 @@
   only with both.
 - (low) The achievements have no criteria rows, so the client shows no progress bar; `.killcollector status`
   is the progress view until an AIO window exists.
-- (low) A test that the mail fallback works (bags full).
 - (low) The lists follow the world database at startup: after content changes (new Turtle maps, spawns),
   `.killcollector reload` or a restart; a map that needs a continent override goes into
   `mod_kill_collector_continent_maps`.

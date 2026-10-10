@@ -1,0 +1,93 @@
+name    mod-kill-collector: a relog keeps the collection, full bags mail the token, reload keeps the progress
+# Server-side test bot run (mod-fl-testbots), T1.
+# 1. A first Snapjaw (2408) pays a token; after a relog the collection is read back from the database, so a
+#    second Snapjaw still pays nothing.
+# 2. `.killcollector reload` rebuilds the lists and recomputes the online collections: the count stays.
+# 3. With full bags (the director fills them with Worn Shortswords, 25, which do not stack) the token of the
+#    next first kill (a Gray Bear, 2351, by the river) arrives by mail: the bags hold no token. The mail itself is
+#    checked in the characters database after the run.
+# The kills are three triggered Arcane Explosions (42921), as in kill_collector_tokens, at other Snapjaw spawns
+# (a corpse from that scenario's run would still lie at its places).
+# Each creature is respawned by the director (`.respawn` on the picked one, which replaces the object, so
+# it is picked again) before its kill: the scenario runs again while an earlier run's corpse still lies there.
+timeout 240s
+
+bot a mage
+group party
+
+place 0 -10.3 -1111.9 36.1
+require a alive
+do gm target a
+as gm .killcollector reset
+expect output has "collection reset"
+do a destroy 920200
+do a destroy 25
+
+log 1 - a relog keeps the collection
+pick t1 creature:2408 near a
+do gm target t1
+as gm .respawn
+wait 1s
+pick t1 creature:2408 near a
+require t1 alive
+do a approach t1
+wait 1s
+do a cast 42921 triggered
+do a cast 42921 triggered
+do a cast 42921 triggered
+waitfor t1 dead timeout 5s
+wait 2s
+expect a item 920200 == 1
+do a relog
+waitfor a exists timeout 30s
+wait 2s
+as a .killcollector status
+expect output has "1 different creatures killed"
+place 0 38.7 -1118.6 35.1
+pick t2 creature:2408 near a
+do gm target t2
+as gm .respawn
+wait 1s
+pick t2 creature:2408 near a
+require t2 alive
+do a approach t2
+wait 1s
+do a cast 42921 triggered
+do a cast 42921 triggered
+do a cast 42921 triggered
+waitfor t2 dead timeout 5s
+wait 1s
+expect a item 920200 == 1
+
+log 2 - reload keeps the progress
+as gm .killcollector reload
+expect output has "rebuilt"
+as a .killcollector status
+expect output has "1 different creatures killed"
+
+log 3 - full bags: the token comes by mail (no token stack in the bags either, so nothing can merge)
+do a destroy 920200
+# .additem reads a bare number first as a character guid, so the bot is named (slot 1 mage = Tbmaga)
+as gm .additem Tbmaga 25 200
+place 0 -92.2 -1117.3 44.9
+pick g1 creature:2351 near a
+do gm target g1
+as gm .respawn
+wait 1s
+pick g1 creature:2351 near a
+require g1 alive
+do a approach g1
+wait 1s
+do a cast 42921 triggered
+do a cast 42921 triggered
+do a cast 42921 triggered
+waitfor g1 dead timeout 5s
+wait 1s
+expect a item 920200 == 0
+as a .killcollector status
+expect output has "2 different creatures killed"
+
+cleanup
+do a destroy 25
+do a destroy 920200
+log kill collector edges done
