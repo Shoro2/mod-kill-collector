@@ -3,8 +3,8 @@
 Forgotten Land's creature collection: the first kill of every creature entry pays a Hunter's Token, and
 killing every creature of one creature type on a continent grants an achievement (switched off until the
 client patch ships). Every player the kill rewards collects the creature, the tapping group included. The
-operator decided on 2026-10-10 to adopt the May 2026 prototype ("mod-kill-collector übernehmen"); this
-branch is that adoption. Full description: [README.md](README.md).
+operator decided on 2026-10-10 to adopt the May 2026 prototype ("mod-kill-collector übernehmen"). Full
+description: [README.md](README.md).
 
 ## Ids and tables
 
@@ -22,12 +22,13 @@ branch is that adoption. Full description: [README.md](README.md).
 
 ## Status and progress
 
-- Where it runs: nowhere yet. Not in the workbench's `azerothcore-wotlk/modules`, not on the host, no MIG
-  entry.
-- Evidence: **T0** (code and data on branch `claude/kill-collector-adopt-433902b4`, 2026-10-10). Not built:
-  the workbench was reserved for HOST11. The bucket sizes were measured offline with the module's rules on
-  the workbench data (2026-10-10, per team): Eastern Kingdoms ~2,200-2,400 creatures, Kalimdor ~1,730,
-  Outland ~1,580, Northrend ~1,600, Forgotten Land 262.
+- Where it runs: the workbench since 2026-10-10 03:07 local (worldserver sha256 `a037baa6…`, config
+  `configs/modules/mod_kill_collector.conf` with achievements off). Not on the host: vault MIG-118, pending.
+- Evidence: **T1** on the workbench 2026-10-10: build without warnings; boot with the four SQL files applied
+  and the errors log at its 87-line baseline; the lists per team as estimated offline (Eastern Kingdoms
+  2218 Alliance / 2415 Horde, Kalimdor 1728 / 1737, Outland 1583 / 1577, Northrend 1575 / 1611, Forgotten
+  Land 262 / 262); bot run 583 of `kill_collector_tokens` PASSED 19/0 (first kill pays killer and party
+  member, a repeated entry pays nothing, a new entry pays again, `.killcollector status / reset`). No T2.
 - Done in the adoption: FL item id; `creature.id` (FL) instead of `id1`; FL's maps as a fifth continent;
   continent resolution by override, then the map's entrance; per-team lists of attackable creatures (no
   event-only, phased, unattackable, trigger or NPC-flag spawns); progress computed from the kills at login
@@ -38,23 +39,19 @@ branch is that adoption. Full description: [README.md](README.md).
 
 ## Next steps
 
-1. After HOST11, in a workbench slot from the coordinator: clone into `azerothcore-wotlk/modules`, cmake,
-   build, boot (errors log = the 87 baseline lines), deploy `mod_kill_collector.conf`, add `tests/` to
-   `TestBots.ScenarioDirs`, run `kill_collector_tokens`; then merge into `main`.
-2. Achievements: write the 45 rows (or only the non-empty buckets) into the client's `Achievement.dbc`
+1. Achievements: write the 45 rows (or only the non-empty buckets) into the client's `Achievement.dbc`
    through the combined patch-9 builder, plus a category, and into `achievement_dbc`; check the ids
    against patch-9 first; then `AchievementsEnable = 1`.
-3. The operator decides what the tokens buy (a token vendor) and whether enemy-city creatures belong in the
+2. The operator decides what the tokens buy (a token vendor) and whether enemy-city creatures belong in the
    lists.
-4. Host: its own MIG entry and a window the operator approves.
+3. Host: MIG-118 in a window the operator approves.
 
 Open points in full: [todo.md](todo.md).
 
 ## Working here
 
 - Branch `claude/<topic>-<sessionId>`, merge into `main` and push (project rule: no pull requests).
-- Never clone it into `azerothcore-wotlk/modules` outside an agreed workbench slot: the next build and boot
-  of any session would pick it up and apply its SQL.
+- The workbench builds it from `azerothcore-wotlk/modules/mod-kill-collector` (on `main`) since 2026-10-10.
 - New ids go through the vault registry `06-custom-ids.md`; achievement ids stay at or below 65535
   (smallint in the characters DB). Client DBC rows reach players only through the combined patch-9 builder.
 - Restart the workbench only with `scripts\worldserver_restart.ps1`; any host deployment needs a MIG entry
