@@ -12,7 +12,7 @@ continent grants an achievement.
   and kills by a game master in GM mode do not count.
 - **Tokens.** A first kill pays `KillCollector.TokensPerFirstKill` Hunter's Tokens (item 920200). What does
   not fit into the bags arrives by mail.
-- **Achievements** (off until the client patch ships). One per continent and creature type: Eastern
+- **Achievements** (category "Kill Collector", 10 points each). One per continent and creature type: Eastern
   Kingdoms, Kalimdor, Outland, Northrend and Forgotten Land (Azealia, its dungeons and raids, the Forgotten
   Depths and the Endless Chronicle), each with beasts, dragonkin, demons, elementals, giants, undead,
   humanoids, mechanicals and unspecified creatures. The list of a bucket is computed at startup from the
@@ -31,8 +31,10 @@ continent grants an achievement.
 2. The SQL under `data/sql/db-characters/base/` and `data/sql/db-world/base/` is applied by the core's
    updater at the next start.
 3. Copy `conf/mod_kill_collector.conf.dist` to `mod_kill_collector.conf` and adjust it.
-4. Achievements: ship the `Achievement.dbc` rows (ids 30001-30050) in the client patch and on the server
-   (`Achievement.dbc` or `achievement_dbc`), then set `KillCollector.AchievementsEnable = 1`.
+4. Achievements: the server rows come with this module's SQL (`achievement_dbc`); the clients need the
+   `Achievement.dbc` / `Achievement_Category.dbc` rows (ids 30001-30050, category 15100) in their patch -
+   Forgotten Land builds them with fl-pipeline `209_kill_collector_achievements.py`. Then set
+   `KillCollector.AchievementsEnable = 1`.
 
 ## Configuration
 

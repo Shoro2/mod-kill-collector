@@ -1,6 +1,7 @@
 # Log (newest first)
 
-- 2026-10-10 docs: Record the workbench test (T1, bot run 583)
+- 2026-10-10 feat(DB): The achievements' server rows, and a bot scenario that completes a list (run 584)
+- 2026-10-10 docs: Record the workbench test (T1, bot run 583) (632b78e)
 - 2026-10-10 docs: Say which game-event spawns the lists leave out (2caef62)
 - 2026-10-10 feat(Core): Adopt the module for Forgotten Land (item 920200, FL continent, per-team lists, group credit, commands) (f81cf2a)
 - 2026-10-09 docs: Add the per-repo doc set (a63564f)

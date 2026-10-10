@@ -13,9 +13,11 @@
 | `data/sql/db-characters/base/mod_kill_collector_characters.sql` | `mod_kill_collector_kills` |
 | `data/sql/db-world/base/mod_kill_collector_world.sql` | `mod_kill_collector_continent_maps` (56 rows), `mod_kill_collector_achievements` (45 rows) |
 | `data/sql/db-world/base/mod_kill_collector_item.sql` | `item_template` 920200 (DELETE + INSERT) |
+| `data/sql/db-world/base/mod_kill_collector_achievement_dbc.sql` | `achievement_dbc` 30001-30050 (DELETE + INSERT; written by fl-pipeline 209) |
 | `data/sql/db-world/base/mod_kill_collector_command.sql` | `command` rows `killcollector status / reload / reset` |
 | `conf/mod_kill_collector.conf.dist` | every config key with its default |
 | `tests/kill_collector_tokens.tbs` | bot scenario: first kills, the party, a repeated entry |
+| `tests/kill_collector_achievement.tbs` | bot scenario: the three Oddities of the Forgotten Land complete their list, achievement 30050 |
 
 Every SQL file is idempotent (`CREATE TABLE IF NOT EXISTS`, `DELETE` + `INSERT`): the core's updater
 applies a module file again whenever its bytes change.

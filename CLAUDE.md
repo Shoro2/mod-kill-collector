@@ -11,7 +11,7 @@ description: [README.md](README.md).
 | What | Value |
 |---|---|
 | Token item | `item_template` **920200** "Hunter's Token" (FL item band 920200-920209 belongs to this module; `KillCollector.TokenItemId`) |
-| Achievements | **30001-30050** = 30000 + 10 x continent slot (0 Eastern Kingdoms, 1 Kalimdor, 2 Outland, 3 Northrend, 4 Forgotten Land 727) + creature type (1-7, 9, 10); 45 rows in `mod_kill_collector_achievements`. Server and client `Achievement.dbc` rows are not written yet |
+| Achievements | **30001-30050** = 30000 + 10 x continent slot (0 Eastern Kingdoms, 1 Kalimdor, 2 Outland, 3 Northrend, 4 Forgotten Land 727) + creature type (1-7, 9, 10); 45 rows in `mod_kill_collector_achievements`; category **15100** "Kill Collector" (top level), 10 points each, no criteria rows. Server rows: `achievement_dbc` (this module's SQL); client rows: FL's patch-9 (fl-pipeline `209_kill_collector_achievements.py`, which also writes the SQL) |
 | Continents | 0, 1, 530, 571 and 727 (Forgotten Land): its own maps 727-753, 760 and 770 by override; every other map by its Map.dbc / `map_dbc` entrance map |
 | Never counts | maps 13 (class test area), 451, 609 (death knight start), 754 (dev), every transport, battlegrounds and arenas |
 | Characters DB | `mod_kill_collector_kills` (guid, entry, map_id, creature_type, first_kill_time) |
@@ -23,12 +23,16 @@ description: [README.md](README.md).
 ## Status and progress
 
 - Where it runs: the workbench since 2026-10-10 03:07 local (worldserver sha256 `a037baa6…`, config
-  `configs/modules/mod_kill_collector.conf` with achievements off). Not on the host: vault MIG-118, pending.
+  `configs/modules/mod_kill_collector.conf`, achievements on since 03:19) and FL2-Client (patch-9 `df92c762…`
+  with the achievement rows). Not on the host: vault MIG-118 (module) and MIG-119 (client rows), pending.
 - Evidence: **T1** on the workbench 2026-10-10: build without warnings; boot with the four SQL files applied
   and the errors log at its 87-line baseline; the lists per team as estimated offline (Eastern Kingdoms
   2218 Alliance / 2415 Horde, Kalimdor 1728 / 1737, Outland 1583 / 1577, Northrend 1575 / 1611, Forgotten
   Land 262 / 262); bot run 583 of `kill_collector_tokens` PASSED 19/0 (first kill pays killer and party
-  member, a repeated entry pays nothing, a new entry pays again, `.killcollector status / reset`). No T2.
+  member, a repeated entry pays nothing, a new entry pays again, `.killcollector status / reset`); bot run
+  584 of `kill_collector_achievement` PASSED 11/0 (completing "Oddities of the Forgotten Land" granted
+  30050, saved in `character_achievement`); the probe client (CRTEST1) lists the "Kill Collector" category
+  with its 45 achievements. No T2.
 - Done in the adoption: FL item id; `creature.id` (FL) instead of `id1`; FL's maps as a fifth continent;
   continent resolution by override, then the map's entrance; per-team lists of attackable creatures (no
   event-only, phased, unattackable, trigger or NPC-flag spawns); progress computed from the kills at login
@@ -39,12 +43,9 @@ description: [README.md](README.md).
 
 ## Next steps
 
-1. Achievements: write the 45 rows (or only the non-empty buckets) into the client's `Achievement.dbc`
-   through the combined patch-9 builder, plus a category, and into `achievement_dbc`; check the ids
-   against patch-9 first; then `AchievementsEnable = 1`.
-2. The operator decides what the tokens buy (a token vendor) and whether enemy-city creatures belong in the
+1. The operator decides what the tokens buy (a token vendor) and whether enemy-city creatures belong in the
    lists.
-3. Host: MIG-118 in a window the operator approves.
+2. Host: MIG-118 and MIG-119 together in a window the operator approves (achievements on only with both).
 
 Open points in full: [todo.md](todo.md).
 

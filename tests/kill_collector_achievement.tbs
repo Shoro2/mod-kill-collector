@@ -1,0 +1,60 @@
+name    mod-kill-collector: completing a list grants its achievement
+# Server-side test bot run (mod-fl-testbots), T1. Needs KillCollector.AchievementsEnable = 1 and the module's
+# achievement_dbc rows on the server; the client shows the achievement once it has the patch-9 rows.
+#
+# The smallest list on the workbench: "Oddities of the Forgotten Land" (achievement 30050) = the three
+# creatures of no known kind that Azealia (map 727) spawns - Poisonous Mushroom (30435), Void Stone (86123),
+# Enchanted Zol'maz weapon (86156). The director kills each with `.damage` while the mage stands next to it
+# in the party, so the mage collects through the group's kill reward. After the third creature the list is
+# complete; `.killcollector status` counts the achievement for the Forgotten Land. That the character holds
+# 30050 is checked in `character_achievement` after the run (bots save at logout).
+timeout 180s
+
+bot a mage
+group party
+
+place 727 13392.6 11411.4 -148.5
+require a alive
+do gm target a
+as gm .killcollector reset
+expect output has "collection reset"
+
+log 1 - Poisonous Mushroom
+pick m creature:30435 near a
+require m alive
+do a approach m
+wait 1s
+do gm target m
+as gm .damage 1000000
+waitfor m dead timeout 5s
+wait 1s
+as a .killcollector status
+expect output has "1 different creatures killed"
+
+log 2 - Void Stone
+place 727 13711.4 11947.7 -49
+pick v creature:86123 near a
+require v alive
+do a approach v
+wait 1s
+do gm target v
+as gm .damage 1000000
+waitfor v dead timeout 5s
+wait 1s
+
+log 3 - Enchanted Zol'maz weapon completes the list
+place 727 12044.3 11658.8 -85.3
+pick w creature:86156 near a
+require w alive
+do a approach w
+wait 1s
+do gm target w
+as gm .damage 1000000
+waitfor w dead timeout 5s
+wait 1s
+as a .killcollector status
+expect output has "3 different creatures killed"
+expect output has "1 of 9 achievements"
+
+cleanup
+log kill collector achievement done
