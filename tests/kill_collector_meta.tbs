@@ -1,0 +1,219 @@
+name    mod-kill-collector: the achievements stack to +25% damage, the 45th completes "N3rd"
+# Server-side test bot run (mod-fl-testbots), T1. Needs KillCollector.Enable = 1, KillCollector.AchievementsEnable = 1,
+# KillCollector.DamageBonusPct = 5 and KillCollector.MetaAchievementId = 30051 (the defaults), the module's SQL and
+# this folder in TestBots.ScenarioDirs. The combat log numbers are those of kill_collector_bonus: spell 66595
+# ("dmg5 arcane") is 5000 fixed damage, so 5000 * (100 + 5 * n) / 100 with n earned Oddities achievements.
+#
+# Part 1, the kill path: a fresh warlock (slot 3 = Tblocc on TBOT03; `.reset achievements` clears it) gets 44 of the
+# 45 achievements from a game master (`.achievement add`, all but Oddities of the Forgotten Land). The Oddities
+# are four of five lists: +20% against them (the other types +25%), so the spell does 6000 on an Enchanted Zol'maz
+# weapon, and "N3rd" is not there yet (44 of 45). The director then kills the three Oddities of the Forgotten
+# Land with the bot in the party (as kill_collector_achievement does): the 45th achievement completes, the module
+# grants "N3rd" at once, the spell does 6250.
+#
+# Part 2, the login path: the character is reset and gets all 45 from the game master. Nothing completes the
+# meta achievement on that path ("N3rd: not yet (45 of 45 achievements)"), the next login does (`relog`): the
+# status line says "N3rd: earned". The title itself (CharTitles 178, bit 143 = bit 15 of the 5th number of
+# `characters.knownTitles`) is saved at logout: check it after the run.
+#
+# The character must hold none of the achievements when the run starts: the first step resets them. For another run
+# in the same state pick another slot (`slot=4` is Tblocd, ...); the name in the `.achievement add` lines follows.
+timeout 400s
+
+bot c warlock slot=3
+group party
+
+log 1 - a clean start, then 44 of the 45 achievements from the game master
+place 727 12286.3 11701.4 -83.7
+require c alive
+do gm target c
+as gm .killcollector reset
+expect output has "collection reset"
+as gm .reset achievements Tblocc
+as gm .achievement add 30001 Tblocc
+as gm .achievement add 30002 Tblocc
+as gm .achievement add 30003 Tblocc
+as gm .achievement add 30004 Tblocc
+as gm .achievement add 30005 Tblocc
+as gm .achievement add 30006 Tblocc
+as gm .achievement add 30007 Tblocc
+as gm .achievement add 30009 Tblocc
+as gm .achievement add 30010 Tblocc
+as gm .achievement add 30011 Tblocc
+as gm .achievement add 30012 Tblocc
+as gm .achievement add 30013 Tblocc
+as gm .achievement add 30014 Tblocc
+as gm .achievement add 30015 Tblocc
+as gm .achievement add 30016 Tblocc
+as gm .achievement add 30017 Tblocc
+as gm .achievement add 30019 Tblocc
+as gm .achievement add 30020 Tblocc
+as gm .achievement add 30021 Tblocc
+as gm .achievement add 30022 Tblocc
+as gm .achievement add 30023 Tblocc
+as gm .achievement add 30024 Tblocc
+as gm .achievement add 30025 Tblocc
+as gm .achievement add 30026 Tblocc
+as gm .achievement add 30027 Tblocc
+as gm .achievement add 30029 Tblocc
+as gm .achievement add 30030 Tblocc
+as gm .achievement add 30031 Tblocc
+as gm .achievement add 30032 Tblocc
+as gm .achievement add 30033 Tblocc
+as gm .achievement add 30034 Tblocc
+as gm .achievement add 30035 Tblocc
+as gm .achievement add 30036 Tblocc
+as gm .achievement add 30037 Tblocc
+as gm .achievement add 30039 Tblocc
+as gm .achievement add 30040 Tblocc
+as gm .achievement add 30041 Tblocc
+as gm .achievement add 30042 Tblocc
+as gm .achievement add 30043 Tblocc
+as gm .achievement add 30044 Tblocc
+as gm .achievement add 30045 Tblocc
+as gm .achievement add 30046 Tblocc
+as gm .achievement add 30047 Tblocc
+as gm .achievement add 30049 Tblocc
+as c .killcollector status
+expect output has "+25% beasts"
+expect output has "+25% mechanicals"
+expect output has "+20% oddities"
+expect output has "N3rd: not yet (44 of 45 achievements)"
+
+log 2 - four Oddities lists: the spell does 6000
+pick w1 creature:86156 near c
+do gm target w1
+as gm .respawn
+wait 1s
+pick w1 creature:86156 near c
+require w1 alive
+do c approach w1
+wait 1s
+spelllog start
+do c cast 66595 on w1 triggered
+wait 1s
+spelllog stop
+expect c spell 66595 damage == 6000
+
+log 3 - the 45th achievement: the director completes Oddities of the Forgotten Land (Poisonous Mushroom, Void Stone, Enchanted Zol'maz weapon)
+place 727 13392.6 11411.4 -148.5
+pick m creature:30435 near c
+do gm target m
+as gm .respawn
+wait 1s
+pick m creature:30435 near c
+require m alive
+do c approach m
+wait 1s
+do gm target m
+as gm .damage 1000000
+waitfor m dead timeout 5s
+wait 1s
+
+place 727 13711.4 11947.7 -49
+pick v creature:86123 near c
+do gm target v
+as gm .respawn
+wait 1s
+pick v creature:86123 near c
+require v alive
+do c approach v
+wait 1s
+do gm target v
+as gm .damage 1000000
+waitfor v dead timeout 5s
+wait 1s
+
+place 727 12044.3 11658.8 -85.3
+pick k creature:86156 near c
+do gm target k
+as gm .respawn
+wait 1s
+pick k creature:86156 near c
+require k alive
+do c approach k
+wait 1s
+do gm target k
+as gm .damage 1000000
+waitfor k dead timeout 5s
+wait 1s
+as c .killcollector status
+expect output has "1 of 9 achievements"
+expect output has "+25% oddities"
+expect output has "N3rd: earned"
+
+log 4 - five Oddities lists: the spell does 6250
+place 727 12215.6 11687.8 -84.2
+pick w2 creature:86156 near c
+do gm target w2
+as gm .respawn
+wait 1s
+pick w2 creature:86156 near c
+require w2 alive
+do c approach w2
+wait 1s
+spelllog start
+do c cast 66595 on w2 triggered
+wait 1s
+spelllog stop
+expect c spell 66595 damage == 6250
+
+log 5 - the login path: all 45 from the game master, "N3rd" comes with the next login
+as gm .reset achievements Tblocc
+as gm .achievement add 30001 Tblocc
+as gm .achievement add 30002 Tblocc
+as gm .achievement add 30003 Tblocc
+as gm .achievement add 30004 Tblocc
+as gm .achievement add 30005 Tblocc
+as gm .achievement add 30006 Tblocc
+as gm .achievement add 30007 Tblocc
+as gm .achievement add 30009 Tblocc
+as gm .achievement add 30010 Tblocc
+as gm .achievement add 30011 Tblocc
+as gm .achievement add 30012 Tblocc
+as gm .achievement add 30013 Tblocc
+as gm .achievement add 30014 Tblocc
+as gm .achievement add 30015 Tblocc
+as gm .achievement add 30016 Tblocc
+as gm .achievement add 30017 Tblocc
+as gm .achievement add 30019 Tblocc
+as gm .achievement add 30020 Tblocc
+as gm .achievement add 30021 Tblocc
+as gm .achievement add 30022 Tblocc
+as gm .achievement add 30023 Tblocc
+as gm .achievement add 30024 Tblocc
+as gm .achievement add 30025 Tblocc
+as gm .achievement add 30026 Tblocc
+as gm .achievement add 30027 Tblocc
+as gm .achievement add 30029 Tblocc
+as gm .achievement add 30030 Tblocc
+as gm .achievement add 30031 Tblocc
+as gm .achievement add 30032 Tblocc
+as gm .achievement add 30033 Tblocc
+as gm .achievement add 30034 Tblocc
+as gm .achievement add 30035 Tblocc
+as gm .achievement add 30036 Tblocc
+as gm .achievement add 30037 Tblocc
+as gm .achievement add 30039 Tblocc
+as gm .achievement add 30040 Tblocc
+as gm .achievement add 30041 Tblocc
+as gm .achievement add 30042 Tblocc
+as gm .achievement add 30043 Tblocc
+as gm .achievement add 30044 Tblocc
+as gm .achievement add 30045 Tblocc
+as gm .achievement add 30046 Tblocc
+as gm .achievement add 30047 Tblocc
+as gm .achievement add 30049 Tblocc
+as gm .achievement add 30050 Tblocc
+as c .killcollector status
+expect output has "+25% oddities"
+expect output has "N3rd: not yet (45 of 45 achievements)"
+do c relog
+waitfor c exists timeout 30s
+wait 2s
+as c .killcollector status
+expect output has "+25% oddities"
+expect output has "N3rd: earned"
+
+cleanup
+log kill collector meta done
