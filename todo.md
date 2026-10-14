@@ -1,5 +1,10 @@
 # Todo
 
+- (medium) T1 of the token shop (2026-10-15, never run): apply `mod_kill_collector_shop.sql` (item 920201), load
+  fl-lua-scripts `TokenShop/` (`.reload ale`), run `kill_collector_shop` (a mage, slot 1), then look at the
+  window and the hub entry with the client probe. Host: a MIG entry for the SQL, the Lua folder and the hub file.
+- (low) The Hunter's Token (920200) shows no inventory icon: its display 6122 names none in `ItemDisplayInfo.dbc`.
+  The shop falls back to a coin; a display with an icon (or a new row) would fix the bags too.
 - (medium) T1 of the rewards (damage bonus, "N3rd", status lines; built and syntax-checked 2026-10-14, never
   run): CMake re-run (new source file), build, boot (errors log at its baseline; the new `chartitles_dbc` and
   `achievement_reward` rows load without a line), fl-pipeline 209 `--client` + patch-9, the scenarios

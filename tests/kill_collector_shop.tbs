@@ -1,0 +1,162 @@
+name    mod-kill-collector: the token shop (fl-lua-scripts TokenShop/) sells heirlooms, the XP potion and riding for Hunter's Tokens
+# Server-side test bot run (mod-fl-testbots), T1. Needs KillCollector.Enable = 1, this module's SQL
+# `mod_kill_collector_shop.sql` (item 920201) applied, fl-lua-scripts' TokenShop/ loaded by ALE (`.reload ale`
+# after a deploy) and this folder in TestBots.ScenarioDirs. The bots cannot click the shop's window, so they buy
+# through its chat command: `.tokenshop list [leveling|general]` and `.tokenshop buy <key>`, which runs the very
+# function the window's Buy button reaches. Every answer is the command's output.
+#
+# A mage (slot 1 = Tbmaga on TBOT01; `.additem` needs the character's name, a bare number is read as a guid).
+# 1. The list shows a mage only the heirlooms its class can wear (cloth, dagger/sword/staff/mace/wand), not plate or
+#    axes. Too few tokens: refused, the count unchanged.
+# 2. A one-handed heirloom (Balanced Heartseeker 42944) costs 25, a two-hander (Dignified Headmaster's Charge 42947,
+#    a staff) 50, the Potion of Experience (920201) 25; a plate chest (48685) and a two-handed axe (42943) are refused
+#    for a mage whatever the tokens. Token counts are checked after every purchase.
+# 3. The potion is used: CoA's spell 818046 is on the bot and the potion is gone.
+# 4. Full bags (the director fills them with Worn Shortswords, 25, which do not stack, as kill_collector_edges does):
+#    the purchase is refused, nothing is taken and no potion arrives.
+# 5. Riding, at level 15 (the shop asks for no level): out of order is refused (Journeyman, Expert, Artisan with
+#    tokens enough), Apprentice (50) works, a second one is refused as learned, then Journeyman (100), Expert (150,
+#    teaches Cold Weather Flying 54197 too) and Artisan (250) in order; the tokens end at 0.
+#
+# Repeatable: the start destroys tokens, potions and the shop items, unlearns the riding spells, removes the potion's
+# aura and sets the level to 80; the cleanup does the same.
+timeout 240s
+
+bot a mage
+place 0 -10.3 -1111.9 36.1
+require a alive
+do a level 80
+do gm target a
+as gm .unaura 818046
+do a destroy 920200
+do a destroy 920201
+do a destroy 42944
+do a destroy 42947
+do a destroy 42943
+do a destroy 48685
+do a destroy 25
+do a unlearn 34091
+do a unlearn 34090
+do a unlearn 33391
+do a unlearn 33388
+do a unlearn 54197
+expect a item 920200 == 0
+expect a nospell 33388
+
+log 1 - what a mage is offered
+as a .tokenshop list leveling
+expect output has "heirloom_42944"
+expect output has "heirloom_42985"
+expect output has "xp_potion"
+expect output lacks "heirloom_42949"
+expect output lacks "heirloom_42943"
+expect output lacks "heirloom_48685"
+
+log 2 - too few tokens: refused, nothing changes
+as a .tokenshop buy heirloom_42944
+expect output has "Needs 25 Hunter's Tokens"
+expect a item 42944 == 0
+as gm .additem Tbmaga 920200 20
+expect a item 920200 == 20
+as a .tokenshop buy heirloom_42944
+expect output has "Needs 25 Hunter's Tokens"
+expect a item 920200 == 20
+expect a item 42944 == 0
+as a .tokenshop buy no_such_key
+expect output has "no such shop entry"
+
+log 3 - a one-handed heirloom (25), a two-hander (50), the potion (25)
+as gm .additem Tbmaga 920200 105
+expect a item 920200 == 125
+as a .tokenshop buy heirloom_42944
+expect output has "You buy"
+expect a item 42944 == 1
+expect a item 920200 == 100
+as a .tokenshop buy heirloom_42947
+expect output has "You buy"
+expect a item 42947 == 1
+expect a item 920200 == 50
+as a .tokenshop buy heirloom_42943
+expect output has "cannot use"
+expect a item 42943 == 0
+expect a item 920200 == 50
+as a .tokenshop buy heirloom_48685
+expect output has "cannot use"
+expect a item 48685 == 0
+expect a item 920200 == 50
+as a .tokenshop buy xp_potion
+expect output has "You buy"
+expect a item 920201 == 1
+expect a item 920200 == 25
+
+log 4 - the potion works (CoA spell 818046, +25% experience for an hour)
+do a use 920201
+waitfor a aura 818046 timeout 5s
+expect a aura 818046
+expect a item 920201 == 0
+
+log 5 - full bags: refused, nothing taken
+as gm .additem Tbmaga 920200 75
+expect a item 920200 == 100
+as gm .additem Tbmaga 25 200
+as a .tokenshop buy xp_potion
+expect output has "bags are full"
+expect a item 920201 == 0
+expect a item 920200 == 100
+do a destroy 25
+expect a item 25 == 0
+
+log 6 - riding at level 15, in order only
+as gm .additem Tbmaga 920200 450
+expect a item 920200 == 550
+do a level 15
+as a .tokenshop buy riding_journeyman
+expect output has "Needs Apprentice Riding first"
+expect a nospell 33391
+as a .tokenshop buy riding_expert
+expect output has "Needs Journeyman Riding first"
+expect a nospell 34090
+as a .tokenshop buy riding_artisan
+expect output has "Needs Expert Riding first"
+expect a nospell 34091
+expect a item 920200 == 550
+as a .tokenshop buy riding_apprentice
+expect output has "You buy"
+expect a hasspell 33388
+expect a skill 762 > 0
+expect a item 920200 == 500
+as a .tokenshop buy riding_apprentice
+expect output has "Learned"
+expect a item 920200 == 500
+as a .tokenshop buy riding_journeyman
+expect output has "You buy"
+expect a hasspell 33391
+expect a item 920200 == 400
+as a .tokenshop buy riding_expert
+expect output has "You buy"
+expect a hasspell 34090
+expect a hasspell 54197
+expect a item 920200 == 250
+as a .tokenshop buy riding_artisan
+expect output has "You buy"
+expect a hasspell 34091
+expect a item 920200 == 0
+as a .tokenshop buy riding_artisan
+expect output has "Learned"
+expect a item 920200 == 0
+
+cleanup
+do a level 80
+do gm target a
+as gm .unaura 818046
+do a destroy 25
+do a destroy 920200
+do a destroy 920201
+do a destroy 42944
+do a destroy 42947
+do a unlearn 34091
+do a unlearn 34090
+do a unlearn 33391
+do a unlearn 33388
+do a unlearn 54197
+log token shop done

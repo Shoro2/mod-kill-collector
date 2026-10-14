@@ -89,6 +89,13 @@ granted. The decision is made on a copy of the data, the grant outside the lock.
 | `.killcollector reload` | administrator, console | `LoadData()` |
 | `.killcollector reset [name]` | administrator | the named or selected online player, else the invoker: deletes its kills, empties its collection; earned achievements (and the bonus) stay |
 
+## The token shop (not in this module's code)
+
+The tokens are spent by fl-lua-scripts `TokenShop/` (Lua, AIO + `.tokenshop`), which counts item 920200 in the bags only
+(`Player:GetItemCount`) and removes it with `Player:RemoveItem`. This module contributes the potion item 920201
+(`data/sql/db-world/base/mod_kill_collector_shop.sql`: a use spell 818046 with one charge, stack 20, bind on pickup)
+and the scenario `tests/kill_collector_shop.tbs`. No C++ here changes for the shop.
+
 ## Thread safety
 
 Kills arrive from map threads, logins and commands from other threads: `_online` and the data pointer are

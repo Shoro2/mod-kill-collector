@@ -13,6 +13,11 @@ the player who holds them all is a "N3rd".
   and kills by a game master in GM mode do not count.
 - **Tokens.** A first kill pays `KillCollector.TokensPerFirstKill` Hunter's Tokens (item 920200). What does
   not fit into the bags arrives by mail.
+- **Token shop.** Tokens are spent in Forgotten Land's token shop (fl-lua-scripts `TokenShop/`: window `/tokenshop`,
+  chat `.tokenshop`): Leveling = the Potion of Experience (item 920201, +25% experience for an hour through CoA's
+  spell 818046) and the 37 classic heirlooms a character's class can use, 25 tokens each (two-handed 50);
+  General = Apprentice / Journeyman / Expert / Artisan Riding for 50 / 100 / 150 / 250 (Expert also teaches Cold
+  Weather Flying). The shop is Lua; this module owns the token and the potion item.
 - **Achievements** (category "Kill Collector", 10 points each). One per continent and creature type: Eastern
   Kingdoms, Kalimdor, Outland, Northrend and Forgotten Land (Azealia, its dungeons and raids, the Forgotten
   Depths and the Endless Chronicle), each with beasts, dragonkin, demons, elementals, giants, undead,

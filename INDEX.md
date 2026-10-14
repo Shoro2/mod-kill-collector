@@ -10,4 +10,5 @@
 - [tests/kill_collector_achievement.tbs](tests/kill_collector_achievement.tbs) - bot scenario: a completed list grants its achievement
 - [tests/kill_collector_bonus.tbs](tests/kill_collector_bonus.tbs) - bot scenario: the damage bonus in the combat log
 - [tests/kill_collector_meta.tbs](tests/kill_collector_meta.tbs) - bot scenario: stacking to +25%, "N3rd" by a kill and at login
+- [tests/kill_collector_shop.tbs](tests/kill_collector_shop.tbs) - bot scenario: the token shop (`.tokenshop`: heirlooms, the XP potion, riding)
 - [tests/kill_collector_edges.tbs](tests/kill_collector_edges.tbs) - bot scenario: relog, reload, full bags

@@ -14,10 +14,12 @@
 | `data/sql/db-characters/base/mod_kill_collector_characters.sql` | `mod_kill_collector_kills` |
 | `data/sql/db-world/base/mod_kill_collector_world.sql` | `mod_kill_collector_continent_maps` (56 rows), `mod_kill_collector_achievements` (45 rows) |
 | `data/sql/db-world/base/mod_kill_collector_item.sql` | `item_template` 920200 (DELETE + INSERT) |
+| `data/sql/db-world/base/mod_kill_collector_shop.sql` | `item_template` 920201 "Potion of Experience" (DELETE + INSERT): uses CoA's spell 818046, no Item.dbc row (like 920200), display 19003 (INV_Potion_26) |
 | `data/sql/db-world/base/mod_kill_collector_achievement_dbc.sql` | `achievement_dbc` 30001-30051, `chartitles_dbc` 178, `achievement_reward` 30051 (DELETE + INSERT; written by fl-pipeline 209) |
 | `data/sql/db-world/base/mod_kill_collector_command.sql` | `command` rows `killcollector status / reload / reset` |
 | `conf/mod_kill_collector.conf.dist` | every config key with its default |
 | `tests/kill_collector_tokens.tbs` | bot scenario: first kills, the party, a repeated entry |
+| `tests/kill_collector_shop.tbs` | bot scenario: a mage buys through `.tokenshop` - a one-hander (25), a two-hander (50), the potion (25) and uses it (aura 818046), refusals (too few tokens, a plate chest and a two-handed axe for a mage, full bags), riding in order at level 15 (50 / 100 / 150 / 250, Cold Weather Flying with Expert) |
 | `tests/kill_collector_edges.tbs` | bot scenario: relog, reload, full bags (the token by mail) |
 | `tests/kill_collector_achievement.tbs` | bot scenario: the three Oddities of the Forgotten Land complete their list, achievement 30050, the status lines of the bonus and of "N3rd" |
 | `tests/kill_collector_bonus.tbs` | bot scenario: the combat log shows 4000 without and 4200 with the Oddities achievement (fixed damage spell 37463), also on another continent; a beast stays at 4000; spell 66595 (ignores the caster's modifiers) stays at 5000 |
