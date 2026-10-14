@@ -43,6 +43,8 @@ void KillCollectorMgr::LoadConfig()
 
     _skipNpcFlagCreatures = sConfigMgr->GetOption<bool>("KillCollector.Expected.SkipNpcFlagCreatures", true);
     _achievementsEnable   = sConfigMgr->GetOption<bool>("KillCollector.AchievementsEnable", false);
+    _damageBonusPct       = std::min<uint32>(sConfigMgr->GetOption<uint32>("KillCollector.DamageBonusPct", DEFAULT_DAMAGE_BONUS_PCT), 100);
+    _metaAchievementId    = sConfigMgr->GetOption<uint32>("KillCollector.MetaAchievementId", META_ACHIEVEMENT_ID);
     _logVerbose           = sConfigMgr->GetOption<bool>("KillCollector.LogVerbose", false);
 }
 
@@ -87,7 +89,9 @@ void KillCollectorMgr::LoadData()
         {
             Field* f = result->Fetch();
             uint32 const continent = f[0].Get<uint32>();
-            data->achievementByBucket[BucketKey(continent, f[1].Get<uint8>())] = f[2].Get<uint32>();
+            uint32 const achievementId = f[2].Get<uint32>();
+            data->achievementByBucket[BucketKey(continent, f[1].Get<uint8>())] = achievementId;
+            data->bucketAchievements.insert(achievementId);
             data->continents.insert(continent);
         } while (result->NextRow());
     }
@@ -173,14 +177,25 @@ void KillCollectorMgr::LoadData()
     for (auto const& [continent, sizes] : perContinent)
         LOG_INFO("module", ">> KillCollector: continent {}: {} creatures for the Alliance, {} for the Horde.",
                  continent, sizes.first, sizes.second);
+    LOG_INFO("module", ">> KillCollector: damage bonus {}% per earned achievement, meta achievement {}.",
+             _damageBonusPct, _metaAchievementId);
 
     if (_tokenItemId && !sObjectMgr->GetItemTemplate(_tokenItemId))
         LOG_ERROR("module", ">> KillCollector: token item {} does not exist; first kills pay nothing.", _tokenItemId);
+    if (_achievementsEnable && _metaAchievementId && !sAchievementStore.LookupEntry(_metaAchievementId))
+        LOG_ERROR("module", ">> KillCollector: meta achievement {} is not in Achievement.dbc / achievement_dbc; it will not be granted.",
+                  _metaAchievementId);
 
     std::lock_guard<std::mutex> guard(_lock);
     _data = data;
     for (auto& [guid, state] : _online)
         ComputeProgress(*data, state);
+}
+
+std::shared_ptr<KillCollectorMgr::Data const> KillCollectorMgr::GetData()
+{
+    std::lock_guard<std::mutex> guard(_lock);
+    return _data;
 }
 
 void KillCollectorMgr::ComputeProgress(Data const& data, PlayerState& state)
@@ -238,18 +253,25 @@ void KillCollectorMgr::OnLogin(Player* player)
         return;
 
     LoadState(player);
-    if (!_achievementsEnable)
-        return;
 
-    // A bucket can be complete at login: achievements were switched on later, or the bucket shrank.
-    std::vector<uint32> done;
+    if (_achievementsEnable)
     {
-        std::lock_guard<std::mutex> guard(_lock);
-        auto it = _online.find(player->GetGUID().GetCounter());
-        if (it != _online.end() && _data)
-            done = CompletedAchievements(*_data, it->second);
+        // A bucket can be complete at login: achievements were switched on later, or the bucket shrank.
+        std::vector<uint32> done;
+        {
+            std::lock_guard<std::mutex> guard(_lock);
+            auto it = _online.find(player->GetGUID().GetCounter());
+            if (it != _online.end() && _data)
+                done = CompletedAchievements(*_data, it->second);
+        }
+        GrantAchievements(player, done);
+
+        // Also for a player that earned every bucket before the meta achievement existed.
+        GrantMetaAchievement(player);
     }
-    GrantAchievements(player, done);
+
+    // The damage bonus needs only the earned achievements, so it works with AchievementsEnable off, too.
+    RecomputeDamageBonus(player);
 }
 
 void KillCollectorMgr::OnLogout(Player* player)
@@ -258,6 +280,16 @@ void KillCollectorMgr::OnLogout(Player* player)
         return;
     std::lock_guard<std::mutex> guard(_lock);
     _online.erase(player->GetGUID().GetCounter());
+}
+
+void KillCollectorMgr::OnAchievementComplete(Player* player, uint32 achievementId)
+{
+    if (!_enabled || !player)
+        return;
+
+    std::shared_ptr<Data const> data = GetData();
+    if (data && data->bucketAchievements.count(achievementId))
+        RecomputeDamageBonus(player);
 }
 
 bool KillCollectorMgr::PassesKillFilters(Player* player, Creature* killed) const
@@ -305,7 +337,10 @@ void KillCollectorMgr::OnKillCredit(Player* player, Creature* killed)
         loaded = _online.count(guid) != 0;
     }
     if (!loaded)
+    {
         LoadState(player); // the module was switched on after this player logged in
+        RecomputeDamageBonus(player);
+    }
 
     std::vector<uint32> earned;
     size_t uniqueKills = 0;
@@ -352,7 +387,11 @@ void KillCollectorMgr::OnKillCredit(Player* player, Creature* killed)
         LOG_INFO("module", "KillCollector: guid {} collected entry {} on map {} ({} in total).",
                  guid, entry, killed->GetMapId(), uniqueKills);
 
-    GrantAchievements(player, earned);
+    if (GrantAchievements(player, earned))
+    {
+        RecomputeDamageBonus(player);
+        GrantMetaAchievement(player);
+    }
 }
 
 void KillCollectorMgr::Reset(Player* player)
@@ -405,8 +444,9 @@ void KillCollectorMgr::GiveTokens(Player* player)
     CharacterDatabase.CommitTransaction(trans);
 }
 
-void KillCollectorMgr::GrantAchievements(Player* player, std::vector<uint32> const& achievementIds)
+bool KillCollectorMgr::GrantAchievements(Player* player, std::vector<uint32> const& achievementIds)
 {
+    bool granted = false;
     for (uint32 id : achievementIds)
     {
         if (player->HasAchieved(id))
@@ -418,7 +458,100 @@ void KillCollectorMgr::GrantAchievements(Player* player, std::vector<uint32> con
             continue;
         }
         player->CompletedAchievement(achievement);
+        // The core refuses for a game master in GM mode and for accounts that cannot earn achievements.
+        granted = player->HasAchieved(id) || granted;
     }
+    return granted;
+}
+
+bool KillCollectorMgr::GetMetaProgress(Player* player, uint32& done, uint32& total)
+{
+    done = 0;
+    total = 0;
+    if (!_metaAchievementId || !player)
+        return false;
+
+    std::shared_ptr<Data const> data = GetData();
+    if (!data)
+        return false;
+
+    // A bucket nobody of the team can collect from (nothing of that type spawns there) is not asked for.
+    uint8 const team = player->GetTeamId() == TEAM_HORDE ? 1 : 0;
+    for (auto const& [bucket, achievementId] : data->achievementByBucket)
+    {
+        auto size = data->expectedSize[team].find(bucket);
+        if (size == data->expectedSize[team].end() || !size->second)
+            continue;
+        ++total;
+        if (player->HasAchieved(achievementId))
+            ++done;
+    }
+    return total > 0;
+}
+
+bool KillCollectorMgr::HasMetaAchieved(Player* player) const
+{
+    return _metaAchievementId && player && player->HasAchieved(_metaAchievementId);
+}
+
+void KillCollectorMgr::GrantMetaAchievement(Player* player)
+{
+    if (!_achievementsEnable || !_metaAchievementId || player->IsGameMaster() || player->HasAchieved(_metaAchievementId))
+        return;
+
+    uint32 done = 0;
+    uint32 total = 0;
+    if (!GetMetaProgress(player, done, total) || done < total)
+        return;
+
+    AchievementEntry const* meta = sAchievementStore.LookupEntry(_metaAchievementId);
+    if (!meta)
+    {
+        LOG_ERROR("module", "KillCollector: meta achievement {} is not in Achievement.dbc / achievement_dbc.", _metaAchievementId);
+        return;
+    }
+    // The core's achievement reward (achievement_reward) gives the title.
+    player->CompletedAchievement(meta);
+}
+
+void KillCollectorMgr::RecomputeDamageBonus(Player* player)
+{
+    if (!player)
+        return;
+
+    std::array<uint8, CREATURE_TYPE_SLOTS> earned{};
+    if (std::shared_ptr<Data const> data = GetData())
+    {
+        for (auto const& [bucket, achievementId] : data->achievementByBucket)
+        {
+            uint8 const type = BucketType(bucket);
+            if (type < earned.size() && earned[type] < 255 && player->HasAchieved(achievementId))
+                ++earned[type];
+        }
+    }
+
+    // One writer per player (its login, its kills, the commands run for it); the damage hooks only read.
+    player->CustomData.GetDefault<KillCollectorBonus>(BONUS_DATA_KEY)->earned = earned;
+}
+
+std::string KillCollectorMgr::DescribeDamageBonus(Player* player) const
+{
+    std::string text;
+    KillCollectorBonus const* bonus = player ? player->CustomData.Get<KillCollectorBonus>(BONUS_DATA_KEY) : nullptr;
+    if (bonus && _damageBonusPct)
+    {
+        for (uint8 type = 0; type < CREATURE_TYPE_SLOTS; ++type)
+        {
+            if (!bonus->earned[type])
+                continue;
+            char const* plural = CreatureTypePlural(type);
+            if (!text.empty())
+                text += ", ";
+            text += "+" + std::to_string(_damageBonusPct * bonus->earned[type]) + "% ";
+            text += plural ? std::string(plural) : "type " + std::to_string(type);
+        }
+    }
+    return text.empty() ? "none" : text;
 }
 
 bool KillCollectorMgr::GetProgress(Player* player, uint32& uniqueKills, std::vector<ContinentProgress>& out)

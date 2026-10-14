@@ -1,7 +1,8 @@
--- mod-kill-collector: the server rows of its achievements (sAchievementStore).
--- Written by fl-pipeline scripts/209_kill_collector_achievements.py; the client rows ship in patch-9.
+-- mod-kill-collector: the server rows of its achievements (sAchievementStore) and of the meta
+-- achievement's title. Written by fl-pipeline scripts/209_kill_collector_achievements.py; the
+-- client rows (Achievement.dbc, Achievement_Category.dbc, CharTitles.dbc) ship in patch-9.
 
-DELETE FROM `achievement_dbc` WHERE `ID` BETWEEN 30001 AND 30050;
+DELETE FROM `achievement_dbc` WHERE `ID` BETWEEN 30001 AND 30051;
 INSERT INTO `achievement_dbc` (`ID`, `Faction`, `Instance_Id`, `Supercedes`, `Title_Lang_enUS`, `Description_Lang_enUS`, `Category`, `Points`, `Ui_Order`, `Flags`, `IconID`, `Minimum_Criteria`, `Shares_Criteria`) VALUES
 (30001, -1, -1, 0, 'Beasts of the Eastern Kingdoms', 'Kill every beast in the Eastern Kingdoms, its dungeons and raids included.', 15100, 10, 1, 0, 1573, 0, 0),
 (30002, -1, -1, 0, 'Dragonkin of the Eastern Kingdoms', 'Kill every dragonkin in the Eastern Kingdoms, its dungeons and raids included.', 15100, 10, 2, 0, 1548, 0, 0),
@@ -47,4 +48,14 @@ INSERT INTO `achievement_dbc` (`ID`, `Faction`, `Instance_Id`, `Supercedes`, `Ti
 (30046, -1, -1, 0, 'Undead of the Forgotten Land', 'Kill every undead creature in the Forgotten Land, its dungeons and raids included.', 15100, 10, 42, 0, 61, 0, 0),
 (30047, -1, -1, 0, 'Humanoids of the Forgotten Land', 'Kill every humanoid in the Forgotten Land, its dungeons and raids included.', 15100, 10, 43, 0, 2273, 0, 0),
 (30049, -1, -1, 0, 'Mechanicals of the Forgotten Land', 'Kill every mechanical creature in the Forgotten Land, its dungeons and raids included.', 15100, 10, 44, 0, 353, 0, 0),
-(30050, -1, -1, 0, 'Oddities of the Forgotten Land', 'Kill every creature of no known kind in the Forgotten Land, its dungeons and raids included.', 15100, 10, 45, 0, 1776, 0, 0);
+(30050, -1, -1, 0, 'Oddities of the Forgotten Land', 'Kill every creature of no known kind in the Forgotten Land, its dungeons and raids included.', 15100, 10, 45, 0, 1776, 0, 0),
+(30051, -1, -1, 0, 'N3rd', 'Earn every Kill Collector achievement.', 15100, 10, 46, 0, 2610, 0, 0);
+
+-- the title of achievement 30051 (CharTitles.dbc has 142 rows, max ID 177, max Mask_ID 142)
+DELETE FROM `chartitles_dbc` WHERE `ID` = 178;
+INSERT INTO `chartitles_dbc` (`ID`, `Condition_ID`, `Name_Lang_enUS`, `Name1_Lang_enUS`, `Mask_ID`) VALUES
+(178, 0, 'N3rd %s', 'N3rd %s', 143);
+
+DELETE FROM `achievement_reward` WHERE `ID` = 30051;
+INSERT INTO `achievement_reward` (`ID`, `TitleA`, `TitleH`, `ItemID`, `Sender`, `Subject`, `Body`, `MailTemplateID`) VALUES
+(30051, 178, 178, 0, 0, '', '', 0);

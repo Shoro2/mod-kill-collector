@@ -78,6 +78,28 @@ KillCollector.AchievementsEnable = 0
 KillCollector.Expected.SkipNpcFlagCreatures = 1
 
 ########################################
+#  What the achievements pay
+########################################
+#    KillCollector.DamageBonusPct
+#        Description: Percent damage against creatures of one creature type that EACH earned achievement of that
+#                     type pays, wherever the creature is (one achievement per continent, so up to five per type).
+#                     Counts for the player's own damage and for what it controls or owns (pets, guardians,
+#                     totems); never against players or units a player controls. It reads the earned
+#                     achievements, so it works with AchievementsEnable = 0, too.
+#        Default:     5 - +5% per achievement, +25% against a type when all five of its lists are earned
+#                     0 - no bonus
+#    KillCollector.MetaAchievementId
+#        Description: The achievement granted once the player has earned every bucket achievement its team can
+#                     earn (needs AchievementsEnable = 1 and the achievement's rows in Achievement.dbc /
+#                     achievement_dbc; its title comes from the achievement_reward and chartitles_dbc rows of
+#                     this module's SQL).
+#        Default:     30051 - "N3rd", title "N3rd %s"
+#                     0     - no meta achievement
+
+KillCollector.DamageBonusPct = 5
+KillCollector.MetaAchievementId = 30051
+
+########################################
 #  Logging
 ########################################
 #    KillCollector.LogVerbose

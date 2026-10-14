@@ -51,6 +51,21 @@ public:
         for (KillCollectorMgr::ContinentProgress const& p : continents)
             handler->PSendSysMessage("  {}: {} of {} creatures, {} of {} achievements.",
                                      p.name, p.killed, p.expected, p.achievementsDone, p.achievementsTotal);
+
+        // The bonus is read from the earned achievements again: they can change without a module hook (a game
+        // master resets a character's achievements).
+        sKillCollectorMgr->RecomputeDamageBonus(player);
+        handler->PSendSysMessage("Damage bonus: {}", sKillCollectorMgr->DescribeDamageBonus(player));
+
+        if (sKillCollectorMgr->HasMetaAchievement())
+        {
+            uint32 done = 0;
+            uint32 total = 0;
+            if (sKillCollectorMgr->HasMetaAchieved(player))
+                handler->SendSysMessage("N3rd: earned");
+            else if (sKillCollectorMgr->GetMetaProgress(player, done, total))
+                handler->PSendSysMessage("N3rd: not yet ({} of {} achievements)", done, total);
+        }
         return true;
     }
 

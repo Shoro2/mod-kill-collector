@@ -12,6 +12,7 @@ public:
         PLAYERHOOK_ON_LOGIN,
         PLAYERHOOK_ON_LOGOUT,
         PLAYERHOOK_ON_REWARD_KILL_REWARDER,
+        PLAYERHOOK_ON_ACHI_COMPLETE,
         PLAYERHOOK_ON_DELETE_FROM_DB
     }) { }
 
@@ -32,6 +33,13 @@ public:
         if (Unit* victim = rewarder ? rewarder->GetVictim() : nullptr)
             if (Creature* creature = victim->ToCreature())
                 sKillCollectorMgr->OnKillCredit(player, creature);
+    }
+
+    // Any completed achievement, also one a game master added: a bucket achievement raises the damage bonus.
+    void OnPlayerAchievementComplete(Player* player, AchievementEntry const* achievement) override
+    {
+        if (achievement)
+            sKillCollectorMgr->OnAchievementComplete(player, achievement->ID);
     }
 
     void OnPlayerDeleteFromDB(CharacterDatabaseTransaction trans, uint32 guid) override
