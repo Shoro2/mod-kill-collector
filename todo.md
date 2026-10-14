@@ -3,6 +3,10 @@
 - (medium) T1 of the token shop (2026-10-15, never run): apply `mod_kill_collector_shop.sql` (item 920201), load
   fl-lua-scripts `TokenShop/` (`.reload ale`), run `kill_collector_shop` (a mage, slot 1), then look at the
   window and the hub entry with the client probe. Host: a MIG entry for the SQL, the Lua folder and the hub file.
+- (medium) T1 of the shop's class buffs (2026-10-15, built, offline mock runs only): deploy fl-lua-scripts
+  `claude/token-shop-buffs-433902b4`, `.reload ale`, run `kill_collector_shop_buffs` (slots 1-4: mage, priest, warrior,
+  bloodmage); part 8 states the core's stack rules as predictions - note which hold. Then the other buffs by hand or with
+  `.list auras id`; the CoA ones run through core scripts (Mana Module has a custom effect 168).
 - (low) The Hunter's Token (920200) shows no inventory icon: its display 6122 names none in `ItemDisplayInfo.dbc`.
   The shop falls back to a coin; a display with an icon (or a new row) would fix the bags too.
 - (medium) T1 of the rewards (damage bonus, "N3rd", status lines; built and syntax-checked 2026-10-14, never

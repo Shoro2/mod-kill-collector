@@ -11,4 +11,6 @@
 - [tests/kill_collector_bonus.tbs](tests/kill_collector_bonus.tbs) - bot scenario: the damage bonus in the combat log
 - [tests/kill_collector_meta.tbs](tests/kill_collector_meta.tbs) - bot scenario: stacking to +25%, "N3rd" by a kill and at login
 - [tests/kill_collector_shop.tbs](tests/kill_collector_shop.tbs) - bot scenario: the token shop (`.tokenshop`: heirlooms, the XP potion, riding)
+- [tests/kill_collector_shop_buffs.tbs](tests/kill_collector_shop_buffs.tbs) - bot scenario: the shop's class buffs (+50%, 1 hour, 10 tokens): exact amounts, renewal, area-spell spill, stacking with a normal cast
+- [tools/gen_shop_buffs.py](tools/gen_shop_buffs.py) - generator of the shop's buff rows (fl-lua-scripts `TokenShop_Server.lua`) from the server's spell data
 - [tests/kill_collector_edges.tbs](tests/kill_collector_edges.tbs) - bot scenario: relog, reload, full bags

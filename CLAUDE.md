@@ -56,8 +56,9 @@ operator decided on 2026-10-10 to adopt the May 2026 prototype ("mod-kill-collec
 ## Next steps
 
 1. The operator decided on 2026-10-14 what the tokens buy: the token shop (fl-lua-scripts `TokenShop/`, branch
-   `claude/token-shop-433902b4`; this module carries item 920201 and the scenario `kill_collector_shop`). Built and
-   syntax-checked, T1 owed. Open for the operator: whether enemy-city creatures belong in the lists.
+   `claude/token-shop-433902b4`, with the class buffs in `claude/token-shop-buffs-433902b4`; this module carries item 920201,
+   the scenarios `kill_collector_shop` and `kill_collector_shop_buffs` and `tools/gen_shop_buffs.py`, which writes the shop's
+   68 buff rows). Built and syntax-checked, T1 owed. Open for the operator: whether enemy-city creatures belong in the lists.
 2. T1 of the rewards, then the host: MIG-118 and MIG-119 together in a window the operator approves
    (achievements on only with both; the rewards add SQL, a conf key and the CharTitles row).
 
@@ -71,5 +72,5 @@ Open points in full: [todo.md](todo.md).
   (smallint in the characters DB). Client DBC rows reach players only through the combined patch-9 builder.
 - Restart the workbench only with `scripts\worldserver_restart.ps1`; any host deployment needs a MIG entry
   in share-public `docs/World of Warcraft/forgotten-land/15-host-migration-log.md`.
-- Tests (bots, TBOT accounts): `tests/kill_collector_tokens.tbs`, `_edges`, `_achievement`, `_bonus`, `_meta`, `_shop`.
+- Tests (bots, TBOT accounts): `tests/kill_collector_tokens.tbs`, `_edges`, `_achievement`, `_bonus`, `_meta`, `_shop`, `_shop_buffs`.
 - Doc set: INDEX.md, CLAUDE.md, data_structure.md, functions.md, log.md (newest first), todo.md.

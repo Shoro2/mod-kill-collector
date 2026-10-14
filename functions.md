@@ -94,7 +94,15 @@ granted. The decision is made on a copy of the data, the grant outside the lock.
 The tokens are spent by fl-lua-scripts `TokenShop/` (Lua, AIO + `.tokenshop`), which counts item 920200 in the bags only
 (`Player:GetItemCount`) and removes it with `Player:RemoveItem`. This module contributes the potion item 920201
 (`data/sql/db-world/base/mod_kill_collector_shop.sql`: a use spell 818046 with one charge, stack 20, bind on pickup)
-and the scenario `tests/kill_collector_shop.tbs`. No C++ here changes for the shop.
+and the scenarios `tests/kill_collector_shop.tbs` and `tests/kill_collector_shop_buffs.tbs`. No C++ here changes for the shop.
+
+The shop's class buffs (General tab, 68 rows, 10 tokens, +50% for one hour; the original spell is cast on the buyer through
+`Unit:CastCustomSpell` with every scaled amount x1.5, the aura is set to one hour with `Aura:SetDuration` - Lua only, no C++)
+are described in fl-lua-scripts `functions.md` (section TokenShop). `tools/gen_shop_buffs.py` writes their rows: it reads the
+server's `Data/dbc/Spell.dbc` overlaid with `spell_dbc` (one SELECT), keeps the effects whose aura type is an amount the
+shop scales, and puts `fx` / `lvl` / `party` / `riders` / `oneOf` / `what` per spell between the markers
+`-- BEGIN/END GENERATED BUFFS` of `TokenShop_Server.lua` (`--insert <file>`; `--out <file>` writes the rows alone). Add a
+buff by adding its id to `PICKS` there. The scenario reads the amounts back with `.list auras id <spell>`.
 
 ## Thread safety
 

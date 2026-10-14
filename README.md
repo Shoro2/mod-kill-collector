@@ -17,7 +17,9 @@ the player who holds them all is a "N3rd".
   chat `.tokenshop`): Leveling = the Potion of Experience (item 920201, +25% experience for an hour through CoA's
   spell 818046) and the 37 classic heirlooms a character's class can use, 25 tokens each (two-handed 50);
   General = Apprentice / Journeyman / Expert / Artisan Riding for 50 / 100 / 150 / 250 (Expert also teaches Cold
-  Weather Flying). The shop is Lua; this module owns the token and the potion item.
+  Weather Flying) and the class buffs: every buff of the stock classes and of the 21 CoA classes that can be cast on another
+  player, as the original spell at +50% strength for one hour, 10 tokens each. The shop is Lua; this module owns the token,
+  the potion item, the buff generator `tools/gen_shop_buffs.py` and the scenarios.
 - **Achievements** (category "Kill Collector", 10 points each). One per continent and creature type: Eastern
   Kingdoms, Kalimdor, Outland, Northrend and Forgotten Land (Azealia, its dungeons and raids, the Forgotten
   Depths and the Endless Chronicle), each with beasts, dragonkin, demons, elementals, giants, undead,

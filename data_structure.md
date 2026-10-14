@@ -20,6 +20,8 @@
 | `conf/mod_kill_collector.conf.dist` | every config key with its default |
 | `tests/kill_collector_tokens.tbs` | bot scenario: first kills, the party, a repeated entry |
 | `tests/kill_collector_shop.tbs` | bot scenario: a mage buys through `.tokenshop` - a one-hander (25), a two-hander (50), the potion (25) and uses it (aura 818046), refusals (too few tokens, a plate chest and a two-handed axe for a mage, full bags), riding in order at level 15 (50 / 100 / 150 / 250, Cold Weather Flying with Expert) |
+| `tests/kill_collector_shop_buffs.tbs` | bot scenario (mage, priest, warrior, bloodmage): the shop's class buffs - Power Word: Fortitude 248, Mark of the Wild 1125/56/81, Power Module 348 (a CoA buff bought by a mage), Sanctuary's 67480 at 15, Kings replacing Sanctuary, Battle Shout 825 with no spill onto the party, a refusal and a renewal, and the stack rules against a normal cast |
+| `tools/gen_shop_buffs.py` | generator of the shop's buff rows (read-only on the database); not part of the build |
 | `tests/kill_collector_edges.tbs` | bot scenario: relog, reload, full bags (the token by mail) |
 | `tests/kill_collector_achievement.tbs` | bot scenario: the three Oddities of the Forgotten Land complete their list, achievement 30050, the status lines of the bonus and of "N3rd" |
 | `tests/kill_collector_bonus.tbs` | bot scenario: the combat log shows 4000 without and 4200 with the Oddities achievement (fixed damage spell 37463), also on another continent; a beast stays at 4000; spell 66595 (ignores the caster's modifiers) stays at 5000 |
