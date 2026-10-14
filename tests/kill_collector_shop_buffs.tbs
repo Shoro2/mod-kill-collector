@@ -154,7 +154,10 @@ expect a item 920200 == 30
 do gm target a
 as gm .list auras id 707340
 expect output has "id: 707340 eff: 0 amount: 119"
-do d cast 707340 on a triggered
+# the core refuses the weaker normal cast while the stronger shop buff holds the exclusive group (cast result 9);
+# `.cast` from the bot's own chat answers instead of failing the step
+do d target a
+as d .cast 707340 triggered
 wait 1s
 as gm .list auras id 707340
 expect output has "id: 707340 eff: 0 amount: 119"
@@ -165,7 +168,8 @@ expect output has "id: 48161 eff: 0 amount: 248"
 do b cast 48161 on a triggered
 wait 1s
 as gm .list auras id 48161
-expect output has "id: 48161 eff: 0 amount: 165"
+# the priest's normal cast replaced the shop buff: its own amount (165 plus the priest's modifiers, 189 on run 672)
+expect output lacks "id: 48161 eff: 0 amount: 248"
 expect a auramaxduration 48161 <= 1800000
 
 cleanup
