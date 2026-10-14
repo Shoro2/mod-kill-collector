@@ -6,8 +6,10 @@ name    mod-kill-collector: completing a list grants its achievement
 # creatures of no known kind that Azealia (map 727) spawns - Poisonous Mushroom (30435), Void Stone (86123),
 # Enchanted Zol'maz weapon (86156). The director kills each with `.damage` while the mage stands next to it
 # in the party, so the mage collects through the group's kill reward. After the third creature the list is
-# complete; `.killcollector status` counts the achievement for the Forgotten Land. That the character holds
-# 30050 is checked in `character_achievement` after the run (bots save at logout).
+# complete; `.killcollector status` counts the achievement for the Forgotten Land and shows what it pays: "Damage
+# bonus: +5% oddities" (every earned achievement = +5% damage against its creature type, KillCollector.DamageBonusPct)
+# and the progress to the meta achievement "N3rd" (1 of the 45). That the character holds 30050 is checked in
+# `character_achievement` after the run (bots save at logout). kill_collector_bonus proves the bonus in the combat log.
 # Each creature is respawned by the director (`.respawn` on the picked one, which replaces the object, so
 # it is picked again) before its kill: the scenario runs again while an earlier run's corpse still lies there.
 timeout 180s
@@ -69,6 +71,8 @@ wait 1s
 as a .killcollector status
 expect output has "3 different creatures killed"
 expect output has "1 of 9 achievements"
+expect output has "Damage bonus: +5% oddities"
+expect output has "N3rd: not yet (1 of 45 achievements)"
 
 cleanup
 log kill collector achievement done
