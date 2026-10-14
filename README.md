@@ -2,7 +2,8 @@
 
 AzerothCore WotLK module for Forgotten Land: players collect creatures. The first kill of every creature
 entry pays a token, and - once the client patch is out - killing every creature of one creature type on a
-continent grants an achievement.
+continent grants an achievement. Every earned achievement raises the damage against that creature type, and
+the player who holds them all is a "N3rd".
 
 ## What it does
 
@@ -20,7 +21,18 @@ continent grants an achievement.
   the player's team can attack. Spawns that only exist during a game event or outside the normal phase,
   unattackable creatures, triggers and (by default) creatures with an NPC flag stay out, so every list can
   be completed.
-- **`.killcollector status`** shows the number of collected creatures and the progress per continent;
+- **Rewards.**
+  - *Damage.* Every earned achievement pays `KillCollector.DamageBonusPct` (default 5) percent damage against
+    creatures of its creature type, everywhere - not only on its continent. The bonuses add up: all five
+    continents' beast lists make +25% against beasts. It counts for the player's own damage and for what it
+    controls or owns (pets, guardians, totems): melee swings, direct spells and damage over time. Never
+    against players or units a player controls. The bonus reads the earned achievements, so it works without
+    `AchievementsEnable`.
+  - *"N3rd".* The meta achievement 30051 completes once the player has earned every bucket achievement its
+    team can earn (today all 45) and rewards the title "N3rd %s" (CharTitles 178, a prefix). Players who
+    already hold them all get it at their next login.
+- **`.killcollector status`** shows the number of collected creatures, the progress per continent, the damage
+  bonus ("Damage bonus: +10% beasts, +5% undead") and the progress to "N3rd";
   `.killcollector reset [name]` (administrators) empties a collection, `.killcollector reload` rebuilds the
   lists.
 
@@ -31,10 +43,10 @@ continent grants an achievement.
 2. The SQL under `data/sql/db-characters/base/` and `data/sql/db-world/base/` is applied by the core's
    updater at the next start.
 3. Copy `conf/mod_kill_collector.conf.dist` to `mod_kill_collector.conf` and adjust it.
-4. Achievements: the server rows come with this module's SQL (`achievement_dbc`); the clients need the
-   `Achievement.dbc` / `Achievement_Category.dbc` rows (ids 30001-30050, category 15100) in their patch -
-   Forgotten Land builds them with fl-pipeline `209_kill_collector_achievements.py`. Then set
-   `KillCollector.AchievementsEnable = 1`.
+4. Achievements: the server rows come with this module's SQL (`achievement_dbc` 30001-30051, `chartitles_dbc`
+   178, `achievement_reward` 30051); the clients need the `Achievement.dbc` / `Achievement_Category.dbc` rows
+   (ids 30001-30051, category 15100) and the `CharTitles.dbc` row 178 in their patch - Forgotten Land builds
+   them with fl-pipeline `209_kill_collector_achievements.py`. Then set `KillCollector.AchievementsEnable = 1`.
 
 ## Configuration
 
@@ -46,4 +58,5 @@ Characters DB: `mod_kill_collector_kills` - one row per (character, entry).
 
 World DB: `mod_kill_collector_continent_maps` (maps whose continent the Map.dbc entrance does not give, or
 that never count), `mod_kill_collector_achievements` (continent, creature type -> achievement id),
-`item_template` 920200, three `command` rows.
+`item_template` 920200, three `command` rows, and the reward rows `achievement_dbc`, `chartitles_dbc`,
+`achievement_reward`.

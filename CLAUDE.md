@@ -2,9 +2,10 @@
 
 Forgotten Land's creature collection: the first kill of every creature entry pays a Hunter's Token, and
 killing every creature of one creature type on a continent grants an achievement (switched off until the
-client patch ships). Every player the kill rewards collects the creature, the tapping group included. The
-operator decided on 2026-10-10 to adopt the May 2026 prototype ("mod-kill-collector übernehmen"). Full
-description: [README.md](README.md).
+client patch ships). Every earned achievement pays +5% damage against its creature type, and all 45 together
+the title "N3rd". Every player the kill rewards collects the creature, the tapping group included. The
+operator decided on 2026-10-10 to adopt the May 2026 prototype ("mod-kill-collector übernehmen") and on
+2026-10-14 what the achievements pay. Full description: [README.md](README.md).
 
 ## Ids and tables
 
@@ -12,12 +13,15 @@ description: [README.md](README.md).
 |---|---|
 | Token item | `item_template` **920200** "Hunter's Token" (FL item band 920200-920209 belongs to this module; `KillCollector.TokenItemId`) |
 | Achievements | **30001-30050** = 30000 + 10 x continent slot (0 Eastern Kingdoms, 1 Kalimdor, 2 Outland, 3 Northrend, 4 Forgotten Land 727) + creature type (1-7, 9, 10); 45 rows in `mod_kill_collector_achievements`; category **15100** "Kill Collector" (top level), 10 points each, no criteria rows. Server rows: `achievement_dbc` (this module's SQL); client rows: FL's patch-9 (fl-pipeline `209_kill_collector_achievements.py`, which also writes the SQL) |
+| Meta achievement | **30051** "N3rd" (`KillCollector.MetaAchievementId`): earned when every bucket achievement with a creature for the player's team is; reward = the title below through `achievement_reward` (TitleA = TitleH = 178) |
+| Title | `CharTitles` **178** "N3rd %s", `Mask_ID` **143** (the bit in the known-titles field; stock: 142 rows, max ID 177, max bit 142): server `chartitles_dbc`, client `CharTitles.dbc` (209) |
+| Damage bonus | each earned bucket achievement = +`KillCollector.DamageBonusPct` (5) percent damage against its creature type, everywhere; own damage and what the player controls or owns, only against creatures no player controls |
 | Continents | 0, 1, 530, 571 and 727 (Forgotten Land): its own maps 727-753, 760 and 770 by override; every other map by its Map.dbc / `map_dbc` entrance map |
 | Never counts | maps 13 (class test area), 451, 609 (death knight start), 754 (dev), every transport, battlegrounds and arenas |
 | Characters DB | `mod_kill_collector_kills` (guid, entry, map_id, creature_type, first_kill_time) |
 | World DB | `mod_kill_collector_continent_maps` (map_id, continent_id, comment; -1 = never counts), `mod_kill_collector_achievements` (continent_id, creature_type, achievement_id), three `command` rows |
 | Commands | `.killcollector status` (players), `.killcollector reload` / `reset [name]` (administrators) |
-| C++ | `KillCollectorMgr` (`sKillCollectorMgr`), `KillCollectorWorldScript`, `KillCollectorPlayerScript`, `KillCollectorCommandScript` |
+| C++ | `KillCollectorMgr` (`sKillCollectorMgr`), `KillCollectorWorldScript`, `KillCollectorPlayerScript`, `KillCollectorUnitScript` (the damage hooks), `KillCollectorCommandScript` |
 | Config | `mod_kill_collector.conf`, `KillCollector.*` |
 
 ## Status and progress
@@ -35,6 +39,11 @@ description: [README.md](README.md).
   with its 45 achievements. Review runs back to back (2026-10-10): 592 `kill_collector_edges` 16/0 (a relog
   keeps the collection, `.killcollector reload` keeps the progress, full bags send the token by mail), 593
   `kill_collector_tokens` 19/0, 594 `kill_collector_achievement` 11/0. No T2.
+- Rewards (2026-10-14, branch `claude/kill-collector-rewards-433902b4`): the damage bonus (`UnitScript` hooks
+  on melee, spell and periodic damage; the per-type count of earned achievements lives on the Player in
+  `CustomData`, no lock), the meta achievement 30051 + title 178, two more `.killcollector status` lines, 209
+  writes the client rows (Reward texts, CharTitles). Syntax-checked only. T1 owed: build (CMake re-run for
+  the new source), boot, 209 `--client` + patch-9, scenarios `kill_collector_achievement`, `_bonus`, `_meta`.
 - Done in the adoption: FL item id; `creature.id` (FL) instead of `id1`; FL's maps as a fifth continent;
   continent resolution by override, then the map's entrance; per-team lists of attackable creatures (no
   event-only, phased, unattackable, trigger or NPC-flag spawns); progress computed from the kills at login
@@ -47,7 +56,8 @@ description: [README.md](README.md).
 
 1. The operator decides what the tokens buy (a token vendor) and whether enemy-city creatures belong in the
    lists.
-2. Host: MIG-118 and MIG-119 together in a window the operator approves (achievements on only with both).
+2. T1 of the rewards, then the host: MIG-118 and MIG-119 together in a window the operator approves
+   (achievements on only with both; the rewards add SQL, a conf key and the CharTitles row).
 
 Open points in full: [todo.md](todo.md).
 
@@ -59,5 +69,5 @@ Open points in full: [todo.md](todo.md).
   (smallint in the characters DB). Client DBC rows reach players only through the combined patch-9 builder.
 - Restart the workbench only with `scripts\worldserver_restart.ps1`; any host deployment needs a MIG entry
   in share-public `docs/World of Warcraft/forgotten-land/15-host-migration-log.md`.
-- Tests: `tests/kill_collector_tokens.tbs` (bots, TBOT accounts).
+- Tests (bots, TBOT accounts): `tests/kill_collector_tokens.tbs`, `_edges`, `_achievement`, `_bonus`, `_meta`.
 - Doc set: INDEX.md, CLAUDE.md, data_structure.md, functions.md, log.md (newest first), todo.md.
