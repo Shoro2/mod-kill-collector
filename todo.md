@@ -14,10 +14,6 @@
   only with both. The rewards add: the SQL rows `achievement_dbc` 30051, `chartitles_dbc` 178 (bit 143),
   `achievement_reward` 30051 (check on the host that 178 / 143 are free), the conf keys
   `KillCollector.DamageBonusPct` / `MetaAchievementId`, and the `CharTitles.dbc` row in the host patch-9.
-- (medium) Decide: a spell that ignores the caster's modifiers (`SPELL_ATTR3_IGNORE_CASTER_MODIFIERS`: copy and
-  proc damage of the CoA classes, the fixed damage test spells) gets the bonus too. To leave them out, test the
-  attribute in `ModifySpellDamageTaken` / `ModifyPeriodicDamageAurasTick` (and `kill_collector_bonus` needs a
-  spell without it).
 - (low) The bonus covers melee swings, direct spell damage and periodic damage. Damage that goes around those
   hooks (damage shields, scripted `DealDamage`) is not raised. The bot scenario proves a direct spell on a
   creature of the same and another continent; melee, damage over time and a pet are not tested yet.

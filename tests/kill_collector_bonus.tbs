@@ -4,23 +4,25 @@ name    mod-kill-collector: an earned achievement raises the damage against that
 # the server and this folder in TestBots.ScenarioDirs.
 #
 # The proof is the combat log, not a health comparison: the Enchanted Zol'maz weapon is level 77-80, drawn at every
-# spawn, so two of them differ in maximum health (11379-12600) and armor. The bot casts spell 66595 ("dmg5 arcane"),
-# a SCHOOL_DAMAGE spell of 5000 fixed damage: no random roll (DieSides 1), cannot crit (SPELL_ATTR2_CANT_CRIT), no
-# hit roll (DmgClass NONE), arcane so no armor, ignores the caster's damage modifiers and the target's, and the
-# creatures here have no resistance - so the damage the bot's own combat log shows is exactly 5000, and 5250 with the
-# +5% (`spelllog` reads SMSG_SPELLNONMELEEDAMAGELOG, i.e. the damage after the module's hook). The cast is triggered:
-# no range, mana or learned spell needed.
+# spawn, so two of them differ in maximum health (11379-12600) and armor. The bot casts spell 37463 ("Fireball"), a
+# SCHOOL_DAMAGE spell of 4000 fixed damage: no random roll (DieSides 1), cannot crit (SPELL_ATTR2_CANT_CRIT), cannot
+# miss (SPELL_ATTR3_ALWAYS_HIT), no spell power coefficient, fire so no armor, and the creatures here have no
+# resistance - so the damage the bot's own combat log shows is exactly 4000 (a warlock without talents has no
+# damage modifier of its own), and 4200 with the +5% (`spelllog` reads SMSG_SPELLNONMELEEDAMAGELOG, i.e. the damage
+# after the module's hook). The casts are triggered: no range, mana or learned spell needed.
+# Spell 66595 ("dmg5 arcane", 5000 fixed) ignores the caster's modifiers (SPELL_ATTR3_IGNORE_CASTER_MODIFIERS): the
+# bonus leaves such spells out, as the game's own creature-type damage auras do, so it stays at 5000.
 #
 # 1. The bot (a warlock, slot 2 = Tblocb on TBOT02) starts clean: `.reset achievements` (a game master command, the
 #    director's) deletes every achievement of that character, so the scenario can run again; `.killcollector reset`
 #    empties its collection. `.killcollector status` rereads the earned achievements into the damage bonus ("Damage
 #    bonus: none").
-# 2. A first Enchanted Zol'maz weapon (86156, creature type 10 = "Oddities") takes 5000.
+# 2. A first Enchanted Zol'maz weapon (86156, creature type 10 = "Oddities") takes 4000.
 # 3. The director kills the three creatures of "Oddities of the Forgotten Land" (30050) while the bot stands next to
 #    them in the party, as kill_collector_achievement does.
-# 4. A second Zol'maz weapon takes 5250 - the same spell, the bonus of the earned achievement.
+# 4. A second Zol'maz weapon takes 4200 - the same spell, the bonus of the earned achievement - and 5000 from 66595.
 # 5. Beyond the continent the achievement belongs to, and only for its creature type: an Enchanted Tiki Warrior (28882,
-#    type 10, Zul'Drak in Northrend) takes 5250, an Enraged Mammoth (28851, a beast) next to it takes 5000.
+#    type 10, Zul'Drak in Northrend) takes 4200, an Enraged Mammoth (28851, a beast) next to it takes 4000.
 #
 # The character must not hold a type 10 achievement when the run starts; step 1 sees to that. If `.reset
 # achievements` is not allowed for the director, pick another character: `slot=3` is Tblocc, `slot=4` Tblocd (every
@@ -41,7 +43,7 @@ as b .killcollector status
 expect output has "Damage bonus: none"
 expect output has "N3rd: not yet (0 of 45 achievements)"
 
-log 2 - without the achievement the spell does 5000
+log 2 - without the achievement the spell does 4000
 pick w1 creature:86156 near b
 do gm target w1
 as gm .respawn
@@ -51,11 +53,11 @@ require w1 alive
 do b approach w1
 wait 1s
 spelllog start
-do b cast 66595 on w1 triggered
+do b cast 37463 on w1 triggered
 wait 1s
 spelllog stop
-expect b spell 66595 casts == 1
-expect b spell 66595 damage == 5000
+expect b spell 37463 casts == 1
+expect b spell 37463 damage == 4000
 expect w1 health < 100%
 
 log 3 - complete Oddities of the Forgotten Land (Poisonous Mushroom, Void Stone, Enchanted Zol'maz weapon)
@@ -106,7 +108,7 @@ expect output has "1 of 9 achievements"
 expect output has "Damage bonus: +5% oddities"
 expect output has "N3rd: not yet (1 of 45 achievements)"
 
-log 4 - with the achievement the same spell does 5250 (a second, untouched weapon)
+log 4 - with the achievement the same spell does 4200 (a second, untouched weapon); a spell that ignores the caster's modifiers stays at 5000
 place 727 12215.6 11687.8 -84.2
 pick w2 creature:86156 near b
 do gm target w2
@@ -117,11 +119,14 @@ require w2 alive
 do b approach w2
 wait 1s
 spelllog start
+do b cast 37463 on w2 triggered
 do b cast 66595 on w2 triggered
 wait 1s
 spelllog stop
+expect b spell 37463 casts == 1
+expect b spell 37463 damage == 4200
 expect b spell 66595 casts == 1
-expect b spell 66595 damage == 5250
+expect b spell 66595 damage == 5000
 expect w2 health < 100%
 
 log 5 - the bonus follows the creature type, not the continent
@@ -135,10 +140,10 @@ require t alive
 do b approach t
 wait 1s
 spelllog start
-do b cast 66595 on t triggered
+do b cast 37463 on t triggered
 wait 1s
 spelllog stop
-expect b spell 66595 damage == 5250
+expect b spell 37463 damage == 4200
 
 place 571 6340.85 -4148.84 458.931
 pick e creature:28851 near b
@@ -150,10 +155,10 @@ require e alive
 do b approach e
 wait 1s
 spelllog start
-do b cast 66595 on e triggered
+do b cast 37463 on e triggered
 wait 1s
 spelllog stop
-expect b spell 66595 damage == 5000
+expect b spell 37463 damage == 4000
 
 cleanup
 log kill collector bonus done

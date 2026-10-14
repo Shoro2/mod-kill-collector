@@ -61,8 +61,11 @@ is on); the attacker resolves to a player (`GetCharmerOrOwnerPlayerOrPlayerItsel
 pets, guardians, totems, a creature it controls); that player has a `KillCollectorBonus` on its `CustomData`;
 the target's creature type (`GetCreatureType()` = the template's `type`) has earned achievements. Then
 `damage = damage * (100 + earned * DamageBonusPct) / 100` in 64-bit, clamped to the damage type. Nothing here
-takes the module's mutex or touches the database; the bonus is only read. No spell is excluded: a spell that
-ignores the caster's modifiers (`SPELL_ATTR3_IGNORE_CASTER_MODIFIERS`) is raised too.
+takes the module's mutex or touches the database; the bonus is only read. The two spell hooks leave out the
+spells that ignore the caster's modifiers (`SPELL_ATTR3_IGNORE_CASTER_MODIFIERS`, `IgnoresCasterModifiers`), as
+the game's own creature-type damage auras do (`Unit::SpellPctDamageModsDone`): mostly procs and copies whose
+amount comes from damage that was raised already (Ignite, the CoA classes' copy damage), so no blow gets the
+bonus twice.
 
 `RecomputeDamageBonus(player)` rebuilds `earned[type]` from `player->HasAchieved(id)` for every bucket in
 `mod_kill_collector_achievements` (the earned achievements are the source of truth, the characters DB keeps

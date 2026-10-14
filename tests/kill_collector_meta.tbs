@@ -1,15 +1,15 @@
 name    mod-kill-collector: the achievements stack to +25% damage, the 45th completes "N3rd"
 # Server-side test bot run (mod-fl-testbots), T1. Needs KillCollector.Enable = 1, KillCollector.AchievementsEnable = 1,
 # KillCollector.DamageBonusPct = 5 and KillCollector.MetaAchievementId = 30051 (the defaults), the module's SQL and
-# this folder in TestBots.ScenarioDirs. The combat log numbers are those of kill_collector_bonus: spell 66595
-# ("dmg5 arcane") is 5000 fixed damage, so 5000 * (100 + 5 * n) / 100 with n earned Oddities achievements.
+# this folder in TestBots.ScenarioDirs. The combat log numbers are those of kill_collector_bonus: spell 37463
+# ("Fireball") is 4000 fixed damage, so 4000 * (100 + 5 * n) / 100 with n earned Oddities achievements.
 #
 # Part 1, the kill path: a fresh warlock (slot 3 = Tblocc on TBOT03; `.reset achievements` clears it) gets 44 of the
 # 45 achievements from a game master (`.achievement add`, all but Oddities of the Forgotten Land). The Oddities
-# are four of five lists: +20% against them (the other types +25%), so the spell does 6000 on an Enchanted Zol'maz
+# are four of five lists: +20% against them (the other types +25%), so the spell does 4800 on an Enchanted Zol'maz
 # weapon, and "N3rd" is not there yet (44 of 45). The director then kills the three Oddities of the Forgotten
 # Land with the bot in the party (as kill_collector_achievement does): the 45th achievement completes, the module
-# grants "N3rd" at once, the spell does 6250.
+# grants "N3rd" at once, the spell does 5000.
 #
 # Part 2, the login path: the character is reset and gets all 45 from the game master. Nothing completes the
 # meta achievement on that path ("N3rd: not yet (45 of 45 achievements)"), the next login does (`relog`): the
@@ -80,7 +80,7 @@ expect output has "+25% mechanicals"
 expect output has "+20% oddities"
 expect output has "N3rd: not yet (44 of 45 achievements)"
 
-log 2 - four Oddities lists: the spell does 6000
+log 2 - four Oddities lists: the spell does 4800
 pick w1 creature:86156 near c
 do gm target w1
 as gm .respawn
@@ -90,10 +90,10 @@ require w1 alive
 do c approach w1
 wait 1s
 spelllog start
-do c cast 66595 on w1 triggered
+do c cast 37463 on w1 triggered
 wait 1s
 spelllog stop
-expect c spell 66595 damage == 6000
+expect c spell 37463 damage == 4800
 
 log 3 - the 45th achievement: the director completes Oddities of the Forgotten Land (Poisonous Mushroom, Void Stone, Enchanted Zol'maz weapon)
 place 727 13392.6 11411.4 -148.5
@@ -142,7 +142,7 @@ expect output has "1 of 9 achievements"
 expect output has "+25% oddities"
 expect output has "N3rd: earned"
 
-log 4 - five Oddities lists: the spell does 6250
+log 4 - five Oddities lists: the spell does 5000
 place 727 12215.6 11687.8 -84.2
 pick w2 creature:86156 near c
 do gm target w2
@@ -153,10 +153,10 @@ require w2 alive
 do c approach w2
 wait 1s
 spelllog start
-do c cast 66595 on w2 triggered
+do c cast 37463 on w2 triggered
 wait 1s
 spelllog stop
-expect c spell 66595 damage == 6250
+expect c spell 37463 damage == 5000
 
 log 5 - the login path: all 45 from the game master, "N3rd" comes with the next login
 as gm .reset achievements Tblocc

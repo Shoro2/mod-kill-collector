@@ -20,8 +20,8 @@
 | `tests/kill_collector_tokens.tbs` | bot scenario: first kills, the party, a repeated entry |
 | `tests/kill_collector_edges.tbs` | bot scenario: relog, reload, full bags (the token by mail) |
 | `tests/kill_collector_achievement.tbs` | bot scenario: the three Oddities of the Forgotten Land complete their list, achievement 30050, the status lines of the bonus and of "N3rd" |
-| `tests/kill_collector_bonus.tbs` | bot scenario: the combat log shows 5000 without and 5250 with the Oddities achievement (fixed damage spell 66595), also on another continent; a beast stays at 5000 |
-| `tests/kill_collector_meta.tbs` | bot scenario: 44 achievements by game master command stack to +20% / +25% (6000 in the combat log), the 45th by the kills completes "N3rd" and gives 6250; a second part: all 45 by command, "N3rd" comes with the next login |
+| `tests/kill_collector_bonus.tbs` | bot scenario: the combat log shows 4000 without and 4200 with the Oddities achievement (fixed damage spell 37463), also on another continent; a beast stays at 4000; spell 66595 (ignores the caster's modifiers) stays at 5000 |
+| `tests/kill_collector_meta.tbs` | bot scenario: 44 achievements by game master command stack to +20% / +25% (4800 in the combat log), the 45th by the kills completes "N3rd" and gives 5000; a second part: all 45 by command, "N3rd" comes with the next login |
 
 Every SQL file is idempotent (`CREATE TABLE IF NOT EXISTS`, `DELETE` + `INSERT`): the core's updater
 applies a module file again whenever its bytes change.

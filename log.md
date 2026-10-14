@@ -1,5 +1,6 @@
 # Log (newest first)
 
+- 2026-10-14 fix(Core): Spells that ignore the caster's modifiers get no bonus (no double bonus on procs and copies); the bonus tests use the fixed 4000 of spell 37463
 - 2026-10-14 docs: Rewards - README, CLAUDE.md, data_structure, functions, todo
 - 2026-10-14 test: kill_collector_meta (44 achievements by command stack to +20% / +25%, the 45th by the kills gives "N3rd", a second part has it come with the next login)
 - 2026-10-14 test: kill_collector_bonus (the combat log shows 5000 / 5250, another continent, another type) and the status lines in kill_collector_achievement

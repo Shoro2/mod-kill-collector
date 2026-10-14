@@ -26,7 +26,8 @@ the player who holds them all is a "N3rd".
     creatures of its creature type, everywhere - not only on its continent. The bonuses add up: all five
     continents' beast lists make +25% against beasts. It counts for the player's own damage and for what it
     controls or owns (pets, guardians, totems): melee swings, direct spells and damage over time. Never
-    against players or units a player controls. The bonus reads the earned achievements, so it works without
+    against players or units a player controls, and not for spells that ignore the caster's modifiers (procs
+    and copies of damage that already got the bonus), as with the game's own creature-type damage auras. The bonus reads the earned achievements, so it works without
     `AchievementsEnable`.
   - *"N3rd".* The meta achievement 30051 completes once the player has earned every bucket achievement its
     team can earn (today all 45) and rewards the title "N3rd %s" (CharTitles 178, a prefix). Players who

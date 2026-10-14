@@ -32,9 +32,9 @@ public:
     }
 
     // Direct spell damage, before armor, resistance and the critical strike.
-    void ModifySpellDamageTaken(Unit* target, Unit* attacker, int32& damage, SpellInfo const* /*spellInfo*/) override
+    void ModifySpellDamageTaken(Unit* target, Unit* attacker, int32& damage, SpellInfo const* spellInfo) override
     {
-        if (damage <= 0)
+        if (damage <= 0 || IgnoresCasterModifiers(spellInfo))
             return;
 
         uint32 boosted = uint32(damage);
@@ -46,7 +46,7 @@ public:
     // the spells with a periodic damage aura count.
     void ModifyPeriodicDamageAurasTick(Unit* target, Unit* attacker, uint32& damage, SpellInfo const* spellInfo) override
     {
-        if (!spellInfo ||
+        if (!spellInfo || IgnoresCasterModifiers(spellInfo) ||
             (!spellInfo->HasAura(SPELL_AURA_PERIODIC_DAMAGE) && !spellInfo->HasAura(SPELL_AURA_PERIODIC_DAMAGE_PERCENT) &&
              !spellInfo->HasAura(SPELL_AURA_PERIODIC_LEECH)))
             return;
@@ -55,6 +55,14 @@ public:
     }
 
 private:
+    // Like the game's own "damage done versus creature type" auras (Unit::SpellPctDamageModsDone), the bonus skips
+    // the spells that ignore the caster's modifiers: mostly procs and copies whose amount comes from damage that
+    // was raised already (Ignite, the copy damage of the CoA classes) and would otherwise get the bonus twice.
+    static bool IgnoresCasterModifiers(SpellInfo const* spellInfo)
+    {
+        return spellInfo && spellInfo->HasAttribute(SPELL_ATTR3_IGNORE_CASTER_MODIFIERS);
+    }
+
     // true when the damage was raised. The target must be a creature that no player controls (no bonus against
     // players or their pets); the attacker is the player itself or what it controls or owns.
     static bool Boost(Unit* target, Unit* attacker, uint32& damage)
