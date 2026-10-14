@@ -12,6 +12,8 @@ name    mod-kill-collector: completing a list grants its achievement
 # `character_achievement` after the run (bots save at logout). kill_collector_bonus proves the bonus in the combat log.
 # Each creature is respawned by the director (`.respawn` on the picked one, which replaces the object, so
 # it is picked again) before its kill: the scenario runs again while an earlier run's corpse still lies there.
+# The respawn of a corpse is queued and the map spawns it at its next respawn pass (every 5 s), so the
+# scenario waits 6 s before it picks the creature again.
 timeout 180s
 
 bot a mage
@@ -27,7 +29,7 @@ log 1 - Poisonous Mushroom
 pick m creature:30435 near a
 do gm target m
 as gm .respawn
-wait 1s
+wait 6s
 pick m creature:30435 near a
 require m alive
 do a approach m
@@ -44,7 +46,7 @@ place 727 13711.4 11947.7 -49
 pick v creature:86123 near a
 do gm target v
 as gm .respawn
-wait 1s
+wait 6s
 pick v creature:86123 near a
 require v alive
 do a approach v
@@ -59,7 +61,7 @@ place 727 12044.3 11658.8 -85.3
 pick w creature:86156 near a
 do gm target w
 as gm .respawn
-wait 1s
+wait 6s
 pick w creature:86156 near a
 require w alive
 do a approach w

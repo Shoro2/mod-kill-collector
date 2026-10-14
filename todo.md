@@ -17,7 +17,7 @@
 - (low) The bonus covers melee swings, direct spell damage and periodic damage. Damage that goes around those
   hooks (damage shields, scripted `DealDamage`) is not raised. The bot scenario proves a direct spell on a
   creature of the same and another continent; melee, damage over time and a pet are not tested yet.
-- (low) `.reset achievements` fires no hook: the bonus follows at the next login or `.killcollector status`.
+- (low) A reset of the achievements (the console's `.reset achievements`, the test bots' `resetachievements`) fires no hook: the bonus follows at the next login or `.killcollector status`.
   A game master's `.achievement add` of the last bucket achievement raises the bonus at once, but "N3rd" only at
   the next login.
 - (low) The client's Reward texts name +5% (fl-pipeline 209 `REWARD_PCT`): another `KillCollector.DamageBonusPct`

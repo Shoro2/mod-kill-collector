@@ -12,6 +12,8 @@ name    mod-kill-collector: first kills pay a token, the party collects too
 # each bot's collection first, `destroy` its tokens, so every run starts from nothing.
 # Each creature is respawned by the director (`.respawn` on the picked one, which replaces the object, so
 # it is picked again) before its kill: the scenario runs again while an earlier run's corpse still lies there.
+# The respawn of a corpse is queued and the map spawns it at its next respawn pass (every 5 s), so the
+# scenario waits 6 s before it picks the creature again.
 timeout 240s
 
 bot a mage
@@ -34,7 +36,7 @@ log 1 - a first kill pays the killer and the party member next to it
 pick t1 creature:2408 near a
 do gm target t1
 as gm .respawn
-wait 1s
+wait 6s
 pick t1 creature:2408 near a
 require t1 alive
 do a approach t1
@@ -57,7 +59,7 @@ place 0 -89.6 -1107.8 36.2
 pick t2 creature:2408 near a
 do gm target t2
 as gm .respawn
-wait 1s
+wait 6s
 pick t2 creature:2408 near a
 require t2 alive
 do a approach t2
@@ -76,7 +78,7 @@ place 0 705 610 45
 pick g1 creature:1939 near a
 do gm target g1
 as gm .respawn
-wait 1s
+wait 6s
 pick g1 creature:1939 near a
 require g1 alive
 do a approach g1

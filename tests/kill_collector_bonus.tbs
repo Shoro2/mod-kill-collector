@@ -13,9 +13,9 @@ name    mod-kill-collector: an earned achievement raises the damage against that
 # Spell 66595 ("dmg5 arcane", 5000 fixed) ignores the caster's modifiers (SPELL_ATTR3_IGNORE_CASTER_MODIFIERS): the
 # bonus leaves such spells out, as the game's own creature-type damage auras do, so it stays at 5000.
 #
-# 1. The bot (a warlock, slot 2 = Tblocb on TBOT02) starts clean: `.reset achievements` (a game master command, the
-#    director's) deletes every achievement of that character, so the scenario can run again; `.killcollector reset`
-#    empties its collection. `.killcollector status` rereads the earned achievements into the damage bonus ("Damage
+# 1. The bot (a warlock, slot 2 = Tblocb on TBOT02) starts clean: `do b resetachievements` (mod-fl-testbots: the
+#    core's achievement reset; `.reset achievements` is console-only) deletes every achievement of that character,
+#    so the scenario can run again; `.killcollector reset` empties its collection. `.killcollector status` rereads the earned achievements into the damage bonus ("Damage
 #    bonus: none").
 # 2. A first Enchanted Zol'maz weapon (86156, creature type 10 = "Oddities") takes 4000.
 # 3. The director kills the three creatures of "Oddities of the Forgotten Land" (30050) while the bot stands next to
@@ -24,9 +24,8 @@ name    mod-kill-collector: an earned achievement raises the damage against that
 # 5. Beyond the continent the achievement belongs to, and only for its creature type: an Enchanted Tiki Warrior (28882,
 #    type 10, Zul'Drak in Northrend) takes 4200, an Enraged Mammoth (28851, a beast) next to it takes 4000.
 #
-# The character must not hold a type 10 achievement when the run starts; step 1 sees to that. If `.reset
-# achievements` is not allowed for the director, pick another character: `slot=3` is Tblocc, `slot=4` Tblocd (every
-# slot has its own warlock "Tbloc<letter>"); the name in step 1 follows the slot.
+# The character must not hold a type 10 achievement when the run starts; step 1 sees to that. Each creature is
+# respawned first (`.respawn`, then 6 s: the map spawns a corpse's replacement at its next respawn pass, every 5 s).
 timeout 300s
 
 bot b warlock slot=2
@@ -38,7 +37,7 @@ require b alive
 do gm target b
 as gm .killcollector reset
 expect output has "collection reset"
-as gm .reset achievements Tblocb
+do b resetachievements
 as b .killcollector status
 expect output has "Damage bonus: none"
 expect output has "N3rd: not yet (0 of 45 achievements)"
@@ -47,7 +46,7 @@ log 2 - without the achievement the spell does 4000
 pick w1 creature:86156 near b
 do gm target w1
 as gm .respawn
-wait 1s
+wait 6s
 pick w1 creature:86156 near b
 require w1 alive
 do b approach w1
@@ -65,7 +64,7 @@ place 727 13392.6 11411.4 -148.5
 pick m creature:30435 near b
 do gm target m
 as gm .respawn
-wait 1s
+wait 6s
 pick m creature:30435 near b
 require m alive
 do b approach m
@@ -79,7 +78,7 @@ place 727 13711.4 11947.7 -49
 pick v creature:86123 near b
 do gm target v
 as gm .respawn
-wait 1s
+wait 6s
 pick v creature:86123 near b
 require v alive
 do b approach v
@@ -93,7 +92,7 @@ place 727 12044.3 11658.8 -85.3
 pick k creature:86156 near b
 do gm target k
 as gm .respawn
-wait 1s
+wait 6s
 pick k creature:86156 near b
 require k alive
 do b approach k
@@ -113,7 +112,7 @@ place 727 12215.6 11687.8 -84.2
 pick w2 creature:86156 near b
 do gm target w2
 as gm .respawn
-wait 1s
+wait 6s
 pick w2 creature:86156 near b
 require w2 alive
 do b approach w2
@@ -134,7 +133,7 @@ place 571 6497.08 -4105.45 469.054
 pick t creature:28882 near b
 do gm target t
 as gm .respawn
-wait 1s
+wait 6s
 pick t creature:28882 near b
 require t alive
 do b approach t
@@ -149,7 +148,7 @@ place 571 6340.85 -4148.84 458.931
 pick e creature:28851 near b
 do gm target e
 as gm .respawn
-wait 1s
+wait 6s
 pick e creature:28851 near b
 require e alive
 do b approach e

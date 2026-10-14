@@ -48,7 +48,7 @@ number of earned bucket achievements of that type (at most five with the default
 - at login (after the achievements are granted), after it granted a bucket achievement, when any bucket
 achievement completes (also a game master's `.achievement add`), and in `.killcollector status` - and the
 damage hooks only read it, so they take no lock. The percentage is `earned` x `KillCollector.DamageBonusPct`,
-read at the blow. `.reset achievements` fires no hook: the status command or the next login rereads it.
+read at the blow. A reset of the achievements (the console's `.reset achievements`, the test bots' `resetachievements`) fires no hook: the status command or the next login rereads it.
 
 ## Config keys
 

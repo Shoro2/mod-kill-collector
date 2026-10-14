@@ -4,7 +4,7 @@ name    mod-kill-collector: the achievements stack to +25% damage, the 45th comp
 # this folder in TestBots.ScenarioDirs. The combat log numbers are those of kill_collector_bonus: spell 37463
 # ("Fireball") is 4000 fixed damage, so 4000 * (100 + 5 * n) / 100 with n earned Oddities achievements.
 #
-# Part 1, the kill path: a fresh warlock (slot 3 = Tblocc on TBOT03; `.reset achievements` clears it) gets 44 of the
+# Part 1, the kill path: a fresh warlock (slot 3 = Tblocc on TBOT03; `do c resetachievements` clears it) gets 44 of the
 # 45 achievements from a game master (`.achievement add`, all but Oddities of the Forgotten Land). The Oddities
 # are four of five lists: +20% against them (the other types +25%), so the spell does 4800 on an Enchanted Zol'maz
 # weapon, and "N3rd" is not there yet (44 of 45). The director then kills the three Oddities of the Forgotten
@@ -16,8 +16,10 @@ name    mod-kill-collector: the achievements stack to +25% damage, the 45th comp
 # status line says "N3rd: earned". The title itself (CharTitles 178, bit 143 = bit 15 of the 5th number of
 # `characters.knownTitles`) is saved at logout: check it after the run.
 #
-# The character must hold none of the achievements when the run starts: the first step resets them. For another run
-# in the same state pick another slot (`slot=4` is Tblocd, ...); the name in the `.achievement add` lines follows.
+# The character must hold none of the achievements when the run starts: the first step resets them (`do c
+# resetachievements`, mod-fl-testbots: the core's achievement reset; `.reset achievements` is console-only). Each
+# creature is respawned first (`.respawn`, then 6 s: the map spawns a corpse's replacement at its next respawn
+# pass, every 5 s). Another slot (`slot=4` is Tblocd, ...) needs the name in the `.achievement add` lines changed.
 timeout 400s
 
 bot c warlock slot=3
@@ -29,7 +31,7 @@ require c alive
 do gm target c
 as gm .killcollector reset
 expect output has "collection reset"
-as gm .reset achievements Tblocc
+do c resetachievements
 as gm .achievement add 30001 Tblocc
 as gm .achievement add 30002 Tblocc
 as gm .achievement add 30003 Tblocc
@@ -84,7 +86,7 @@ log 2 - four Oddities lists: the spell does 4800
 pick w1 creature:86156 near c
 do gm target w1
 as gm .respawn
-wait 1s
+wait 6s
 pick w1 creature:86156 near c
 require w1 alive
 do c approach w1
@@ -100,7 +102,7 @@ place 727 13392.6 11411.4 -148.5
 pick m creature:30435 near c
 do gm target m
 as gm .respawn
-wait 1s
+wait 6s
 pick m creature:30435 near c
 require m alive
 do c approach m
@@ -114,7 +116,7 @@ place 727 13711.4 11947.7 -49
 pick v creature:86123 near c
 do gm target v
 as gm .respawn
-wait 1s
+wait 6s
 pick v creature:86123 near c
 require v alive
 do c approach v
@@ -128,7 +130,7 @@ place 727 12044.3 11658.8 -85.3
 pick k creature:86156 near c
 do gm target k
 as gm .respawn
-wait 1s
+wait 6s
 pick k creature:86156 near c
 require k alive
 do c approach k
@@ -147,7 +149,7 @@ place 727 12215.6 11687.8 -84.2
 pick w2 creature:86156 near c
 do gm target w2
 as gm .respawn
-wait 1s
+wait 6s
 pick w2 creature:86156 near c
 require w2 alive
 do c approach w2
@@ -159,7 +161,7 @@ spelllog stop
 expect c spell 37463 damage == 5000
 
 log 5 - the login path: all 45 from the game master, "N3rd" comes with the next login
-as gm .reset achievements Tblocc
+do c resetachievements
 as gm .achievement add 30001 Tblocc
 as gm .achievement add 30002 Tblocc
 as gm .achievement add 30003 Tblocc
