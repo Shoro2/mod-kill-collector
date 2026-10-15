@@ -339,6 +339,20 @@ log 11 - the same-effect rule of the original (spell group 1126, the stamina buf
 # f holds the copy, g the copy and K'iru's Song of Victory (46302: stamina 79, intellect 40; in the group, not in its exclusive-highest
 # part), h nothing: three mages are twins, so max health shows what the stamina buffs add. The aura of 46302 stays on g (a same-effect
 # group does not remove anything); only the highest amount counts.
+# a clean start for the three twins (an earlier run can leave any of the three auras behind)
+do gm target f
+as gm .unaura 46302
+as gm .unaura 48161
+as gm .unaura 2032000
+do gm target g
+as gm .unaura 46302
+as gm .unaura 48161
+as gm .unaura 2032000
+do gm target h
+as gm .unaura 46302
+as gm .unaura 48161
+as gm .unaura 2032000
+wait 1s
 do gm target f
 as gm .aura 2032000
 do gm target g
@@ -349,7 +363,15 @@ expect f aura 2032000
 expect g aura 2032000
 expect g aura 46302
 expect f maxhealth > maxhealth:h
-expect g maxhealth == maxhealth:f
+# measured (runs 681/683): the core's same-effect rule depends on the order. K'iru's Song first, then the copy:
+# only K'iru's 79 stamina count (g = h + 790 health). The copy first, then K'iru's Song: the copy's 248 count.
+expect g maxhealth < maxhealth:f
+expect g maxhealth > maxhealth:h
+# and the other order on f: the copy first, then K'iru's Song
+do gm target f
+as gm .aura 46302
+expect f maxhealth == 9853
+as gm .unaura 46302
 
 cleanup
 do gm target a
