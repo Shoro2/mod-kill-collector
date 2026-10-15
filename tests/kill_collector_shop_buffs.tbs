@@ -1,4 +1,4 @@
-name    mod-kill-collector: the token shop sells every class buff as a spell of its own (+50%, 1 hour, 10 tokens); a normal cast cannot override it
+name    mod-kill-collector: the token shop sells every class buff as a spell of its own (+50%, 1 hour, 10 tokens); a normal cast cannot override it and the copy follows its original's stacking rules
 # Server-side test bot run (mod-fl-testbots), T1. Needs KillCollector.Enable = 1, this module's
 # data/sql/db-world/base/mod_kill_collector_shop_buffs.sql applied (the 68 copy spells 2032000-2032067 and their spell
 # groups), fl-lua-scripts' TokenShop/ (branch claude/shop-buffs-v2-433902b4) loaded by ALE (`.reload ale` after a
@@ -6,42 +6,58 @@ name    mod-kill-collector: the token shop sells every class buff as a spell of 
 # runs the very function the window's Buy button reaches. Amounts are read back with the GM's `.list auras id <spell>`
 # ("id: <spell> eff: <n> amount: <amount>" per effect of the aura on the selected unit).
 #
-# Each buff is a spell of its own: a copy of the class buff's top rank, every amount x1.5 (round half up), one hour,
-# a self buff, no spell family. The core's spell groups (EXCLUSIVE_HIGHEST) decide the stacking:
+# Each buff is a spell of its own: a copy of the class buff's top rank, every amount x1.5 (round half up on the magnitude),
+# one hour, a self buff, no spell family. The core's spell groups decide the stacking:
 #   * a normal cast of the original on a holder of the copy fails with "A more powerful spell is already active"
-#     (cast result 9, SPELL_FAILED_AURA_BOUNCED) - read through `clientcast`, which sends the client's cast packet and
-#     puts the core's SMSG_CAST_FAILED into the output ("cast failed: spell <id>, result 9");
-#   * the copy cast on a holder of the normal buff replaces it (its amounts are higher).
+#     (cast result 9, SPELL_FAILED_AURA_BOUNCED, EXCLUSIVE_HIGHEST) - read through `clientcast`, which sends the client's cast
+#     packet and puts the core's SMSG_CAST_FAILED into the output ("cast failed: spell <id>, result 9");
+#   * the copy cast on a holder of the normal buff replaces it (its amounts are higher);
+#   * the copy follows every other rule its original follows: the blessings, the warrior shouts and the class's other
+#     per-caster families are ONE per caster (the buyer is the caster of every copy, so the newest copy replaces the
+#     older one, and the shop's answer says so), and a same-effect group (group 1126, the stamina buffs) counts the
+#     highest amount only.
 #
 #   Power Word: Fortitude  2032000  stamina 165 -> 248                 (original 48161)
 #   Mark of the Wild       2032003  armor 750 -> 1125, all stats 37 -> 56, all resistances 54 -> 81   (48469)
 #   Power Module (Tinker)  2032054  attack power 232 -> 348, ranged attack power 232 -> 348 (707688; a CoA buff a mage buys)
 #   Blessing of Kings      2032006  stats 10% -> 15%                   (20217)
 #   Blessing of Might      2032007  attack power 550 -> 825, ranged 550 -> 825 (48932)
-#   Blessing of Sanctuary  2032009  stamina and strength 10% -> 15%    (a copy of 67480, the aura the script of 20911 casts)
+#   Blessing of Sanctuary  2032009  stamina and strength 10% -> 15%, damage taken -3% -> -5% (a copy of 67480, the stat aura
+#                                   the script of 20911 casts, plus the damage reduction 68066 the other script casts; the
+#                                   mana proc 57319 is not part of the copy)
 #   Battle Shout           2032010  attack power 550 -> 825, ranged 550 -> 825 (47436; an area spell made a self buff)
 #   Sanguinary Offering    2032034  stamina 79 -> 119                  (707340, Bloodmage)
 #
-# Parts 1-7 are the shop's behaviour; part 8 the refusals (cast result 9); part 9 what the core does with the area
-# shout and with Sanctuary's script aura - written down from the core source, to be confirmed by this run (a line
-# that fails there is a finding, not a typo); part 10 the replacement of a normal buff by the copy.
+# Parts 1-5 and 7 are the shop's behaviour; part 6 the per-caster rule of the blessings; part 8 the refusals (cast result 9);
+# part 9 what the core does with the area shout and with Sanctuary's two scripts (the stat aura 67480 and the damage
+# reduction 68066 - written down from the core source, to be confirmed by this run: a line that fails there is a finding,
+# not a typo); part 10 the replacement of a normal buff by the copy; part 11 the same-effect rule (max health twins).
 #
 # Repeatable: the start destroys the tokens and removes every aura named above; the cleanup does the same.
-timeout 300s
+timeout 420s
 
 bot a mage
 bot b priest
 bot c warrior
 bot d bloodmage
 bot e paladin
+bot f mage
+bot g mage
+bot h mage
 place 0 -10.3 -1111.9 36.1
 require a alive
 require b alive
 require c alive
 require d alive
 require e alive
+require f alive
+require g alive
+require h alive
 do a level 80
 do c level 80
+do f level 80
+do g level 80
+do h level 80
 # a client cast needs a spell the bot knows: the ranks the refusals cast
 do b learn 48161
 do d learn 707340
@@ -71,6 +87,15 @@ as gm .unaura 47436
 as gm .unaura 2032010
 do gm target b
 as gm .unaura 47436
+do gm target f
+as gm .unaura 2032000
+as gm .unaura 46302
+do gm target g
+as gm .unaura 2032000
+as gm .unaura 46302
+do gm target h
+as gm .unaura 2032000
+as gm .unaura 46302
 do a destroy 920200
 do c destroy 920200
 expect a item 920200 == 0
@@ -118,10 +143,12 @@ expect a item 920200 == 180
 as gm .list auras id 2032000
 expect output has "id: 2032000 eff: 0 amount: 248"
 
-log 5 - Mark of the Wild (three effects) and a CoA buff bought by a mage (Tinker's Power Module)
+log 5 - Mark of the Wild (three effects) and a CoA buff bought by a mage (Tinker's Power Module); no rule between them and Power Word: Fortitude
 as a .tokenshop buy buff_mark_of_the_wild
 expect output has "You buy Mark of the Wild"
+expect output lacks "It replaced"
 expect a aura 2032003
+expect a aura 2032000
 expect a auramaxduration 2032003 >= 3500000
 expect a item 920200 == 170
 as gm .list auras id 2032003
@@ -137,31 +164,44 @@ as gm .list auras id 2032054
 expect output has "id: 2032054 eff: 0 amount: 348"
 expect output has "id: 2032054 eff: 1 amount: 348"
 
-log 6 - three shop blessings coexist (Kings, Might, Sanctuary: no one-blessing-per-caster rule, no family)
+log 6 - the blessings follow the one-blessing-per-caster rule of their originals (spell group 1010): the buyer holds one shop blessing, the newest
 as a .tokenshop buy buff_blessing_of_kings
 expect output has "You buy Blessing of Kings"
-as a .tokenshop buy buff_blessing_of_might
-expect output has "You buy Blessing of Might"
-as a .tokenshop buy buff_blessing_of_sanctuary
-expect output has "You buy Blessing of Sanctuary"
+expect output lacks "It replaced"
 expect a aura 2032006
-expect a aura 2032007
-expect a aura 2032009
 expect a auramaxduration 2032006 >= 3500000
-expect a auramaxduration 2032007 >= 3500000
-expect a auramaxduration 2032009 >= 3500000
-expect a item 920200 == 130
+expect a item 920200 == 150
 as gm .list auras id 2032006
 expect output has "id: 2032006 eff: 0 amount: 15"
+as a .tokenshop buy buff_blessing_of_might
+expect output has "You buy Blessing of Might"
+expect output has "It replaced Blessing of Kings (one buff of that kind at a time)"
+expect a aura 2032007
+expect a noaura 2032006
+expect a auramaxduration 2032007 >= 3500000
+expect a item 920200 == 140
 as gm .list auras id 2032007
 expect output has "id: 2032007 eff: 0 amount: 825"
 expect output has "id: 2032007 eff: 1 amount: 825"
+as a .tokenshop buy buff_blessing_of_sanctuary
+expect output has "You buy Blessing of Sanctuary"
+expect output has "It replaced Blessing of Might (one buff of that kind at a time)"
+expect a aura 2032009
+expect a noaura 2032007
+expect a auramaxduration 2032009 >= 3500000
+expect a item 920200 == 130
 as gm .list auras id 2032009
 expect output has "id: 2032009 eff: 0 amount: 15"
 expect output has "id: 2032009 eff: 1 amount: 15"
-# the script of 20911 is not on the copy: nothing normal came with it
+expect output has "id: 2032009 eff: 2 amount: -5"
+# the other buffs of the mage stay: they are no blessings
+expect a aura 2032000
+expect a aura 2032003
+expect a aura 2032054
+# the scripts of 20911 are not on the copy: nothing normal came with it
 expect a noaura 20911
 expect a noaura 67480
+expect a noaura 68066
 
 log 7 - Battle Shout, an area spell made a self buff: the warrior keeps it for an hour at 825, nobody else gets anything
 as gm .additem Tbwarc 920200 10
@@ -190,25 +230,37 @@ expect a aura 2032000
 do gm target a
 as gm .list auras id 2032000
 expect output has "id: 2032000 eff: 0 amount: 248"
-# the paladin's Blessing of Kings (10%) against 15%, Might (550) against 825
+# the paladin's Blessing of Kings (10%) against the copy's 15%: the mage buys Kings (it replaces the Sanctuary copy: one blessing)
+as a .tokenshop buy buff_blessing_of_kings
+expect output has "It replaced Blessing of Sanctuary (one buff of that kind at a time)"
+expect a aura 2032006
+expect a noaura 2032009
+expect a item 920200 == 120
 do e clientcast 20217 on a
 expect output has "cast failed: spell 20217, result 9"
 wait 2s
-do e clientcast 48932 on a
-expect output has "cast failed: spell 48932, result 9"
 expect a noaura 20217
-expect a noaura 48932
 expect a aura 2032006
-expect a aura 2032007
 as gm .list auras id 2032006
 expect output has "id: 2032006 eff: 0 amount: 15"
+# Might (550) against the copy's 825: the mage buys Might (it replaces the Kings copy)
+as a .tokenshop buy buff_blessing_of_might
+expect output has "It replaced Blessing of Kings (one buff of that kind at a time)"
+expect a aura 2032007
+expect a noaura 2032006
+expect a item 920200 == 110
+do e clientcast 48932 on a
+expect output has "cast failed: spell 48932, result 9"
+wait 2s
+expect a noaura 48932
+expect a aura 2032007
 as gm .list auras id 2032007
 expect output has "id: 2032007 eff: 0 amount: 825"
 # a CoA buff: Sanguinary Offering (a Bloodmage's, in the core's exclusive-highest group 2100004 as well)
 as a .tokenshop buy buff_sanguinary_offering
 expect output has "You buy Sanguinary Offering"
 expect a aura 2032034
-expect a item 920200 == 120
+expect a item 920200 == 100
 as gm .list auras id 2032034
 expect output has "id: 2032034 eff: 0 amount: 119"
 do d clientcast 707340 on a
@@ -218,7 +270,7 @@ expect a noaura 707340
 expect a aura 2032034
 expect a auramaxduration 2032034 >= 3500000
 
-log 9 - what the core does with an AREA shout and with Sanctuary's script aura (predictions, see the header)
+log 9 - what the core does with an AREA shout and with Sanctuary's two scripts (predictions, see the header)
 # Battle Shout is an area spell: the core's cast check skips area spells, so the normal cast goes ahead; its aura on the
 # holder (the warrior) is dropped as the weaker one, the party gets the normal buff
 do c cast 47436 triggered
@@ -231,17 +283,25 @@ expect output has "id: 2032010 eff: 0 amount: 825"
 expect b aura 47436
 # the mage holds Might's 825 in the same exclusive-highest group (flat attack power): the weaker shout is dropped there too
 expect a noaura 47436
-# Sanctuary: the normal blessing is not refused (its own effect is a dummy aura, the copy has none), but the stat aura
-# its script casts (67480, 10%) is weaker than the copy's 15% and is turned away
+# Sanctuary: the mage buys it (it replaces the Might copy); the normal blessing is not refused (its own effect is a dummy
+# aura, the copy has none), but the stat aura (67480, 10%) and the damage reduction (68066, -3%) its two scripts cast are
+# weaker than the copy's 15% and -5% and are turned away
+as a .tokenshop buy buff_blessing_of_sanctuary
+expect output has "It replaced Blessing of Might (one buff of that kind at a time)"
+expect a aura 2032009
+expect a noaura 2032007
+expect a item 920200 == 90
 do e clientcast 20911 on a
 wait 2s
 expect a aura 20911
 expect a noaura 67480
+expect a noaura 68066
 expect a aura 2032009
 do gm target a
 as gm .list auras id 2032009
 expect output has "id: 2032009 eff: 0 amount: 15"
 expect output has "id: 2032009 eff: 1 amount: 15"
+expect output has "id: 2032009 eff: 2 amount: -5"
 
 log 10 - a copy bought while holding the normal buff replaces it
 as gm .unaura 2032000
@@ -275,6 +335,22 @@ as gm .list auras id 2032034
 expect output has "id: 2032034 eff: 0 amount: 119"
 expect a auramaxduration 2032034 >= 3500000
 
+log 11 - the same-effect rule of the original (spell group 1126, the stamina buffs): the copy's 248 stamina and K'iru's Song of Victory's 79 do not add up
+# f holds the copy, g the copy and K'iru's Song of Victory (46302: stamina 79, intellect 40; in the group, not in its exclusive-highest
+# part), h nothing: three mages are twins, so max health shows what the stamina buffs add. The aura of 46302 stays on g (a same-effect
+# group does not remove anything); only the highest amount counts.
+do gm target f
+as gm .aura 2032000
+do gm target g
+as gm .aura 46302
+as gm .aura 2032000
+wait 1s
+expect f aura 2032000
+expect g aura 2032000
+expect g aura 46302
+expect f maxhealth > maxhealth:h
+expect g maxhealth == maxhealth:f
+
 cleanup
 do gm target a
 as gm .unaura 48161
@@ -299,6 +375,15 @@ as gm .unaura 47436
 as gm .unaura 2032010
 do gm target b
 as gm .unaura 47436
+do gm target f
+as gm .unaura 2032000
+as gm .unaura 46302
+do gm target g
+as gm .unaura 2032000
+as gm .unaura 46302
+do gm target h
+as gm .unaura 2032000
+as gm .unaura 46302
 do a destroy 920200
 do c destroy 920200
 log token shop buffs done
