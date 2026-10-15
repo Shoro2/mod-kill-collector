@@ -23,30 +23,43 @@ the files on disk - run it against the live database to prove the committed file
 
 What a copy is (the rules; a scenario or a reviewer finds them here):
   * the row of the ORIGINAL class spell (the single-target form, its top rank). Blessing of Sanctuary's real stat aura
-    is the spell its script casts (67480), so that row is the source; the script's other parts (the damage reduction,
-    the mana proc) are not part of the copy.
+    is the spell its script casts (67480), so that row is the source, and the damage reduction its script casts
+    (68066, aura 87) is added as the copy's third effect (`add` option); the script's mana proc (57319) is not part of
+    the copy.
   * effects: every effect whose aura type is an amount the shop scales (SCALE_AURAS) is kept at the SAME effect index
     (the tooltip's $s1..$s3 follow) with the boosted amount baked in (no random points, no per-level part; level 80
-    values), as a plain APPLY_AURA on the caster (implicit target 1): a self buff, never an area aura. Every other
-    effect (a dummy a script reads, a no-op amount 0, a custom effect) is dropped.
+    values; a negative amount, a reduction, is rounded on its magnitude: 3 % -> 5 %), as a plain APPLY_AURA on the
+    caster (implicit target 1): a self buff, never an area aura. Every other effect (a dummy a script reads, a no-op
+    amount 0, a custom effect) is dropped.
   * the cast data is cleared (no cost, reagents, cooldown, category, range, stance or aura-state needs, no proc mask,
     no family): `SpellClassSet` and `SpellClassMask_*` are 0, so no talent, glyph or class script keyed to the family
-    or the spell id touches the copy, and it belongs to no per-caster blessing rule.
+    or the spell id touches the copy.
   * the text: the client's name, icon and visuals, the rank text "Empowered"; the description and aura description are
     the client's own (they compute from the copy's boosted values) with the statements that no longer hold removed
     (party reach, the per-caster "only one" sentences) - see TEXT_RULES / TEXT_FIXES.
 
-Stacking (spell groups): the copy joins every EXCLUSIVE_HIGHEST group its original sits in; for the original's rank
-chains and group ("Greater ...") versions that no such group covers, a group of its own id (2300000-2300199) holds that
-spell's first rank + the copy, with stack rule EXCLUSIVE_HIGHEST. A separate group per spell is used wherever one shared
-group would change how two ORIGINALS stack (checked by a port of SpellMgr::CheckSpellGroupStackRules, which also proves
-that every excluded spell and the copy end at rule EXCLUSIVE_HIGHEST); so no existing pair of spells changes its rule.
+Stacking (spell groups): a copy follows every stacking rule its original follows and is exclusive-highest with the
+normal versions of itself:
+  * it joins every group of rule EXCLUSIVE (1), EXCLUSIVE_FROM_SAME_CASTER (2) and EXCLUSIVE_SAME_EFFECT (3) its original
+    sits in (so a shop Kings does not add to what the Kings group forbids, one blessing per caster, ...), except where
+    no other spell sits with it, or a same-effect group's aura type is none of the copy's (the core would log an error);
+  * it joins every EXCLUSIVE_HIGHEST (4) group the original or its normal versions sit in;
+  * for each normal version of the spell (its rank chain's first ranks, the group "Greater ..." versions, the spells
+    that carry the same aura) the copy must end at rule 4 with it. The core takes the FIRST non-zero rule of the groups
+    two spells share, in group id order, and a group of ours has the highest id: where an older group (EXCLUSIVE, per
+    caster, same effect) would be first, the pair gets a group of its own (2300000-2300399, one per pair: the copy and
+    that spell) which is also NESTED in the older groups (a `spell_group` row with a negative spell id): the core skips
+    a group when a group nested in it holds both spells. A spell the shop's original does nothing with (Blessing of
+    Sanctuary's dummy aura) gets such a pair group without a rule (0): a normal cast and the copy do not touch;
+  * a port of SpellMgr::CheckSpellGroupStackRules proves the rule of every pair (copy / each normal version, copy /
+    every spell the original has a rule with, copy / copy, no other pair changed) before anything is written.
 
 Usage:
   python gen_shop_buffs.py [--insert <TokenShop_Server.lua>] [--sql <file>] [--spec <file>] [--out <lua rows file>]
-                           [--check] [--verify] [--tooltips] [--list]
-  (no flag: the Lua rows to stdout.)  Environment: FL_DBC_DIR, FL_WORLDSERVER_CONF, FL_MYSQL, FL_SPELL_DBC_DDL,
-  FL_WORLD_DB="host;port;user;password;database" (overrides the conf), FL_CLIENT_SPELL_DBC.
+                           [--check] [--verify] [--installed] [--tooltips] [--list]
+  (no flag: the Lua rows to stdout.)  --verify: do the files on disk equal what the live tables make of PICKS?  --installed:
+  do the live tables hold exactly the rows this writes (read-only)?  Environment: FL_DBC_DIR, FL_WORLDSERVER_CONF, FL_MYSQL,
+  FL_SPELL_DBC_DDL, FL_WORLD_DB="host;port;user;password;database" (overrides the conf), FL_CLIENT_SPELL_DBC.
 Add a buff: append the original's id to PICKS (class heading, id, shop name[, options]) and run again; the copy id is
 assigned and written to shop_buff_ids.json (commit it).
 """
@@ -58,7 +71,7 @@ import re
 import struct
 import subprocess
 import sys
-from collections import defaultdict
+from collections import Counter, defaultdict
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 FACTOR = 1.5
@@ -84,13 +97,20 @@ IDS_JSON = os.path.join(HERE, "shop_buff_ids.json")
 #          Blessings; any rank id) the copy must exclude too: they sit in the same exclusive-highest groups as the single-target
 #          spell, so no group of its own is needed, but the generator proves the rule against them. (The CoA "Greater <name>"
 #          versions are found by name and family.)
+#          add = [(spell id, effect index from 0)]: that spell's effect becomes the next free effect slot of the copy,
+#          scaled like the others (Sanctuary: the damage reduction its script casts, 68066);
+#          exclude = further spells (any rank id) that carry the same aura as one of the copy's effects: the copy must be
+#          exclusive-highest with them (68066);
+#          inert = spells of the original's own family that have NO amount aura (a dummy a script reads: Sanctuary 20911
+#          and its Greater version): the copy must have no rule with them (a normal cast must neither bounce nor remove it).
 PICKS = [
     ("Priest", [(48161, "Power Word: Fortitude", {"greater": [48162]}), (48073, "Divine Spirit", {"greater": [48074]}),
                 (48169, "Shadow Protection", {"greater": [48170]})]),
     ("Druid", [(48469, "Mark of the Wild", {"greater": [48470]}), (53307, "Thorns")]),
     ("Mage", [(42995, "Arcane Intellect", {"greater": [43002]})]),
     ("Paladin", [(20217, "Blessing of Kings", {"greater": [25898]}), (48932, "Blessing of Might", {"greater": [48934]}), (48936, "Blessing of Wisdom", {"greater": [48938]}),
-                 (20911, "Blessing of Sanctuary", {"source": 67480})]),
+                 (20911, "Blessing of Sanctuary", {"source": 67480, "add": [(68066, 0)], "exclude": [68066],
+                                                   "inert": [20911, 25899]})]),
     ("Warrior", [(47436, "Battle Shout"), (47440, "Commanding Shout")]),
     ("Death Knight", [(57623, "Horn of Winter")]),
     ("Barbarian", [(300887, "Brutal Shout"), (681441, "Enduring Shout")]),
@@ -121,11 +141,11 @@ PICKS = [
 
 # Aura types whose amount the shop scales (flat or percent amounts that a buyer reads on the buff).
 SCALE_AURAS = {
-    15: "damage shield", 22: "resistance", 29: "stat", 72: "resource costs %", 85: "mana per 5 s", 99: "attack power",
-    124: "ranged attack power", 137: "total stat %", 143: "resistance (exclusive)", 230: "max health",
+    15: "damage shield", 22: "resistance", 29: "stat", 72: "resource costs %", 85: "mana per 5 s", 87: "damage taken %",
+    99: "attack power", 124: "ranged attack power", 137: "total stat %", 143: "resistance (exclusive)", 230: "max health",
     345: "spell power (Ascension)",
 }
-PERCENT_AURAS = {72, 137}
+PERCENT_AURAS = {72, 87, 137}
 APPLY_EFFECTS = {6, 35, 65, 128}   # APPLY_AURA, area aura party / raid / friend
 STATS = {-1: "all stats", 0: "Strength", 1: "Agility", 2: "Stamina", 3: "Intellect", 4: "Spirit"}
 SCHOOLS = {2: "Holy", 4: "Fire", 8: "Nature", 16: "Frost", 32: "Shadow", 64: "Arcane"}
@@ -183,8 +203,8 @@ TEXT_FIXES = {
     681441: {"Description_Lang_enUS": [("Roar with enduring fury, increasing the Stamina of nearby allies by $s1 for $d.",
                                         "Roar with enduring fury, increasing Stamina by $s1 for $d.")]},
     803671: {"AuraDescription_Lang_enUS": [("Resource costs reduced by 5%.", "Resource costs reduced by $s2%.")]},
-    67480: {"Description_Lang_enUS": [(None, "Places a Blessing on the friendly target, increasing strength and stamina by $s1% for $d.")],
-            "AuraDescription_Lang_enUS": [(None, "Strength and stamina increased by $s1%.")]},
+    67480: {"Description_Lang_enUS": [(None, "Places a Blessing on the friendly target, increasing strength and stamina by $s1% and reducing damage taken from all sources by $s3% for $d.")],
+            "AuraDescription_Lang_enUS": [(None, "Strength and stamina increased by $s1%, damage taken reduced by $s3%.")]},
 }
 
 
@@ -273,6 +293,21 @@ def mysql(sql, raw_rows=False):
     return [line.split("\t") for line in out.stdout.replace("\r\n", "\n").split("\n") if line]
 
 
+def parse_db_row(f):
+    """The 234 text fields of one `SELECT * FROM spell_dbc` row -> python values (NULL text = "")."""
+    assert len(f) == 234, len(f)
+    rec = []
+    for k, v in enumerate(f):
+        t = TYPES[k]
+        if t == "float":
+            rec.append(float(v))
+        elif t in ("varchar", "text"):
+            rec.append("" if v == "NULL" else v)
+        else:
+            rec.append(int(v))
+    return rec
+
+
 def load_spells():
     """Server spell data: Data/dbc/Spell.dbc overlaid by acore_world.spell_dbc (the table wins) -> ({id: record},
     ids in the table, {id: name} of what the copy band already holds - taken out of the data)."""
@@ -280,16 +315,7 @@ def load_spells():
     spells = {rid: dbc.rec(rid) for rid in dbc.index}
     in_table = set()
     for f in split_rows(mysql("SELECT * FROM acore_world.spell_dbc", raw_rows=True)):
-        assert len(f) == 234
-        rec = []
-        for k, v in enumerate(f):
-            t = TYPES[k]
-            if t == "float":
-                rec.append(float(v))
-            elif t in ("varchar", "text"):
-                rec.append("" if v == "NULL" else v)
-            else:
-                rec.append(int(v))
+        rec = parse_db_row(f)
         spells[rec[0]] = rec
         in_table.add(rec[0])
     band = {}
@@ -317,7 +343,8 @@ def load_groups():
     members = defaultdict(list)
     for gid, sid in mysql("SELECT id, spell_id FROM acore_world.spell_group ORDER BY id, spell_id"):
         gid, sid = int(gid), int(sid)
-        if GROUP_BAND[0] <= gid <= GROUP_BAND[1] or COPY_BAND[0] <= sid <= COPY_BAND[1]:
+        # this generator's own rows: the copies, the groups of its band, and the groups of its band nested in older ones
+        if GROUP_BAND[0] <= gid <= GROUP_BAND[1] or COPY_BAND[0] <= sid <= COPY_BAND[1] or GROUP_BAND[0] <= -sid <= GROUP_BAND[1]:
             continue
         members[gid].append(sid)
     rules = {}
@@ -356,8 +383,9 @@ class GroupModel:
     def first_of(self, sid):
         return self.first.get(sid, sid)
 
-    def rule_between(self, a, b):
-        """SpellMgr::CheckSpellGroupStackRules for two spells (any rank ids)."""
+    def counted(self, a, b):
+        """The groups SpellMgr::CheckSpellGroupStackRules collects for two spells (any rank ids), in id order: the groups
+        both are members of, without a group that has a NESTED group holding both of them (the nested one decides)."""
         f1, f2 = self.first_of(a), self.first_of(b)
         common = []
         for grp in self.groups_of.get(f1, ()):
@@ -369,8 +397,12 @@ class GroupModel:
                         break
                 if add:
                     common.append(grp)
+        return sorted(common)
+
+    def rule_between(self, a, b):
+        """SpellMgr::CheckSpellGroupStackRules for two spells (any rank ids): the first non-zero rule of `counted`."""
         rule = 0
-        for grp in sorted(common):
+        for grp in self.counted(a, b):
             if grp in self.rules:
                 rule = self.rules[grp]
             if rule:
@@ -401,7 +433,9 @@ def effect(rec, i):
 
 
 def boosted(natural):
-    return int(math.floor(natural * FACTOR + 0.5))
+    """x1.5 rounded half up on the MAGNITUDE: a reduction of 3 % becomes 5 % (-4.5 rounded up would give 4), -5 % -> -8 %."""
+    mag = int(math.floor(abs(natural) * FACTOR + 0.5))
+    return -mag if natural < 0 else mag
 
 
 def label(aura, misc):
@@ -413,38 +447,45 @@ def label(aura, misc):
         if misc == 126:
             return "all resistances"
         return "/".join(SCHOOLS[b] for b in SCHOOLS if misc & b) + " resistance"
-    return {15: "Damage shield", 72: "Resource costs", 85: "Mana per 5 s", 99: "Attack power", 124: "Ranged attack power",
-            137: "Stats" if misc == -1 else STATS.get(misc, "stat"), 230: "Max health", 345: "Spell power"}.get(aura, "aura %d" % aura)
+    return {15: "Damage shield", 72: "Resource costs", 85: "Mana per 5 s", 87: "Damage taken", 99: "Attack power",
+            124: "Ranged attack power", 137: "Stats" if misc == -1 else STATS.get(misc, "stat"), 230: "Max health",
+            345: "Spell power"}.get(aura, "aura %d" % aura)
+
+
+def analyse_effect(rec, i, sid, level=LEVEL):
+    """One effect slot of a spell row -> (None | dict(kind scaled|dropped, ...), the `what` part or None, area flag)."""
+    e = effect(rec, i)
+    if not e["effect"]:
+        return None, None, False
+    area = e["tgtA"] in (56, 57) or e["tgtB"] in (56, 57) or e["effect"] in (35, 65, 128)
+    die = e["die"]
+    mean = e["bp"] + (1 + die) / 2.0 if die >= 1 else e["bp"]
+    if e["effect"] not in APPLY_EFFECTS or not e["aura"] or e["aura"] not in SCALE_AURAS or mean == 0:
+        why = ("effect %d" % e["effect"]) if e["effect"] not in APPLY_EFFECTS else "aura %d (amount %g)" % (e["aura"], mean)
+        return dict(kind="dropped", why="e%d %s" % (i, why)), None, area
+    assert float(mean).is_integer(), (sid, i, mean)
+    add = 0
+    if e["ppl"]:
+        frm = max(g(rec, "BaseLevel"), g(rec, "SpellLevel"))
+        cap = g(rec, "MaxLevel")
+        lv = min(level, cap) if cap > 0 else level
+        lv = max(lv, g(rec, "BaseLevel"))
+        add = int((lv - frm) * e["ppl"]) if lv > frm else 0
+    nat = int(mean) + add
+    amount = boosted(nat)
+    part = (label(e["aura"], e["misc"]), e["aura"], nat, amount, "%" if e["aura"] in PERCENT_AURAS else "")
+    return dict(kind="scaled", nat=nat, amount=amount, aura=e["aura"], misc=e["misc"]), part, area
 
 
 def analyse(rec, sid, level=LEVEL):
     """-> dict(effects = [per slot: None | dict(kind scaled|dropped, ...)], what = [...], area)"""
     out, what, area = [], [], False
     for i in range(3):
-        e = effect(rec, i)
-        if not e["effect"]:
-            out.append(None)
-            continue
-        if e["tgtA"] in (56, 57) or e["tgtB"] in (56, 57) or e["effect"] in (35, 65, 128):
-            area = True
-        die = e["die"]
-        mean = e["bp"] + (1 + die) / 2.0 if die >= 1 else e["bp"]
-        if e["effect"] not in APPLY_EFFECTS or not e["aura"] or e["aura"] not in SCALE_AURAS or mean == 0:
-            why = ("effect %d" % e["effect"]) if e["effect"] not in APPLY_EFFECTS else "aura %d (amount %g)" % (e["aura"], mean)
-            out.append(dict(kind="dropped", why="e%d %s" % (i, why)))
-            continue
-        assert float(mean).is_integer(), (sid, i, mean)
-        add = 0
-        if e["ppl"]:
-            frm = max(g(rec, "BaseLevel"), g(rec, "SpellLevel"))
-            cap = g(rec, "MaxLevel")
-            lv = min(level, cap) if cap > 0 else level
-            lv = max(lv, g(rec, "BaseLevel"))
-            add = int((lv - frm) * e["ppl"]) if lv > frm else 0
-        nat = int(mean) + add
-        amount = boosted(nat)
-        out.append(dict(kind="scaled", nat=nat, amount=amount, aura=e["aura"], misc=e["misc"]))
-        what.append((label(e["aura"], e["misc"]), e["aura"], nat, amount, "%" if e["aura"] in PERCENT_AURAS else ""))
+        ent, part, a = analyse_effect(rec, i, sid, level)
+        out.append(ent)
+        area = area or a
+        if part:
+            what.append(part)
     return dict(effects=out, what=what, area=area)
 
 
@@ -509,25 +550,39 @@ def apply_text_fixes(source_id, col, text):
     return text, changed
 
 
-def numbers_of(source_rec, an):
-    """The effect edits one copy makes (column -> value; the common cast data is CLEAR_COLUMNS) and what the source
-    must hold (column -> value)."""
+def numbers_of(source_rec, an, sp):
+    """The effect edits one copy makes (column -> value; the common cast data is CLEAR_COLUMNS), what the source must
+    hold (column -> value) and what each donor spell's effect must hold ({donor id: {column: value}}: an effect taken
+    from another spell fills a slot the source leaves empty)."""
     set_ = {}
     expect = {}
+    donors = {}
     for i, e in enumerate(an["effects"]):
         n = i + 1
         if e is None:
             continue
-        if e["kind"] == "scaled":
+        if e["kind"] == "scaled" and e.get("donor"):
+            did, didx = e["donor"]
+            drec, dn = sp[did], didx + 1
+            for col in ("Effect", "EffectAura"):
+                expect["%s_%d" % (col, n)] = g(source_rec, "%s_%d" % (col, n))     # the slot is empty in the source
+            donors.setdefault(did, {}).update({"%s_%d" % (col, dn): g(drec, "%s_%d" % (col, dn)) for col in (
+                "Effect", "EffectAura", "EffectBasePoints", "EffectDieSides", "EffectMiscValue")})
+            for b in EFFECT_BASES:
+                set_["%s_%d" % (b, n)] = 0.0 if b in FLOAT_EFFECT_BASES else 0
+            set_.update({"EffectAura_%d" % n: g(drec, "EffectAura_%d" % dn), "EffectMiscValue_%d" % n: g(drec, "EffectMiscValue_%d" % dn),
+                         "EffectMiscValueB_%d" % n: g(drec, "EffectMiscValueB_%d" % dn)})
+        elif e["kind"] == "scaled":
             for col in ("EffectBasePoints", "EffectDieSides", "EffectMiscValue", "Effect"):
                 expect["%s_%d" % (col, n)] = g(source_rec, "%s_%d" % (col, n))
-            set_.update({"Effect_%d" % n: 6, "EffectDieSides_%d" % n: 1, "EffectBasePoints_%d" % n: e["amount"] - 1,
-                         "EffectRealPointsPerLevel_%d" % n: 0.0, "ImplicitTargetA_%d" % n: 1, "ImplicitTargetB_%d" % n: 0,
-                         "EffectRadiusIndex_%d" % n: 0, "EffectChainTargets_%d" % n: 0})
         else:
             for b in EFFECT_BASES:
                 set_["%s_%d" % (b, n)] = 0.0 if b in FLOAT_EFFECT_BASES else 0
-    return set_, expect
+            continue
+        set_.update({"Effect_%d" % n: 6, "EffectDieSides_%d" % n: 1, "EffectBasePoints_%d" % n: e["amount"] - 1,
+                     "EffectRealPointsPerLevel_%d" % n: 0.0, "ImplicitTargetA_%d" % n: 1, "ImplicitTargetB_%d" % n: 0,
+                     "EffectRadiusIndex_%d" % n: 0, "EffectChainTargets_%d" % n: 0})
+    return set_, expect, donors
 
 
 def find_scope(sp, gm, source_id, opts, is_coa):
@@ -556,61 +611,191 @@ def find_scope(sp, gm, source_id, opts, is_coa):
     return sorted({gm.first_of(s) for s in own}), sorted({gm.first_of(s) for s in greater})
 
 
-def plan_groups(gm, copies):
-    """-> (members to add to existing groups {group: [copy ids]}, new groups {group: [spell ids]}, new rules,
-    descriptions, notes, problems)."""
-    add_members = defaultdict(list)
-    new_members, new_rules, descr, notes = {}, {}, {}, []
+# ---- the stacking plan ------------------------------------------------------------------------------------------
+AURA_EFFECT_IDS = {6, 27, 35, 65, 119, 128, 129, 143}    # SpellEffectInfo::IsAura(): APPLY_AURA and the area aura effects
+HASTE_AURAS = {138, 140, 220}                            # the loader counts melee / ranged / melee+ranged haste as one
+REPLACING = (1, 2, 4)                                    # EXCLUSIVE, FROM_SAME_CASTER, HIGHEST: the newer aura replaces the older one
+
+
+def aura_types_of(rec):
+    out = []
+    for i in range(3):
+        e = effect(rec, i)
+        if e["effect"] in AURA_EFFECT_IDS and e["aura"]:
+            out.append(e["aura"])
+    return out
+
+
+def type_counts(model, gid, sp, extra_auras):
+    """How often each aura type occurs in the spells of a same-effect group: what SpellMgr::LoadSpellGroupStackRules
+    counts to guess the group's aura type (`extra_auras`: {spell id: [aura types]} for spells that are not in `sp`)."""
+    cnt = Counter()
+    for s in model.expanded.get(gid, ()):
+        for a in (aura_types_of(sp[s]) if s in sp else extra_auras.get(s, [])):
+            cnt[138 if a in HASTE_AURAS else a] += 1
+    return cnt
+
+
+def types_of_counts(cnt):
+    """-> (the aura types the core assigns to the group, True when the guess is a tie the core settles by chance)."""
+    if not cnt:
+        return set(), False
+    top = max(cnt.values())
+    best = sorted(a for a, n in cnt.items() if n == top)
+    types = set(best)
+    if 138 in types:
+        types |= HASTE_AURAS
+    return types, len(best) > 1
+
+
+def plan_groups(gm, sp, copies):
+    """The stacking of every copy, proven on a port of the core's spell group logic.
+    -> (plan, notes, problems); plan = dict(joins {older group: [copy ids]}, nests {older group: [pair group ids]},
+    pairs {pair group: [spell, copy]}, rules {pair group: 4 | 0}, descr {pair group: text}).
+
+    A copy has the relations its original has: it joins every group of the original that carries a rule (exclusive, per
+    caster, same effect, highest) and every rule-less group nested in another one (an exception: Man'ari Intuition and
+    Mark of the Wild do not exclude each other). On top of that: rule 4 (EXCLUSIVE_HIGHEST) with the normal versions of
+    the same spell (its rank chain, `exclude`) and with a group ("Greater") version whose original relation REPLACES (rule
+    1, 2 or 4: the newer cast wins), so a normal cast never overrides the copy; rule 0 with an inert one. A relation the
+    original has with a spell that may stack (rule 0 or 3) stays as it is. The core takes the first non-zero rule of the
+    groups two spells share, lowest id first: where an older group would be first, the pair gets a group of its own that
+    is nested in the older groups (the core skips a group when a group nested in it holds both spells)."""
+    copy_auras = {c["id"]: [e["aura"] for e in c["analysis"]["effects"] if e and e["kind"] == "scaled"] for c in copies}
+    nested_in = defaultdict(set)           # inner group -> the groups that nest it directly
+    for gid, ms in gm.members.items():
+        for m in ms:
+            if m < 0:
+                nested_in[-m].add(gid)
+
+    def reach(gid):
+        out, todo = {gid}, [gid]
+        while todo:
+            for outer in nested_in.get(todo.pop(), ()):
+                if outer not in out:
+                    out.add(outer)
+                    todo.append(outer)
+        return out
+
+    joins, nests = defaultdict(list), defaultdict(list)
+    pairs, rules, descr, notes, problems = {}, {}, {}, [], []
     for c in copies:
-        own_firsts, greater_firsts = c["scope"]
-        everything = list(own_firsts) + [x for x in greater_firsts if x not in own_firsts]
-        highest = sorted({gid for x in everything for gid in gm.groups_of.get(x, ()) if gm.rules.get(gid) == STACK_HIGHEST})
-        covered = set()
-        for gid in highest:
-            covered |= gm.expanded[gid]
-            add_members[gid].append(c["id"])
-        need = [x for x in everything if x not in covered]
-        c["groups_existing"], c["groups_new"] = highest, []
-        if not need:
-            continue
-        # The new group's id is above every existing one, so sharing it turns the rule of two members that have none
-        # (a pair whose common groups all carry rule 0, or none) into EXCLUSIVE_HIGHEST: such spells get groups apart.
-        subgroups = []
-        for x in need:
-            for sg in subgroups:
-                if all(gm.rule_between(x, y) != 0 for y in sg):
-                    sg.append(x)
-                    break
+        cid = c["id"]
+        own, greater = c["scope"]
+        firsts = lambda lst: sorted({gm.first_of(x) for x in lst})
+        originals = firsts(c["originals"])
+        inert = firsts(c["inert"])
+        want = {x: STACK_HIGHEST for x in list(own) + firsts(c["exclude"])}
+        for x in greater:
+            if x not in want and {gm.rule_between(o, x) for o in originals} & set(REPLACING):
+                want[x] = STACK_HIGHEST
+        for x in inert:
+            want[x] = 0
+        if set(inert) & (set(own) | set(greater) | set(firsts(c["exclude"]))):
+            problems.append("copy %d: %s are both a normal version and inert" % (cid, sorted(set(inert) & (set(own) | set(greater)))))
+        c["want"], c["originals_firsts"] = want, originals
+        # 1. the groups of the original: those with a rule, and the rule-less ones nested in another group (exceptions)
+        candidates = sorted({gid for o in originals for gid in gm.groups_of.get(o, ())
+                             if gm.rules.get(gid, 0) or nested_in.get(gid)})
+        joined = []
+        for gid in candidates:
+            if gm.rules.get(gid) != STACK_HIGHEST and not gm.expanded[gid] - set(want) - set(originals):
+                notes.append("copy %d (%s): group %d not joined, nothing else sits in it" % (cid, c["name"], gid))
+                continue
+            if gm.rules.get(gid) == 3:
+                types, _tie = types_of_counts(type_counts(gm, gid, sp, {}))
+                if not types & set(copy_auras[cid]):
+                    notes.append("copy %d (%s): same-effect group %d not joined, its aura type %s is none of the copy's %s" % (
+                        cid, c["name"], gid, sorted(types), sorted(set(copy_auras[cid]))))
+                    continue
+            joined.append(gid)
+        # a group the copy reaches through a nested group it joins needs no row of its own
+        joined = [gid for gid in joined if not any(gid in reach(g2) and gid != g2 for g2 in joined)]
+        for gid in joined:
+            joins[gid].append(cid)
+        model_c = gm.with_rows({gid: [cid] for gid in joined}, {})
+        # 2. the pairs: rule 4 with the normal versions, rule 0 with an inert one
+        base = GROUP_BAND[0] + (cid - COPY_BAND[0]) * GROUPS_PER_COPY
+        mine = []
+        for x in sorted(want, key=lambda s: (-want[s], s)):
+            if model_c.rule_between(cid, x) == want[x]:
+                continue
+            counted = model_c.counted(cid, x)
+            nonzero = [gid for gid in counted if model_c.rules.get(gid, 0)]
+            if want[x] == STACK_HIGHEST:
+                first4 = next((gid for gid in nonzero if model_c.rules[gid] == STACK_HIGHEST), None)
+                nest = [gid for gid in nonzero if model_c.rules[gid] != STACK_HIGHEST and (first4 is None or gid < first4)]
             else:
-                subgroups.append([x])
-        if len(subgroups) > 1:
-            notes.append("copy %d (%s): %d groups, since the spells %s have no rule between them today" % (
-                c["id"], c["name"], len(subgroups), need))
-        base = GROUP_BAND[0] + (c["id"] - COPY_BAND[0]) * GROUPS_PER_COPY
-        if len(subgroups) > GROUPS_PER_COPY:
-            raise SystemExit("copy %d needs %d groups (at most %d)" % (c["id"], len(subgroups), GROUPS_PER_COPY))
-        for gid, specs in [(base + k, sg) for k, sg in enumerate(subgroups)]:
-            if not GROUP_BAND[0] <= gid <= GROUP_BAND[1]:
-                raise SystemExit("group id %d outside the band %s" % (gid, GROUP_BAND))
-            new_members[gid] = list(specs) + [c["id"]]
-            new_rules[gid] = STACK_HIGHEST
-            descr[gid] = "Token shop: %s (%s) with %s" % (c["name"], RANK_TEXT, ", ".join(str(x) for x in specs))
-            c["groups_new"].append(gid)
-    # proof on the model: every spell a copy excludes ends at rule EXCLUSIVE_HIGHEST with it, no pair of the
-    # originals changed its rule, and no spell outside the scopes did either
-    final = gm.with_rows({**new_members, **add_members}, new_rules)
-    problems = []
+                nest = nonzero
+            pid = base + len(mine)
+            if len(mine) >= GROUPS_PER_COPY or not GROUP_BAND[0] <= pid <= GROUP_BAND[1]:
+                problems.append("copy %d needs more than %d pair groups" % (cid, GROUPS_PER_COPY))
+                break
+            mine.append(pid)
+            pairs[pid] = [x, cid]
+            rules[pid] = want[x]
+            descr[pid] = "Token shop: %s (%s) %s %d" % (c["name"], RANK_TEXT, "with" if want[x] else "has no rule with", x)
+            for gid in nest:
+                nests[gid].append(pid)
+        c["groups_existing"], c["groups_new"] = joined, mine
+    # ---- the proof, on the model with every row of the plan ----------------------------------------------------------
+    plan = dict(joins={k: sorted(v) for k, v in joins.items()}, nests={k: sorted(v) for k, v in nests.items()}, pairs=pairs,
+                rules=rules, descr=descr)
+    members = {gid: list(v) for gid, v in plan["joins"].items()}
+    for gid, es in plan["nests"].items():
+        members.setdefault(gid, []).extend(-e for e in es)
+    members.update({pid: list(v) for pid, v in pairs.items()})
+    final = gm.with_rows(members, rules)
+    copy_ids = {c["id"] for c in copies}
     for c in copies:
-        for x in list(c["scope"][0]) + list(c["scope"][1]):
-            r = final.rule_between(c["id"], x)
-            if r != STACK_HIGHEST:
-                problems.append("copy %d vs %d: rule %d (not EXCLUSIVE_HIGHEST)" % (c["id"], x, r))
-    olds = sorted({x for c in copies for x in list(c["scope"][0]) + list(c["scope"][1])})
-    for i, a in enumerate(olds):
-        for b in olds[i + 1:]:
-            if gm.rule_between(a, b) != final.rule_between(a, b):
-                problems.append("pair %d / %d changed its rule from %d to %d" % (a, b, gm.rule_between(a, b), final.rule_between(a, b)))
-    return add_members, new_members, new_rules, descr, notes, problems
+        cid = c["id"]
+        for x, w in sorted(c["want"].items()):
+            r = final.rule_between(cid, x)
+            if r != w:
+                problems.append("copy %d vs %d: rule %d, wanted %d (groups %s)" % (cid, x, r, w, final.counted(cid, x)))
+        # every other spell: the rule the original has with it
+        related = set()
+        for gid in final.groups_of.get(cid, ()):
+            related |= final.expanded[gid]
+        for y in sorted(related - {cid} - copy_ids - set(c["want"])):
+            fin = final.rule_between(cid, y)
+            allowed = {gm.rule_between(o, y) for o in c["originals_firsts"]}
+            if fin not in allowed:
+                problems.append("copy %d vs %d: rule %d, the original has %s (groups %s)" % (cid, y, fin, sorted(allowed), final.counted(cid, y)))
+    for i, c1 in enumerate(copies):
+        for c2 in copies[i + 1:]:
+            fin = final.rule_between(c1["id"], c2["id"])
+            allowed = {gm.rule_between(o1, o2) for o1 in c1["originals_firsts"] for o2 in c2["originals_firsts"]}
+            if fin not in allowed:
+                problems.append("copies %d / %d: rule %d, the originals have %s (groups %s)" % (
+                    c1["id"], c2["id"], fin, sorted(allowed), final.counted(c1["id"], c2["id"])))
+    touched = sorted(set(plan["joins"]) | set(plan["nests"]))
+    for gid in touched:
+        spells = sorted(gm.expanded.get(gid, ()))
+        for i, a in enumerate(spells):
+            for b in spells[i + 1:]:
+                if gm.rule_between(a, b) != final.rule_between(a, b):
+                    problems.append("pair %d / %d of group %d changed its rule from %d to %d" % (
+                        a, b, gid, gm.rule_between(a, b), final.rule_between(a, b)))
+    # a same-effect group's aura type is what the loader guesses from its members: it must stay the same, and every copy
+    # in it must carry one of its types (else the core logs an error at boot)
+    copy_groups = {g_ for cid_ in copy_ids for g_ in final.groups_of.get(cid_, ())}
+    for gid in sorted(g_ for g_ in copy_groups if gm.rules.get(g_) == 3):
+        before, tie_before = types_of_counts(type_counts(gm, gid, sp, {}))
+        after, tie_after = types_of_counts(type_counts(final, gid, sp, copy_auras))
+        if after != before or tie_after != tie_before:
+            problems.append("same-effect group %d: the copies change its guessed aura type %s -> %s" % (gid, sorted(before), sorted(after)))
+        for cid in sorted(copy_ids & final.expanded.get(gid, set())):
+            if not after & set(copy_auras[cid]):
+                problems.append("copy %d is in same-effect group %d without one of its aura types %s" % (cid, gid, sorted(after)))
+    # the loader drops a member that is no spell or has a rank above 1 and logs an error: every spell of a pair group is a first rank
+    for pid, ms in sorted(pairs.items()):
+        for x in ms:
+            if x not in sp and x not in copy_ids:
+                problems.append("pair group %d names spell %d, which is not in the server's spell data" % (pid, x))
+            if gm.first_of(x) != x:
+                problems.append("pair group %d names spell %d, which is not the first rank of its chain" % (pid, x))
+    return plan, notes, problems
 
 
 def build(sp, band, client, gm, ids):
@@ -631,6 +816,26 @@ def build(sp, band, client, gm, ids):
             an = analyse(rec, source)
             if not any(e and e["kind"] == "scaled" for e in an["effects"]):
                 problems.append("%s (%d) has nothing to scale" % (shop, source))
+            for donor, didx in opts.get("add", []):       # an effect of another spell fills the next free slot
+                if donor not in sp or donor not in client.index:
+                    problems.append("%s: donor spell %d is not in the server data and the client Spell.dbc" % (shop, donor))
+                    continue
+                ent, part, _area = analyse_effect(sp[donor], didx, donor)
+                slot = next((k for k, e in enumerate(an["effects"]) if e is None), None)
+                if not ent or ent["kind"] != "scaled":
+                    problems.append("%s: effect %d of donor %d is not an amount the shop scales" % (shop, didx, donor))
+                elif slot is None:
+                    problems.append("%s: no free effect slot for the effect of donor %d" % (shop, donor))
+                else:
+                    ent["donor"] = (donor, didx)
+                    an["effects"][slot] = ent
+                    an["what"].append(part)
+                    for col in ("Effect", "EffectAura", "EffectBasePoints", "EffectDieSides", "EffectMiscValue"):
+                        col = "%s_%d" % (col, didx + 1)
+                        cv = client.rec(donor)[IDX[col]]
+                        if cv != g(sp[donor], col):       # the client's donor row must hold the numbers the server's does
+                            problems.append("%s: the client row of donor %d holds %s = %r, the server's %r" % (
+                                shop, donor, col, cv, g(sp[donor], col)))
             if g(rec, "CastingTimeIndex") not in (0, 1):
                 problems.append("%s (%d) has a cast time (index %d)" % (shop, source, g(rec, "CastingTimeIndex")))
             cid = ids[sid]
@@ -639,7 +844,7 @@ def build(sp, band, client, gm, ids):
                 problems.append("copy id %d (%s) is taken in the server data by %r" % (cid, shop, band[cid][0]))
             if cid in client.index and client.rec(cid)[IDX["Name_Lang_enUS"]] != nm:
                 problems.append("copy id %d (%s) is taken in the client Spell.dbc by %r" % (cid, shop, client.rec(cid)[IDX["Name_Lang_enUS"]]))
-            effect_set, expect = numbers_of(rec, an)
+            effect_set, expect, donors = numbers_of(rec, an, sp)
             set_ = {**CLEAR_COLUMNS, **effect_set}
             for col, v in expect.items():          # the client's source row must hold the numbers the server's does
                 cv = crec[IDX[col]]
@@ -658,9 +863,12 @@ def build(sp, band, client, gm, ids):
             key = "buff_" + slug(shop)
             fam = g(rec, "SpellClassSet")
             c = dict(id=cid, key=key, cls=cls, name=nm, shop=shop, spell=sid, source=source, what=what_text(an["what"]),
-                     area=an["area"], analysis=an, set=set_, effect_set=effect_set, expect=expect, clear_bits={"Attributes": CLEAR_ATTR0},
+                     area=an["area"], analysis=an, set=set_, effect_set=effect_set, expect=expect, donors=donors,
+                     clear_bits={"Attributes": CLEAR_ATTR0},
                      texts=texts, src_texts=src_texts, text_changed=changed_cols,
                      scope=find_scope(sp, gm, source, opts, fam >= 12),
+                     exclude=list(opts.get("exclude", [])), inert=list(opts.get("inert", [])),
+                     originals=sorted({sid, source}),
                      dropped=[e["why"] for e in an["effects"] if e and e["kind"] == "dropped"],
                      masks={c_: g(crec, c_) for c_ in ("Name_Lang_Mask", "Description_Lang_Mask", "AuraDescription_Lang_Mask")})
             if cid in {x["id"] for x in copies}:
@@ -676,8 +884,8 @@ def build(sp, band, client, gm, ids):
                 if hi:
                     notes.append("%s %d (%s): higher ranks exist in the data but are not the class's top taught rank: %s" % (
                         shop, source, g(rec, "NameSubtext_Lang_enUS"), hi))
-    add_members, new_members, new_rules, descr, gnotes, gproblems = plan_groups(gm, copies)
-    return copies, add_members, new_members, new_rules, descr, problems + gproblems, notes + gnotes
+    plan, gnotes, gproblems = plan_groups(gm, sp, copies)
+    return copies, plan, problems + gproblems, notes + gnotes
 
 
 # ---- tooltip evaluator (proof that the final texts show the boosted numbers) ---------------------------------------
@@ -732,6 +940,9 @@ def lua_rows(copies):
         tag = []
         if c["source"] != c["spell"]:
             tag.append("a copy of %d, the aura the script of %d casts" % (c["source"], c["spell"]))
+        if c["donors"]:
+            tag.append("plus the effect of %s (the script's damage reduction; its mana proc is not part of the copy)" % ", ".join(
+                str(d) for d in sorted(c["donors"])))
         if c["area"]:
             tag.append("area spell made a self buff")
         if c["dropped"]:
@@ -778,18 +989,32 @@ def sql_value(k, v):
     return str(v)
 
 
-def sql_file(copies, sp, add_members, new_members, new_rules, descr):
+def group_rows(plan):
+    """The rows of the plan in `spell_group`: ([(older group, copy)], [(older group, -pair group)], [(pair group, spell)])."""
+    joined = [(gid, cid) for gid in sorted(plan["joins"]) for cid in plan["joins"][gid]]
+    nested = [(gid, -pid) for gid in sorted(plan["nests"]) for pid in plan["nests"][gid]]
+    pair_rows = [(pid, s) for pid in sorted(plan["pairs"]) for s in plan["pairs"][pid]]
+    return joined, nested, pair_rows
+
+
+def sql_file(copies, sp, plan):
     ids = sorted(c["id"] for c in copies)
+    joined, nested, pair_rows = group_rows(plan)
     lines = [
         "-- mod-kill-collector: the token shop's class buffs as spells of their own. GENERATED by tools/gen_shop_buffs.py; do not edit.",
         "--",
         "-- spell_dbc: one row per shop buff, ids %d-%d (vault 06-custom-ids.md, band %d-%d): a copy of the class buff's top-rank" % (ids[0], ids[-1], COPY_BAND[0], COPY_BAND[1]),
         "-- row with every amount x1.5, one hour (SpellDuration index %d), a self buff, no cost or cooldown, no spell family," % DURATION_INDEX,
         "-- rank text '%s'." % RANK_TEXT,
-        "-- spell_group / spell_group_stack_rules: the copy joins the EXCLUSIVE_HIGHEST group(s) its original sits in; the groups",
-        "-- %d-%d each hold one spell's first rank + the copy where no such group covers it, so a normal cast of the" % GROUP_BAND,
-        "-- original on someone holding the copy fails with 'A more powerful spell is already active'. The client rows come",
-        "-- from fl-pipeline 214_token_shop_buff_spells.py (patch-9); the shop itself is fl-lua-scripts TokenShop/.",
+        "-- spell_group / spell_group_stack_rules: a copy follows every stacking rule its original follows (it joins the groups of",
+        "-- rule exclusive, per caster and same effect the original sits in) and is exclusive-highest with the normal versions of",
+        "-- itself, so a normal cast of the original on someone holding the copy fails with 'A more powerful spell is already",
+        "-- active'. The core takes the first non-zero rule of the groups two spells share, lowest group id first; so each such",
+        "-- pair has a group of its own in the band %d-%d (the copy and that spell; rule 4, or no rule for a spell the" % GROUP_BAND,
+        "-- original's script drives and that has no amount), and where an older group would come first, the pair group is also",
+        "-- nested in that group (a row with a negative spell id: the core skips a group when a group nested in it holds both",
+        "-- spells). The client rows come from fl-pipeline 214_token_shop_buff_spells.py (patch-9); the shop itself is",
+        "-- fl-lua-scripts TokenShop/.",
         "-- Idempotent: the DELETEs name exactly the keys the INSERTs write.",
         "",
         "DELETE FROM `spell_dbc` WHERE `ID` BETWEEN %d AND %d;" % COPY_BAND,
@@ -800,14 +1025,19 @@ def sql_file(copies, sp, add_members, new_members, new_rules, descr):
         rec = server_row(c, sp)
         rows.append("(" + ",".join(sql_value(k, v) for k, v in enumerate(rec)) + ")")
     lines.append(",\n".join(rows) + ";")
-    lines += ["", "DELETE FROM `spell_group` WHERE `spell_id` BETWEEN %d AND %d OR `id` BETWEEN %d AND %d;" % (COPY_BAND + GROUP_BAND)]
-    gm_rows = ["(%d, %d)" % (gid, cid) for gid in sorted(add_members) for cid in sorted(add_members[gid])]
-    gm_rows += ["(%d, %d)" % (gid, sid) for gid in sorted(new_members) for sid in new_members[gid]]
-    lines.append("INSERT INTO `spell_group` (`id`, `spell_id`) VALUES")
-    lines.append(",\n".join(gm_rows) + ";")
+    lines += ["", "DELETE FROM `spell_group` WHERE `spell_id` BETWEEN %d AND %d OR `id` BETWEEN %d AND %d OR `spell_id` BETWEEN %d AND %d;" % (
+        COPY_BAND + GROUP_BAND + (-GROUP_BAND[1], -GROUP_BAND[0])),
+        "", "-- the copies in the groups their originals (or the originals' normal versions) sit in",
+        "INSERT INTO `spell_group` (`id`, `spell_id`) VALUES",
+        ",\n".join("(%d, %d)" % r for r in joined) + ";"]
+    if nested:
+        lines += ["", "-- the pair groups nested in the older groups that would otherwise come first",
+                  "INSERT INTO `spell_group` (`id`, `spell_id`) VALUES", ",\n".join("(%d, %d)" % r for r in nested) + ";"]
+    lines += ["", "-- the pair groups: a normal version of the spell (or an inert one) and the copy",
+              "INSERT INTO `spell_group` (`id`, `spell_id`) VALUES", ",\n".join("(%d, %d)" % r for r in pair_rows) + ";"]
     lines += ["", "DELETE FROM `spell_group_stack_rules` WHERE `group_id` BETWEEN %d AND %d;" % GROUP_BAND,
               "INSERT INTO `spell_group_stack_rules` (`group_id`, `stack_rule`, `description`) VALUES"]
-    lines.append(",\n".join("(%d, %d, %s)" % (gid, new_rules[gid], sql_text(descr[gid])) for gid in sorted(new_rules)) + ";")
+    lines.append(",\n".join("(%d, %d, %s)" % (pid, plan["rules"][pid], sql_text(plan["descr"][pid])) for pid in sorted(plan["rules"])) + ";")
     return "\n".join(lines) + "\n"
 
 
@@ -818,13 +1048,71 @@ def spec_json(copies):
            "common": {"set": CLEAR_COLUMNS, "clear_bits": {"Attributes": CLEAR_ATTR0}},
            "copies": []}
     for c in sorted(copies, key=lambda x: x["id"]):
-        out["copies"].append({
+        row = {
             "id": c["id"], "source": c["source"], "spell": c["spell"], "key": c["key"], "class": c["cls"], "name": c["name"],
             "what": c["what"], "set": c["effect_set"], "expect": c["expect"],
             "texts": {k: c["texts"][k] for k in c["text_changed"]}, "source_texts": c["src_texts"],
             "tooltip": {col: render(c["texts"][col], c["set"]) for col in ("Description_Lang_enUS", "AuraDescription_Lang_enUS")},
-        })
+        }
+        if c["donors"]:      # rows of other spells an effect was taken from: 214 checks them before it writes
+            row["donors"] = {str(d): c["donors"][d] for d in sorted(c["donors"])}
+        out["copies"].append(row)
     return json.dumps(out, indent=1, ensure_ascii=False) + "\n"
+
+
+def same_value(k, a, b):
+    t = TYPES[k]
+    if t == "float":
+        return abs(float(a) - float(b)) <= 1e-4 * max(1.0, abs(float(a)))
+    if t in ("varchar", "text"):
+        # mysql --batch writes a line feed as the two characters \n and python's text mode turns a carriage return into a
+        # line feed: compare without any line break (and with U+FFFD as the apostrophe it stands for in the SQL)
+        flat = lambda s: re.sub(r"\\n|\\r|\r|\n", "", str(s).replace(chr(0xFFFD), "'"))
+        return flat(a) == flat(b)
+    if UNSIGNED[COLS[k]]:
+        mask = 0xFFFFFFFFFFFFFFFF if t == "bigint" else 0xFFFFFFFF
+        return (int(a) & mask) == (int(b) & mask)
+    return int(a) == int(b)
+
+
+def installed(copies, sp, plan):
+    """Read-only: do the LIVE tables hold exactly the rows this generator writes (the module SQL was applied and nothing
+    has changed them since)? -> list of report lines, a line starting with DIFFERENT for each table that differs."""
+    out = []
+    want = {c["id"]: server_row(c, sp) for c in copies}
+    got = {}
+    for f in split_rows(mysql("SELECT * FROM acore_world.spell_dbc WHERE ID BETWEEN %d AND %d" % COPY_BAND, raw_rows=True)):
+        rec = parse_db_row(f)
+        got[rec[0]] = rec
+    diffs = []
+    for sid in sorted(set(want) | set(got)):
+        if sid not in got:
+            diffs.append("spell_dbc %d is missing" % sid)
+        elif sid not in want:
+            diffs.append("spell_dbc %d is in the table but not in the plan" % sid)
+        else:
+            cols = [COLS[k] for k in range(234) if not same_value(k, want[sid][k], got[sid][k])]
+            if cols:
+                diffs.append("spell_dbc %d differs in %s" % (sid, ", ".join(cols[:6]) + (" ..." if len(cols) > 6 else "")))
+    out.append("spell_dbc: %d rows planned, %d in the table: %s" % (len(want), len(got), "IDENTICAL" if not diffs else "DIFFERENT"))
+    out += ["    " + d for d in diffs[:20]]
+    joined, nested, pair_rows = group_rows(plan)
+    want_g = set(joined) | set(nested) | set(pair_rows)
+    got_g = {(int(a), int(b)) for a, b in mysql(
+        "SELECT id, spell_id FROM acore_world.spell_group WHERE spell_id BETWEEN %d AND %d OR id BETWEEN %d AND %d OR spell_id BETWEEN %d AND %d" % (
+            COPY_BAND + GROUP_BAND + (-GROUP_BAND[1], -GROUP_BAND[0])))}
+    d_g = ["spell_group row (%d, %d) is missing" % r for r in sorted(want_g - got_g)] + [
+        "spell_group row (%d, %d) is in the table but not in the plan" % r for r in sorted(got_g - want_g)]
+    out.append("spell_group: %d rows planned, %d in the table: %s" % (len(want_g), len(got_g), "IDENTICAL" if not d_g else "DIFFERENT"))
+    out += ["    " + d for d in d_g[:20]]
+    want_r = {pid: plan["rules"][pid] for pid in plan["rules"]}
+    got_r = {int(a): int(b) for a, b, *_ in mysql(
+        "SELECT group_id, stack_rule FROM acore_world.spell_group_stack_rules WHERE group_id BETWEEN %d AND %d" % GROUP_BAND)}
+    d_r = ["stack rule of group %d is %s in the table, planned %s" % (pid, got_r.get(pid), want_r.get(pid))
+           for pid in sorted(set(want_r) | set(got_r)) if want_r.get(pid) != got_r.get(pid)]
+    out.append("spell_group_stack_rules: %d rows planned, %d in the table: %s" % (len(want_r), len(got_r), "IDENTICAL" if not d_r else "DIFFERENT"))
+    out += ["    " + d for d in d_r[:20]]
+    return out
 
 
 def insert_lua(path, text):
@@ -851,6 +1139,8 @@ def main():
     ap.add_argument("--verify", action="store_true", help="regenerate in memory and compare with the --insert / --sql / --spec files")
     ap.add_argument("--tooltips", action="store_true", help="print every copy's rendered tooltip")
     ap.add_argument("--list", action="store_true", help="print the copy list: id, original, source, amounts, groups")
+    ap.add_argument("--installed", action="store_true",
+                    help="read-only: do the live tables (spell_dbc, spell_group, spell_group_stack_rules) hold exactly the generated rows?")
     args = ap.parse_args()
 
     sp, in_table, band = load_spells()
@@ -861,7 +1151,7 @@ def main():
     gm = load_groups()
     ids = load_ids()
     new_ids = assign_ids([it[0] for _c, lst in PICKS for it in lst], ids)
-    copies, add_members, new_members, new_rules, descr, problems, notes = build(sp, band, client, gm, ids)
+    copies, plan, problems, notes = build(sp, band, client, gm, ids)
     problems += check_tooltips(copies)
     for n in notes:
         print("NOTE:", n, file=sys.stderr)
@@ -870,33 +1160,40 @@ def main():
     if problems:
         return 1
     lua = lua_rows(copies)
-    sql = sql_file(copies, sp, add_members, new_members, new_rules, descr)
+    sql = sql_file(copies, sp, plan)
     spec = spec_json(copies)
     ids_text = json.dumps({"about": "Sticky copy ids of tools/gen_shop_buffs.py: original spell id -> copy id (band %d-%d). "
                                     "Never edit by hand; commit changes." % COPY_BAND,
                            "ids": {str(k): v for k, v in sorted(ids.items(), key=lambda kv: kv[1])}}, indent=1) + "\n"
-    print("%d buffs (copies %d-%d), %d existing groups extended, %d new groups, %d new ids assigned" % (
-        len(copies), min(c["id"] for c in copies), max(c["id"] for c in copies), len(add_members), len(new_members), len(new_ids)),
+    print("%d buffs (copies %d-%d), %d older groups joined or nested into (%d copy rows, %d nested rows), %d pair groups, %d new ids assigned" % (
+        len(copies), min(c["id"] for c in copies), max(c["id"] for c in copies), len(set(plan["joins"]) | set(plan["nests"])),
+        sum(len(v) for v in plan["joins"].values()), sum(len(v) for v in plan["nests"].values()), len(plan["pairs"]), len(new_ids)),
         file=sys.stderr)
     if args.list:
         for c in sorted(copies, key=lambda x: x["id"]):
-            print("%d <- %d%s  %-16s %-26s %s | groups +%s new %s" % (
-                c["id"], c["source"], "" if c["source"] == c["spell"] else " (cast %d)" % c["spell"], c["cls"], c["name"], c["what"],
-                c["groups_existing"] or "-", c["groups_new"] or "-"))
+            print("%d <- %d%s  %-16s %-26s %s" % (
+                c["id"], c["source"], "" if c["source"] == c["spell"] else " (cast %d)" % c["spell"], c["cls"], c["name"], c["what"]))
+            print("%-8s groups joined %s | pair groups %s" % ("", c["groups_existing"] or "-", " ".join(
+                "%d=%s%d" % (pid, "no rule with " if not plan["rules"][pid] else "4 with ", plan["pairs"][pid][0]) for pid in c["groups_new"]) or "-"))
     if args.tooltips:
         for c in sorted(copies, key=lambda x: x["id"]):
             print("%d %-26s D: %s" % (c["id"], c["name"], render(c["texts"]["Description_Lang_enUS"], c["set"])))
             print("%-33s A: %s" % ("", render(c["texts"]["AuraDescription_Lang_enUS"], c["set"])))
-    if args.verify:
+    if args.installed or args.verify:
         bad = 0
+        if args.installed:
+            lines = installed(copies, sp, plan)
+            print("\n".join(lines))
+            bad += sum(1 for x in lines if "DIFFERENT" in x)
         pairs = []
-        if args.insert:
-            pairs.append(("lua rows", read_lf(args.insert), insert_lua(args.insert, lua).replace("\r\n", "\n")))
-        if args.sql:
-            pairs.append(("sql", read_lf(args.sql), sql))
-        if args.spec:
-            pairs.append(("spec", read_lf(args.spec), spec))
-        pairs.append(("ids", read_lf(IDS_JSON), ids_text))
+        if args.verify:
+            if args.insert:
+                pairs.append(("lua rows", read_lf(args.insert), insert_lua(args.insert, lua).replace("\r\n", "\n")))
+            if args.sql:
+                pairs.append(("sql", read_lf(args.sql), sql))
+            if args.spec:
+                pairs.append(("spec", read_lf(args.spec), spec))
+            pairs.append(("ids", read_lf(IDS_JSON), ids_text))
         for what, cur, want in pairs:
             print("%s: %s" % (what, "IDENTICAL" if cur == want else "DIFFERENT"))
             bad += 0 if cur == want else 1

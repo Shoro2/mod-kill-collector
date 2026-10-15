@@ -460,7 +460,7 @@
    "key": "buff_blessing_of_sanctuary",
    "class": "Paladin",
    "name": "Blessing of Sanctuary",
-   "what": "Stamina +10% > +15%, Strength +10% > +15%",
+   "what": "Stamina +10% > +15%, Strength +10% > +15%, Damage taken -3% > -5%",
    "set": {
     "Effect_1": 6,
     "EffectDieSides_1": 1,
@@ -477,7 +477,27 @@
     "ImplicitTargetA_2": 1,
     "ImplicitTargetB_2": 0,
     "EffectRadiusIndex_2": 0,
-    "EffectChainTargets_2": 0
+    "EffectChainTargets_2": 0,
+    "Effect_3": 6,
+    "EffectDieSides_3": 1,
+    "EffectRealPointsPerLevel_3": 0.0,
+    "EffectBasePoints_3": -6,
+    "EffectMechanic_3": 0,
+    "ImplicitTargetA_3": 1,
+    "ImplicitTargetB_3": 0,
+    "EffectRadiusIndex_3": 0,
+    "EffectAura_3": 87,
+    "EffectAuraPeriod_3": 0,
+    "EffectMultipleValue_3": 0.0,
+    "EffectChainTargets_3": 0,
+    "EffectItemType_3": 0,
+    "EffectMiscValue_3": 127,
+    "EffectMiscValueB_3": 0,
+    "EffectTriggerSpell_3": 0,
+    "EffectPointsPerCombo_3": 0.0,
+    "EffectSpellClassMaskA_3": 0,
+    "EffectSpellClassMaskB_3": 0,
+    "EffectSpellClassMaskC_3": 0
    },
    "expect": {
     "EffectBasePoints_1": 9,
@@ -487,12 +507,14 @@
     "EffectBasePoints_2": 9,
     "EffectDieSides_2": 1,
     "EffectMiscValue_2": 0,
-    "Effect_2": 6
+    "Effect_2": 6,
+    "Effect_3": 0,
+    "EffectAura_3": 0
    },
    "texts": {
     "NameSubtext_Lang_enUS": "Empowered",
-    "Description_Lang_enUS": "Places a Blessing on the friendly target, increasing strength and stamina by $s1% for $d.",
-    "AuraDescription_Lang_enUS": "Strength and stamina increased by $s1%."
+    "Description_Lang_enUS": "Places a Blessing on the friendly target, increasing strength and stamina by $s1% and reducing damage taken from all sources by $s3% for $d.",
+    "AuraDescription_Lang_enUS": "Strength and stamina increased by $s1%, damage taken reduced by $s3%."
    },
    "source_texts": {
     "Description_Lang_enUS": "Places a Blessing on the friendly target, reducing damage taken from all sources by $s1% for $d.  In addition, when the target blocks, parries, or dodges a melee attack the target will gain $57319s1% of maximum displayed mana.  Players may only have one Blessing on them per Paladin at any one time.",
@@ -500,8 +522,17 @@
     "NameSubtext_Lang_enUS": ""
    },
    "tooltip": {
-    "Description_Lang_enUS": "Places a Blessing on the friendly target, increasing strength and stamina by 15% for 1 hour.",
-    "AuraDescription_Lang_enUS": "Strength and stamina increased by 15%."
+    "Description_Lang_enUS": "Places a Blessing on the friendly target, increasing strength and stamina by 15% and reducing damage taken from all sources by 5% for 1 hour.",
+    "AuraDescription_Lang_enUS": "Strength and stamina increased by 15%, damage taken reduced by 5%."
+   },
+   "donors": {
+    "68066": {
+     "Effect_1": 6,
+     "EffectAura_1": 87,
+     "EffectBasePoints_1": -4,
+     "EffectDieSides_1": 1,
+     "EffectMiscValue_1": 127
+    }
    }
   },
   {
@@ -1173,11 +1204,11 @@
    "key": "buff_mark_of_zeliek",
    "class": "Knight of Xoroth",
    "name": "Mark of Zeliek",
-   "what": "Resource costs -5% > -7%, Arcane resistance +60 > +90",
+   "what": "Resource costs -5% > -8%, Arcane resistance +60 > +90",
    "set": {
     "Effect_2": 6,
     "EffectDieSides_2": 1,
-    "EffectBasePoints_2": -8,
+    "EffectBasePoints_2": -9,
     "EffectRealPointsPerLevel_2": 0.0,
     "ImplicitTargetA_2": 1,
     "ImplicitTargetB_2": 0,
@@ -1211,8 +1242,8 @@
     "NameSubtext_Lang_enUS": ""
    },
    "tooltip": {
-    "Description_Lang_enUS": "Empower an ally with the mark of Zeliek, reducing their resource costs by 7% and increasing their Arcane Resistance by 90. Lasts 1 hour.",
-    "AuraDescription_Lang_enUS": "Resource costs reduced by 7%. Arcane Resistance increased by 90."
+    "Description_Lang_enUS": "Empower an ally with the mark of Zeliek, reducing their resource costs by 8% and increasing their Arcane Resistance by 90. Lasts 1 hour.",
+    "AuraDescription_Lang_enUS": "Resource costs reduced by 8%. Arcane Resistance increased by 90."
    }
   },
   {
@@ -2167,7 +2198,7 @@
    "key": "buff_devotion_of_grace",
    "class": "Sun Cleric",
    "name": "Devotion of Grace",
-   "what": "Mana per 5 s +41 > +62, Resource costs -5% > -7%",
+   "what": "Mana per 5 s +41 > +62, Resource costs -5% > -8%",
    "set": {
     "Effect_1": 6,
     "EffectDieSides_1": 1,
@@ -2179,7 +2210,7 @@
     "EffectChainTargets_1": 0,
     "Effect_2": 6,
     "EffectDieSides_2": 1,
-    "EffectBasePoints_2": -8,
+    "EffectBasePoints_2": -9,
     "EffectRealPointsPerLevel_2": 0.0,
     "ImplicitTargetA_2": 1,
     "ImplicitTargetB_2": 0,
@@ -2205,8 +2236,8 @@
     "NameSubtext_Lang_enUS": "Rank 8"
    },
    "tooltip": {
-    "Description_Lang_enUS": "Places a |cffffffffDevotion|r on the friendly target, restoring 62 mana every 5 seconds and reducing their costs by 7% for 1 hour.",
-    "AuraDescription_Lang_enUS": "Restores 62 mana every 5 seconds. Resource costs reduced by 7%."
+    "Description_Lang_enUS": "Places a |cffffffffDevotion|r on the friendly target, restoring 62 mana every 5 seconds and reducing their costs by 8% for 1 hour.",
+    "AuraDescription_Lang_enUS": "Restores 62 mana every 5 seconds. Resource costs reduced by 8%."
    }
   },
   {
