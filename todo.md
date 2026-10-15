@@ -8,15 +8,18 @@
   <the SQL> --spec <the JSON> --insert <TokenShop_Server.lua> --verify` against the LIVE database (IDENTICAL x4, else
   regenerate and read the diff), restart (the SQL is applied at boot; the errors log stays at its baseline), deploy
   `TokenShop/`, `.reload ale`, fl-pipeline `214_token_shop_buff_spells.py --client` then `30_build_hot_dbc_patch.py --deploy`
-  (client closed), run `kill_collector_shop_buffs` (slots 1-5: mage, priest, warrior, bloodmage, paladin; parts 8 and 10 are the
-  refusals and replacements, part 9 the predictions for the area shout and Sanctuary), then the client probe: the buff
-  tooltip of a bought buff shows the boosted numbers and "Empowered". Then the host (MIG entries: the SQL, the Lua folder, the
-  client rows in the host patch-9).
-- (low) The copies are not members of the same-effect groups (1124-1126, 1105, 1038, 2000180-2000185) and a talent-boosted
-  normal buff can exceed a copy (Thorns with Brambles): see functions.md. Adding the copies to those groups changes how the
-  shop buffs add up with other players' buffs; the operator decides if it matters.
-- (low) Blessing of Sanctuary's copy is the stat aura only (+15% strength and stamina): the damage reduction (68066) and the
-  mana proc (57319) its script adds are not part of it. A third effect with the damage reduction would restore it.
+  (client closed), run `kill_collector_shop_buffs` (slots 1-8: mage, priest, warrior, bloodmage, paladin, three mage twins; part 6
+  the per-caster rule of the blessings, parts 8 and 10 the refusals and replacements, part 9 the predictions for the area shout and
+  Sanctuary's two script auras, part 11 the same-effect rule by max health), then the client probe: the buff tooltip of a bought
+  buff shows the boosted numbers and "Empowered" (Sanctuary: stats +15%, damage taken -5%). Then the host (MIG entries: the SQL, the
+  Lua folder, the client rows in the host patch-9). After the restart `python tools/gen_shop_buffs.py ... --installed` proves the live
+  tables hold exactly the generated rows (a later module SQL that rebuilds a stock group would drop the copies' rows from it).
+- (low) A talent-boosted normal buff can still exceed a copy (Thorns with Brambles): see functions.md.
+- (low) The copies follow the per-caster rules of their originals, and the buyer is the caster of every copy: a buyer holds ONE
+  shop blessing, one shout, one Edict ... at a time, the newest replaces the older one (the shop's answer names it, the window
+  does not warn before). A window note per family would tell it earlier; the operator decides if it matters.
+- (low) Blessing of Sanctuary's copy has the stats and the damage reduction (-5%), not the normal blessing's mana proc (57319):
+  a proc needs a trigger effect and the copy has no family; the normal dummy still gives the proc where it is cast.
 - (low) The Hunter's Token (920200) shows no inventory icon: its display 6122 names none in `ItemDisplayInfo.dbc`.
   The shop falls back to a coin; a display with an icon (or a new row) would fix the bags too.
 - (medium) T1 of the rewards (damage bonus, "N3rd", status lines; built and syntax-checked 2026-10-14, never
