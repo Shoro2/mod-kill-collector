@@ -18,8 +18,10 @@ the player who holds them all is a "N3rd".
   spell 818046) and the 37 classic heirlooms a character's class can use, 25 tokens each (two-handed 50);
   General = Apprentice / Journeyman / Expert / Artisan Riding for 50 / 100 / 150 / 250 (Expert also teaches Cold
   Weather Flying) and the class buffs: every buff of the stock classes and of the 21 CoA classes that can be cast on another
-  player, as the original spell at +50% strength for one hour, 10 tokens each. The shop is Lua; this module owns the token,
-  the potion item, the buff generator `tools/gen_shop_buffs.py` and the scenarios.
+  player, each a spell of its own (a copy of the class buff at +50% strength for one hour, ids 2032000-2032067), 10 tokens
+  each; a normal cast of the class buff cannot override it ("A more powerful spell is already active"). The shop is Lua;
+  this module owns the token, the potion item, the buff spells' SQL (`mod_kill_collector_shop_buffs.sql`), the generator
+  `tools/gen_shop_buffs.py` and the scenarios.
 - **Achievements** (category "Kill Collector", 10 points each). One per continent and creature type: Eastern
   Kingdoms, Kalimdor, Outland, Northrend and Forgotten Land (Azealia, its dungeons and raids, the Forgotten
   Depths and the Endless Chronicle), each with beasts, dragonkin, demons, elementals, giants, undead,

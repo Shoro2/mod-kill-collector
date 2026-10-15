@@ -3,10 +3,20 @@
 - (medium) T1 of the token shop (2026-10-15, never run): apply `mod_kill_collector_shop.sql` (item 920201), load
   fl-lua-scripts `TokenShop/` (`.reload ale`), run `kill_collector_shop` (a mage, slot 1), then look at the
   window and the hub entry with the client probe. Host: a MIG entry for the SQL, the Lua folder and the hub file.
-- (medium) T1 of the shop's class buffs (2026-10-15, built, offline mock runs only): deploy fl-lua-scripts
-  `claude/token-shop-buffs-433902b4`, `.reload ale`, run `kill_collector_shop_buffs` (slots 1-4: mage, priest, warrior,
-  bloodmage); part 8 states the core's stack rules as predictions - note which hold. Then the other buffs by hand or with
-  `.list auras id`; the CoA ones run through core scripts (Mana Module has a custom effect 168).
+- (medium) T1 of the shop's class buffs as spells of their own (2026-10-15, branch `claude/shop-buffs-v2-433902b4`; offline
+  verified only): merge the three branches (this module, fl-lua-scripts, fl-pipeline), `python tools/gen_shop_buffs.py --sql
+  <the SQL> --spec <the JSON> --insert <TokenShop_Server.lua> --verify` against the LIVE database (IDENTICAL x4, else
+  regenerate and read the diff), restart (the SQL is applied at boot; the errors log stays at its baseline), deploy
+  `TokenShop/`, `.reload ale`, fl-pipeline `214_token_shop_buff_spells.py --client` then `30_build_hot_dbc_patch.py --deploy`
+  (client closed), run `kill_collector_shop_buffs` (slots 1-5: mage, priest, warrior, bloodmage, paladin; parts 8 and 10 are the
+  refusals and replacements, part 9 the predictions for the area shout and Sanctuary), then the client probe: the buff
+  tooltip of a bought buff shows the boosted numbers and "Empowered". Then the host (MIG entries: the SQL, the Lua folder, the
+  client rows in the host patch-9).
+- (low) The copies are not members of the same-effect groups (1124-1126, 1105, 1038, 2000180-2000185) and a talent-boosted
+  normal buff can exceed a copy (Thorns with Brambles): see functions.md. Adding the copies to those groups changes how the
+  shop buffs add up with other players' buffs; the operator decides if it matters.
+- (low) Blessing of Sanctuary's copy is the stat aura only (+15% strength and stamina): the damage reduction (68066) and the
+  mana proc (57319) its script adds are not part of it. A third effect with the damage reduction would restore it.
 - (low) The Hunter's Token (920200) shows no inventory icon: its display 6122 names none in `ItemDisplayInfo.dbc`.
   The shop falls back to a coin; a display with an icon (or a new row) would fix the bags too.
 - (medium) T1 of the rewards (damage bonus, "N3rd", status lines; built and syntax-checked 2026-10-14, never

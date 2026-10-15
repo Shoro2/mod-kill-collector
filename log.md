@@ -1,5 +1,6 @@
 # Log (newest first)
 
+- 2026-10-15 feat(DB): Token shop class buffs as spells of their own (branch claude/shop-buffs-v2-433902b4, the operator: a normal class buff must not override the shop buff) - `tools/gen_shop_buffs.py` v2 (copies 2032000-2032067, their `spell_group` rows, the client recipe, sticky ids), `mod_kill_collector_shop_buffs.sql`, the scenario rewritten (clientcast refusals, replacement, three blessings, area shout); offline-verified, T1 owed
 - 2026-10-15 feat(DB): Token shop class buffs - tools/gen_shop_buffs.py (writes the 68 rows of fl-lua-scripts TokenShop_Server.lua from Spell.dbc + spell_dbc) and the bot scenario kill_collector_shop_buffs; not run yet
 - 2026-10-15 feat(DB): The token shop's Potion of Experience (item 920201, casts CoA's spell 818046) and the bot scenario kill_collector_shop (the shop itself is fl-lua-scripts `TokenShop/`, branch claude/token-shop-433902b4); not run yet
 - 2026-10-14 test: Repeatable runs - the bots' achievements are reset with mod-fl-testbots' `do <bot> resetachievements` (`.reset achievements` is console-only, so the director only got its usage text), and the scenarios wait 6 s after a `.respawn` (the map spawns a corpse's replacement at its next respawn pass, every 5 s)

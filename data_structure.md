@@ -20,8 +20,11 @@
 | `conf/mod_kill_collector.conf.dist` | every config key with its default |
 | `tests/kill_collector_tokens.tbs` | bot scenario: first kills, the party, a repeated entry |
 | `tests/kill_collector_shop.tbs` | bot scenario: a mage buys through `.tokenshop` - a one-hander (25), a two-hander (50), the potion (25) and uses it (aura 818046), refusals (too few tokens, a plate chest and a two-handed axe for a mage, full bags), riding in order at level 15 (50 / 100 / 150 / 250, Cold Weather Flying with Expert) |
-| `tests/kill_collector_shop_buffs.tbs` | bot scenario (mage, priest, warrior, bloodmage): the shop's class buffs - Power Word: Fortitude 248, Mark of the Wild 1125/56/81, Power Module 348 (a CoA buff bought by a mage), Sanctuary's 67480 at 15, Kings replacing Sanctuary, Battle Shout 825 with no spill onto the party, a refusal and a renewal, and the stack rules against a normal cast |
-| `tools/gen_shop_buffs.py` | generator of the shop's buff rows (read-only on the database); not part of the build |
+| `tests/kill_collector_shop_buffs.tbs` | bot scenario (mage, priest, warrior, bloodmage, paladin): the shop's class buffs as spells of their own - Power Word: Fortitude 2032000 at 248, Mark of the Wild 1125/56/81, Power Module 348 (a CoA buff bought by a mage), Kings + Might + Sanctuary together (15 / 825 / 15), Battle Shout 825 on the warrior only, a refusal and a renewal; a normal cast of the original refused with result 9 (`clientcast`), the copy replacing a normal buff (a stock and a CoA one), and the area shout and Sanctuary's script aura measured |
+| `tools/gen_shop_buffs.py` | generator of the shop's buff spells (read-only on the database, which it reads for `spell_dbc`, `spell_ranks`, `spell_group*`): the Lua rows between the markers of fl-lua-scripts `TokenShop_Server.lua` (`--insert`), `mod_kill_collector_shop_buffs.sql` (`--sql`), `tools/shop_buff_spells.json` (`--spec`) and `tools/shop_buff_ids.json`; `--verify` proves the files match the live tables; not part of the build |
+| `data/sql/db-world/base/mod_kill_collector_shop_buffs.sql` | GENERATED (do not edit): `spell_dbc` 2032000-2032067 (68 rows, all 234 columns), `spell_group` (the copies in 18 existing EXCLUSIVE_HIGHEST groups, 74 new groups 2300000-2300399) and `spell_group_stack_rules` (74 x rule 4); DELETE + INSERT |
+| `tools/shop_buff_spells.json` | GENERATED: the client rows' recipe for fl-pipeline 214 (per copy: source spell, columns to set, guards, texts, the tooltip as rendered) |
+| `tools/shop_buff_ids.json` | GENERATED, committed: original spell id -> copy id; a copy id never moves, a new pick takes the next free one |
 | `tests/kill_collector_edges.tbs` | bot scenario: relog, reload, full bags (the token by mail) |
 | `tests/kill_collector_achievement.tbs` | bot scenario: the three Oddities of the Forgotten Land complete their list, achievement 30050, the status lines of the bonus and of "N3rd" |
 | `tests/kill_collector_bonus.tbs` | bot scenario: the combat log shows 4000 without and 4200 with the Oddities achievement (fixed damage spell 37463), also on another continent; a beast stays at 4000; spell 66595 (ignores the caster's modifiers) stays at 5000 |
@@ -37,6 +40,9 @@ applies a module file again whenever its bytes change.
 | `acore_characters.mod_kill_collector_kills` | (`guid`, `entry`) | `map_id` and `creature_type` of the first kill, `first_kill_time` (unix) |
 | `acore_world.mod_kill_collector_continent_maps` | `map_id` | `continent_id` (a continent of the achievements table, -1 = never counts), `comment` |
 | `acore_world.mod_kill_collector_achievements` | (`continent_id`, `creature_type`) | `achievement_id` (unique) |
+| `acore_world.spell_dbc` | `ID` | the module's rows 2032000-2032067: the shop's buff copies |
+| `acore_world.spell_group` | (`id`, `spell_id`) | the copies as members of 18 existing groups; 74 groups 2300000-2300399 of one spell's first rank + the copy |
+| `acore_world.spell_group_stack_rules` | `group_id` | 74 rows 2300000-2300399, stack rule 4 (EXCLUSIVE_HIGHEST) |
 | `acore_world.achievement_dbc` | `ID` | the module's rows 30001-30051 (server copy of Achievement.dbc; no criteria rows) |
 | `acore_world.chartitles_dbc` | `ID` | row 178 "N3rd %s" (`Name_Lang_enUS`, `Name1_Lang_enUS`), `Mask_ID` 143 |
 | `acore_world.achievement_reward` | `ID` | row 30051: `TitleA` = `TitleH` = 178, no item, no mail |
