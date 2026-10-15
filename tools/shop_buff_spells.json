@@ -1,0 +1,2828 @@
+{
+ "about": "Written by mod-kill-collector tools/gen_shop_buffs.py; fl-pipeline 214_token_shop_buff_spells.py applies it to the client's Spell.dbc. Do not edit: change PICKS and regenerate.",
+ "factor": 1.5,
+ "duration_index": 42,
+ "rank_text": "Empowered",
+ "copy_band": [
+  2032000,
+  2032099
+ ],
+ "common": {
+  "set": {
+   "Category": 0,
+   "RecoveryTime": 0,
+   "CategoryRecoveryTime": 0,
+   "StartRecoveryCategory": 0,
+   "StartRecoveryTime": 0,
+   "InterruptFlags": 0,
+   "PowerType": 0,
+   "ManaCost": 0,
+   "ManaCostPerLevel": 0,
+   "ManaPerSecond": 0,
+   "ManaPerSecondPerLevel": 0,
+   "ManaCostPct": 0,
+   "RuneCostID": 0,
+   "RangeIndex": 1,
+   "Speed": 0.0,
+   "SpellMissileID": 0,
+   "Targets": 0,
+   "TargetCreatureType": 0,
+   "RequiresSpellFocus": 0,
+   "FacingCasterFlags": 0,
+   "CasterAuraState": 0,
+   "TargetAuraState": 0,
+   "ExcludeCasterAuraState": 0,
+   "ExcludeTargetAuraState": 0,
+   "CasterAuraSpell": 0,
+   "TargetAuraSpell": 0,
+   "ExcludeCasterAuraSpell": 0,
+   "ExcludeTargetAuraSpell": 0,
+   "ShapeshiftMask": 0,
+   "ShapeshiftExclude": 0,
+   "StanceBarOrder": 0,
+   "ProcTypeMask": 0,
+   "ProcCharges": 0,
+   "MaxTargets": 0,
+   "MaxTargetLevel": 0,
+   "SpellClassSet": 0,
+   "SpellClassMask_1": 0,
+   "SpellClassMask_2": 0,
+   "SpellClassMask_3": 0,
+   "CastingTimeIndex": 1,
+   "DurationIndex": 42,
+   "Reagent_1": 0,
+   "ReagentCount_1": 0,
+   "Reagent_2": 0,
+   "ReagentCount_2": 0,
+   "Reagent_3": 0,
+   "ReagentCount_3": 0,
+   "Reagent_4": 0,
+   "ReagentCount_4": 0,
+   "Reagent_5": 0,
+   "ReagentCount_5": 0,
+   "Reagent_6": 0,
+   "ReagentCount_6": 0,
+   "Reagent_7": 0,
+   "ReagentCount_7": 0,
+   "Reagent_8": 0,
+   "ReagentCount_8": 0,
+   "Totem_1": 0,
+   "RequiredTotemCategoryID_1": 0,
+   "Totem_2": 0,
+   "RequiredTotemCategoryID_2": 0
+  },
+  "clear_bits": {
+   "Attributes": 33554560
+  }
+ },
+ "copies": [
+  {
+   "id": 2032000,
+   "source": 48161,
+   "spell": 48161,
+   "key": "buff_power_word_fortitude",
+   "class": "Priest",
+   "name": "Power Word: Fortitude",
+   "what": "Stamina +165 > +248",
+   "set": {
+    "Effect_1": 6,
+    "EffectDieSides_1": 1,
+    "EffectBasePoints_1": 247,
+    "EffectRealPointsPerLevel_1": 0.0,
+    "ImplicitTargetA_1": 1,
+    "ImplicitTargetB_1": 0,
+    "EffectRadiusIndex_1": 0,
+    "EffectChainTargets_1": 0
+   },
+   "expect": {
+    "EffectBasePoints_1": 164,
+    "EffectDieSides_1": 1,
+    "EffectMiscValue_1": 2,
+    "Effect_1": 6
+   },
+   "texts": {
+    "NameSubtext_Lang_enUS": "Empowered"
+   },
+   "source_texts": {
+    "NameSubtext_Lang_enUS": "Rank 8"
+   },
+   "tooltip": {
+    "Description_Lang_enUS": "Power infuses the target increasing their Stamina by 248 for 1 hour.",
+    "AuraDescription_Lang_enUS": "Increases Stamina by 248."
+   }
+  },
+  {
+   "id": 2032001,
+   "source": 48073,
+   "spell": 48073,
+   "key": "buff_divine_spirit",
+   "class": "Priest",
+   "name": "Divine Spirit",
+   "what": "Spirit +80 > +120",
+   "set": {
+    "Effect_1": 6,
+    "EffectDieSides_1": 1,
+    "EffectBasePoints_1": 119,
+    "EffectRealPointsPerLevel_1": 0.0,
+    "ImplicitTargetA_1": 1,
+    "ImplicitTargetB_1": 0,
+    "EffectRadiusIndex_1": 0,
+    "EffectChainTargets_1": 0
+   },
+   "expect": {
+    "EffectBasePoints_1": 79,
+    "EffectDieSides_1": 1,
+    "EffectMiscValue_1": 4,
+    "Effect_1": 6
+   },
+   "texts": {
+    "NameSubtext_Lang_enUS": "Empowered"
+   },
+   "source_texts": {
+    "NameSubtext_Lang_enUS": "Rank 6"
+   },
+   "tooltip": {
+    "Description_Lang_enUS": "Holy power infuses the target, increasing their Spirit by 120 for 1 hour.",
+    "AuraDescription_Lang_enUS": "Increases Spirit by 120."
+   }
+  },
+  {
+   "id": 2032002,
+   "source": 48169,
+   "spell": 48169,
+   "key": "buff_shadow_protection",
+   "class": "Priest",
+   "name": "Shadow Protection",
+   "what": "Shadow resistance +130 > +195",
+   "set": {
+    "Effect_1": 6,
+    "EffectDieSides_1": 1,
+    "EffectBasePoints_1": 194,
+    "EffectRealPointsPerLevel_1": 0.0,
+    "ImplicitTargetA_1": 1,
+    "ImplicitTargetB_1": 0,
+    "EffectRadiusIndex_1": 0,
+    "EffectChainTargets_1": 0
+   },
+   "expect": {
+    "EffectBasePoints_1": 129,
+    "EffectDieSides_1": 1,
+    "EffectMiscValue_1": 32,
+    "Effect_1": 6
+   },
+   "texts": {
+    "NameSubtext_Lang_enUS": "Empowered"
+   },
+   "source_texts": {
+    "NameSubtext_Lang_enUS": "Rank 5"
+   },
+   "tooltip": {
+    "Description_Lang_enUS": "Increases the target's resistance to Shadow spells by 195 for 1 hour.",
+    "AuraDescription_Lang_enUS": "Shadow resistance increased by 195."
+   }
+  },
+  {
+   "id": 2032003,
+   "source": 48469,
+   "spell": 48469,
+   "key": "buff_mark_of_the_wild",
+   "class": "Druid",
+   "name": "Mark of the Wild",
+   "what": "Armor +750 > +1125, all stats +37 > +56, all resistances +54 > +81",
+   "set": {
+    "Effect_1": 6,
+    "EffectDieSides_1": 1,
+    "EffectBasePoints_1": 1124,
+    "EffectRealPointsPerLevel_1": 0.0,
+    "ImplicitTargetA_1": 1,
+    "ImplicitTargetB_1": 0,
+    "EffectRadiusIndex_1": 0,
+    "EffectChainTargets_1": 0,
+    "Effect_2": 6,
+    "EffectDieSides_2": 1,
+    "EffectBasePoints_2": 55,
+    "EffectRealPointsPerLevel_2": 0.0,
+    "ImplicitTargetA_2": 1,
+    "ImplicitTargetB_2": 0,
+    "EffectRadiusIndex_2": 0,
+    "EffectChainTargets_2": 0,
+    "Effect_3": 6,
+    "EffectDieSides_3": 1,
+    "EffectBasePoints_3": 80,
+    "EffectRealPointsPerLevel_3": 0.0,
+    "ImplicitTargetA_3": 1,
+    "ImplicitTargetB_3": 0,
+    "EffectRadiusIndex_3": 0,
+    "EffectChainTargets_3": 0
+   },
+   "expect": {
+    "EffectBasePoints_1": 749,
+    "EffectDieSides_1": 1,
+    "EffectMiscValue_1": 1,
+    "Effect_1": 6,
+    "EffectBasePoints_2": 36,
+    "EffectDieSides_2": 1,
+    "EffectMiscValue_2": -1,
+    "Effect_2": 6,
+    "EffectBasePoints_3": 53,
+    "EffectDieSides_3": 1,
+    "EffectMiscValue_3": 126,
+    "Effect_3": 6
+   },
+   "texts": {
+    "NameSubtext_Lang_enUS": "Empowered"
+   },
+   "source_texts": {
+    "NameSubtext_Lang_enUS": "Rank 9"
+   },
+   "tooltip": {
+    "Description_Lang_enUS": "Increases the friendly target's armor by 1125, all attributes by 56 and all resistances by 81 for 1 hour.",
+    "AuraDescription_Lang_enUS": "Increases armor by 1125, all attributes by 56 and all resistances by 81."
+   }
+  },
+  {
+   "id": 2032004,
+   "source": 53307,
+   "spell": 53307,
+   "key": "buff_thorns",
+   "class": "Druid",
+   "name": "Thorns",
+   "what": "Damage shield +73 > +110",
+   "set": {
+    "Effect_1": 6,
+    "EffectDieSides_1": 1,
+    "EffectBasePoints_1": 109,
+    "EffectRealPointsPerLevel_1": 0.0,
+    "ImplicitTargetA_1": 1,
+    "ImplicitTargetB_1": 0,
+    "EffectRadiusIndex_1": 0,
+    "EffectChainTargets_1": 0
+   },
+   "expect": {
+    "EffectBasePoints_1": 72,
+    "EffectDieSides_1": 1,
+    "EffectMiscValue_1": 0,
+    "Effect_1": 6
+   },
+   "texts": {
+    "NameSubtext_Lang_enUS": "Empowered"
+   },
+   "source_texts": {
+    "NameSubtext_Lang_enUS": "Rank 8"
+   },
+   "tooltip": {
+    "Description_Lang_enUS": "Thorns sprout from the friendly target causing 110 Nature damage to attackers when hit.  Lasts 1 hour.",
+    "AuraDescription_Lang_enUS": "Causes 110 Nature damage to attackers."
+   }
+  },
+  {
+   "id": 2032005,
+   "source": 42995,
+   "spell": 42995,
+   "key": "buff_arcane_intellect",
+   "class": "Mage",
+   "name": "Arcane Intellect",
+   "what": "Intellect +60 > +90",
+   "set": {
+    "Effect_1": 6,
+    "EffectDieSides_1": 1,
+    "EffectBasePoints_1": 89,
+    "EffectRealPointsPerLevel_1": 0.0,
+    "ImplicitTargetA_1": 1,
+    "ImplicitTargetB_1": 0,
+    "EffectRadiusIndex_1": 0,
+    "EffectChainTargets_1": 0
+   },
+   "expect": {
+    "EffectBasePoints_1": 59,
+    "EffectDieSides_1": 1,
+    "EffectMiscValue_1": 3,
+    "Effect_1": 6
+   },
+   "texts": {
+    "NameSubtext_Lang_enUS": "Empowered"
+   },
+   "source_texts": {
+    "NameSubtext_Lang_enUS": "Rank 7"
+   },
+   "tooltip": {
+    "Description_Lang_enUS": "Increases the target's Intellect by 90 for 1 hour.",
+    "AuraDescription_Lang_enUS": "Increases Intellect by 90."
+   }
+  },
+  {
+   "id": 2032006,
+   "source": 20217,
+   "spell": 20217,
+   "key": "buff_blessing_of_kings",
+   "class": "Paladin",
+   "name": "Blessing of Kings",
+   "what": "Stats +10% > +15%",
+   "set": {
+    "Effect_1": 6,
+    "EffectDieSides_1": 1,
+    "EffectBasePoints_1": 14,
+    "EffectRealPointsPerLevel_1": 0.0,
+    "ImplicitTargetA_1": 1,
+    "ImplicitTargetB_1": 0,
+    "EffectRadiusIndex_1": 0,
+    "EffectChainTargets_1": 0,
+    "Effect_2": 0,
+    "EffectDieSides_2": 0,
+    "EffectRealPointsPerLevel_2": 0.0,
+    "EffectBasePoints_2": 0,
+    "EffectMechanic_2": 0,
+    "ImplicitTargetA_2": 0,
+    "ImplicitTargetB_2": 0,
+    "EffectRadiusIndex_2": 0,
+    "EffectAura_2": 0,
+    "EffectAuraPeriod_2": 0,
+    "EffectMultipleValue_2": 0.0,
+    "EffectChainTargets_2": 0,
+    "EffectItemType_2": 0,
+    "EffectMiscValue_2": 0,
+    "EffectMiscValueB_2": 0,
+    "EffectTriggerSpell_2": 0,
+    "EffectPointsPerCombo_2": 0.0,
+    "EffectSpellClassMaskA_2": 0,
+    "EffectSpellClassMaskB_2": 0,
+    "EffectSpellClassMaskC_2": 0
+   },
+   "expect": {
+    "EffectBasePoints_1": 9,
+    "EffectDieSides_1": 1,
+    "EffectMiscValue_1": -1,
+    "Effect_1": 6
+   },
+   "texts": {
+    "NameSubtext_Lang_enUS": "Empowered",
+    "Description_Lang_enUS": "Places a Blessing on the friendly target, increasing total stats by $s1% for $d."
+   },
+   "source_texts": {
+    "Description_Lang_enUS": "Places a Blessing on the friendly target, increasing total stats by $s1% for $d.  Players may only have one Blessing on them per Paladin at any one time.",
+    "NameSubtext_Lang_enUS": ""
+   },
+   "tooltip": {
+    "Description_Lang_enUS": "Places a Blessing on the friendly target, increasing total stats by 15% for 1 hour.",
+    "AuraDescription_Lang_enUS": "Increases stats by 15%."
+   }
+  },
+  {
+   "id": 2032007,
+   "source": 48932,
+   "spell": 48932,
+   "key": "buff_blessing_of_might",
+   "class": "Paladin",
+   "name": "Blessing of Might",
+   "what": "Attack power (melee and ranged) +550 > +825",
+   "set": {
+    "Effect_1": 6,
+    "EffectDieSides_1": 1,
+    "EffectBasePoints_1": 824,
+    "EffectRealPointsPerLevel_1": 0.0,
+    "ImplicitTargetA_1": 1,
+    "ImplicitTargetB_1": 0,
+    "EffectRadiusIndex_1": 0,
+    "EffectChainTargets_1": 0,
+    "Effect_2": 6,
+    "EffectDieSides_2": 1,
+    "EffectBasePoints_2": 824,
+    "EffectRealPointsPerLevel_2": 0.0,
+    "ImplicitTargetA_2": 1,
+    "ImplicitTargetB_2": 0,
+    "EffectRadiusIndex_2": 0,
+    "EffectChainTargets_2": 0
+   },
+   "expect": {
+    "EffectBasePoints_1": 549,
+    "EffectDieSides_1": 1,
+    "EffectMiscValue_1": 0,
+    "Effect_1": 6,
+    "EffectBasePoints_2": 549,
+    "EffectDieSides_2": 1,
+    "EffectMiscValue_2": 0,
+    "Effect_2": 6
+   },
+   "texts": {
+    "NameSubtext_Lang_enUS": "Empowered",
+    "Description_Lang_enUS": "Places a Blessing on the friendly target, increasing attack power by $s1 for $d."
+   },
+   "source_texts": {
+    "Description_Lang_enUS": "Places a Blessing on the friendly target, increasing attack power by $s1 for $d.  Players may only have one Blessing on them per Paladin at any one time.",
+    "NameSubtext_Lang_enUS": "Rank 10"
+   },
+   "tooltip": {
+    "Description_Lang_enUS": "Places a Blessing on the friendly target, increasing attack power by 825 for 1 hour.",
+    "AuraDescription_Lang_enUS": "Increases attack power by 825."
+   }
+  },
+  {
+   "id": 2032008,
+   "source": 48936,
+   "spell": 48936,
+   "key": "buff_blessing_of_wisdom",
+   "class": "Paladin",
+   "name": "Blessing of Wisdom",
+   "what": "Mana per 5 s +92 > +138",
+   "set": {
+    "Effect_1": 6,
+    "EffectDieSides_1": 1,
+    "EffectBasePoints_1": 137,
+    "EffectRealPointsPerLevel_1": 0.0,
+    "ImplicitTargetA_1": 1,
+    "ImplicitTargetB_1": 0,
+    "EffectRadiusIndex_1": 0,
+    "EffectChainTargets_1": 0
+   },
+   "expect": {
+    "EffectBasePoints_1": 91,
+    "EffectDieSides_1": 1,
+    "EffectMiscValue_1": 0,
+    "Effect_1": 6
+   },
+   "texts": {
+    "NameSubtext_Lang_enUS": "Empowered",
+    "Description_Lang_enUS": "Places a Blessing on the friendly target, restoring $s1 mana every 5 seconds for $d."
+   },
+   "source_texts": {
+    "Description_Lang_enUS": "Places a Blessing on the friendly target, restoring $s1 mana every 5 seconds for $d.  Players may only have one Blessing on them per Paladin at any one time.",
+    "NameSubtext_Lang_enUS": "Rank 9"
+   },
+   "tooltip": {
+    "Description_Lang_enUS": "Places a Blessing on the friendly target, restoring 138 mana every 5 seconds for 1 hour.",
+    "AuraDescription_Lang_enUS": "Restores 138 mana every 5 seconds."
+   }
+  },
+  {
+   "id": 2032009,
+   "source": 67480,
+   "spell": 20911,
+   "key": "buff_blessing_of_sanctuary",
+   "class": "Paladin",
+   "name": "Blessing of Sanctuary",
+   "what": "Stamina +10% > +15%, Strength +10% > +15%",
+   "set": {
+    "Effect_1": 6,
+    "EffectDieSides_1": 1,
+    "EffectBasePoints_1": 14,
+    "EffectRealPointsPerLevel_1": 0.0,
+    "ImplicitTargetA_1": 1,
+    "ImplicitTargetB_1": 0,
+    "EffectRadiusIndex_1": 0,
+    "EffectChainTargets_1": 0,
+    "Effect_2": 6,
+    "EffectDieSides_2": 1,
+    "EffectBasePoints_2": 14,
+    "EffectRealPointsPerLevel_2": 0.0,
+    "ImplicitTargetA_2": 1,
+    "ImplicitTargetB_2": 0,
+    "EffectRadiusIndex_2": 0,
+    "EffectChainTargets_2": 0
+   },
+   "expect": {
+    "EffectBasePoints_1": 9,
+    "EffectDieSides_1": 1,
+    "EffectMiscValue_1": 2,
+    "Effect_1": 6,
+    "EffectBasePoints_2": 9,
+    "EffectDieSides_2": 1,
+    "EffectMiscValue_2": 0,
+    "Effect_2": 6
+   },
+   "texts": {
+    "NameSubtext_Lang_enUS": "Empowered",
+    "Description_Lang_enUS": "Places a Blessing on the friendly target, increasing strength and stamina by $s1% for $d.",
+    "AuraDescription_Lang_enUS": "Strength and stamina increased by $s1%."
+   },
+   "source_texts": {
+    "Description_Lang_enUS": "Places a Blessing on the friendly target, reducing damage taken from all sources by $s1% for $d.  In addition, when the target blocks, parries, or dodges a melee attack the target will gain $57319s1% of maximum displayed mana.  Players may only have one Blessing on them per Paladin at any one time.",
+    "AuraDescription_Lang_enUS": "Damage taken reduced by up to $s1% and blocked, parried, and dodged melee attacks cause a gain $57319s1% of maximum displayed mana.",
+    "NameSubtext_Lang_enUS": ""
+   },
+   "tooltip": {
+    "Description_Lang_enUS": "Places a Blessing on the friendly target, increasing strength and stamina by 15% for 1 hour.",
+    "AuraDescription_Lang_enUS": "Strength and stamina increased by 15%."
+   }
+  },
+  {
+   "id": 2032010,
+   "source": 47436,
+   "spell": 47436,
+   "key": "buff_battle_shout",
+   "class": "Warrior",
+   "name": "Battle Shout",
+   "what": "Attack power (melee and ranged) +550 > +825",
+   "set": {
+    "Effect_1": 6,
+    "EffectDieSides_1": 1,
+    "EffectBasePoints_1": 824,
+    "EffectRealPointsPerLevel_1": 0.0,
+    "ImplicitTargetA_1": 1,
+    "ImplicitTargetB_1": 0,
+    "EffectRadiusIndex_1": 0,
+    "EffectChainTargets_1": 0,
+    "Effect_2": 6,
+    "EffectDieSides_2": 1,
+    "EffectBasePoints_2": 824,
+    "EffectRealPointsPerLevel_2": 0.0,
+    "ImplicitTargetA_2": 1,
+    "ImplicitTargetB_2": 0,
+    "EffectRadiusIndex_2": 0,
+    "EffectChainTargets_2": 0
+   },
+   "expect": {
+    "EffectBasePoints_1": 547,
+    "EffectDieSides_1": 1,
+    "EffectMiscValue_1": 0,
+    "Effect_1": 6,
+    "EffectBasePoints_2": 547,
+    "EffectDieSides_2": 1,
+    "EffectMiscValue_2": 0,
+    "Effect_2": 6
+   },
+   "texts": {
+    "NameSubtext_Lang_enUS": "Empowered",
+    "Description_Lang_enUS": "The warrior shouts, increasing attack power by $s1.  Lasts $d."
+   },
+   "source_texts": {
+    "Description_Lang_enUS": "The warrior shouts, increasing attack power of all raid and party members within $a1 yards by $s1.  Lasts $d.",
+    "NameSubtext_Lang_enUS": "Rank 9"
+   },
+   "tooltip": {
+    "Description_Lang_enUS": "The warrior shouts, increasing attack power by 825.  Lasts 1 hour.",
+    "AuraDescription_Lang_enUS": "Increases your attack power by 825."
+   }
+  },
+  {
+   "id": 2032011,
+   "source": 47440,
+   "spell": 47440,
+   "key": "buff_commanding_shout",
+   "class": "Warrior",
+   "name": "Commanding Shout",
+   "what": "Max health +2255 > +3383",
+   "set": {
+    "Effect_1": 6,
+    "EffectDieSides_1": 1,
+    "EffectBasePoints_1": 3382,
+    "EffectRealPointsPerLevel_1": 0.0,
+    "ImplicitTargetA_1": 1,
+    "ImplicitTargetB_1": 0,
+    "EffectRadiusIndex_1": 0,
+    "EffectChainTargets_1": 0
+   },
+   "expect": {
+    "EffectBasePoints_1": 2254,
+    "EffectDieSides_1": 1,
+    "EffectMiscValue_1": 0,
+    "Effect_1": 6
+   },
+   "texts": {
+    "NameSubtext_Lang_enUS": "Empowered",
+    "Description_Lang_enUS": "Increases maximum health by $s1.  Lasts $d."
+   },
+   "source_texts": {
+    "Description_Lang_enUS": "Increases maximum health of all party and raid members within $a1 yards by $s1.  Lasts $d.",
+    "NameSubtext_Lang_enUS": "Rank 3"
+   },
+   "tooltip": {
+    "Description_Lang_enUS": "Increases maximum health by 3383.  Lasts 1 hour.",
+    "AuraDescription_Lang_enUS": "Maximum health increased by 3383."
+   }
+  },
+  {
+   "id": 2032012,
+   "source": 57623,
+   "spell": 57623,
+   "key": "buff_horn_of_winter",
+   "class": "Death Knight",
+   "name": "Horn of Winter",
+   "what": "Strength +155 > +233, Agility +155 > +233",
+   "set": {
+    "Effect_1": 6,
+    "EffectDieSides_1": 1,
+    "EffectBasePoints_1": 232,
+    "EffectRealPointsPerLevel_1": 0.0,
+    "ImplicitTargetA_1": 1,
+    "ImplicitTargetB_1": 0,
+    "EffectRadiusIndex_1": 0,
+    "EffectChainTargets_1": 0,
+    "Effect_2": 6,
+    "EffectDieSides_2": 1,
+    "EffectBasePoints_2": 232,
+    "EffectRealPointsPerLevel_2": 0.0,
+    "ImplicitTargetA_2": 1,
+    "ImplicitTargetB_2": 0,
+    "EffectRadiusIndex_2": 0,
+    "EffectChainTargets_2": 0
+   },
+   "expect": {
+    "EffectBasePoints_1": 154,
+    "EffectDieSides_1": 1,
+    "EffectMiscValue_1": 0,
+    "Effect_1": 6,
+    "EffectBasePoints_2": 154,
+    "EffectDieSides_2": 1,
+    "EffectMiscValue_2": 1,
+    "Effect_2": 6
+   },
+   "texts": {
+    "NameSubtext_Lang_enUS": "Empowered",
+    "Description_Lang_enUS": "The Death Knight blows the Horn of Winter, increasing total Strength and Agility by $s1.  Lasts $d."
+   },
+   "source_texts": {
+    "Description_Lang_enUS": "The Death Knight blows the Horn of Winter, which generates 10 runic power and increases total Strength and Agility of all party or raid members within $a1 yards by $s1.  Lasts $d.",
+    "NameSubtext_Lang_enUS": "Rank 2"
+   },
+   "tooltip": {
+    "Description_Lang_enUS": "The Death Knight blows the Horn of Winter, increasing total Strength and Agility by 233.  Lasts 1 hour.",
+    "AuraDescription_Lang_enUS": "Increases your total Strength and Agility by 233."
+   }
+  },
+  {
+   "id": 2032013,
+   "source": 300887,
+   "spell": 300887,
+   "key": "buff_brutal_shout",
+   "class": "Barbarian",
+   "name": "Brutal Shout",
+   "what": "Agility +86 > +129",
+   "set": {
+    "Effect_1": 6,
+    "EffectDieSides_1": 1,
+    "EffectBasePoints_1": 128,
+    "EffectRealPointsPerLevel_1": 0.0,
+    "ImplicitTargetA_1": 1,
+    "ImplicitTargetB_1": 0,
+    "EffectRadiusIndex_1": 0,
+    "EffectChainTargets_1": 0
+   },
+   "expect": {
+    "EffectBasePoints_1": 85,
+    "EffectDieSides_1": 1,
+    "EffectMiscValue_1": 1,
+    "Effect_1": 6
+   },
+   "texts": {
+    "NameSubtext_Lang_enUS": "Empowered",
+    "Description_Lang_enUS": "Roar with barbaric fury, increasing Agility by $s1 for $d."
+   },
+   "source_texts": {
+    "Description_Lang_enUS": "Roar with barbaric fury, increasing the Agilty of nearby party and raid members by $s1 for $d.",
+    "NameSubtext_Lang_enUS": "Rank 7"
+   },
+   "tooltip": {
+    "Description_Lang_enUS": "Roar with barbaric fury, increasing Agility by 129 for 1 hour.",
+    "AuraDescription_Lang_enUS": "Agility increased by 129."
+   }
+  },
+  {
+   "id": 2032014,
+   "source": 681441,
+   "spell": 681441,
+   "key": "buff_enduring_shout",
+   "class": "Barbarian",
+   "name": "Enduring Shout",
+   "what": "Stamina +54 > +81",
+   "set": {
+    "Effect_1": 6,
+    "EffectDieSides_1": 1,
+    "EffectBasePoints_1": 80,
+    "EffectRealPointsPerLevel_1": 0.0,
+    "ImplicitTargetA_1": 1,
+    "ImplicitTargetB_1": 0,
+    "EffectRadiusIndex_1": 0,
+    "EffectChainTargets_1": 0
+   },
+   "expect": {
+    "EffectBasePoints_1": 53,
+    "EffectDieSides_1": 1,
+    "EffectMiscValue_1": 2,
+    "Effect_1": 6
+   },
+   "texts": {
+    "NameSubtext_Lang_enUS": "Empowered",
+    "Description_Lang_enUS": "Roar with enduring fury, increasing Stamina by $s1 for $d."
+   },
+   "source_texts": {
+    "Description_Lang_enUS": "Roar with enduring fury, increasing the Stamina of nearby allies by $s1 for $d.",
+    "NameSubtext_Lang_enUS": "Rank 4"
+   },
+   "tooltip": {
+    "Description_Lang_enUS": "Roar with enduring fury, increasing Stamina by 81 for 1 hour.",
+    "AuraDescription_Lang_enUS": "Stamina increased by 81."
+   }
+  },
+  {
+   "id": 2032015,
+   "source": 561142,
+   "spell": 561142,
+   "key": "buff_spirit_wuju",
+   "class": "Witch Doctor",
+   "name": "Spirit Wuju",
+   "what": "Spirit +40 > +60, all resistances +20 > +30",
+   "set": {
+    "Effect_1": 6,
+    "EffectDieSides_1": 1,
+    "EffectBasePoints_1": 59,
+    "EffectRealPointsPerLevel_1": 0.0,
+    "ImplicitTargetA_1": 1,
+    "ImplicitTargetB_1": 0,
+    "EffectRadiusIndex_1": 0,
+    "EffectChainTargets_1": 0,
+    "Effect_2": 6,
+    "EffectDieSides_2": 1,
+    "EffectBasePoints_2": 29,
+    "EffectRealPointsPerLevel_2": 0.0,
+    "ImplicitTargetA_2": 1,
+    "ImplicitTargetB_2": 0,
+    "EffectRadiusIndex_2": 0,
+    "EffectChainTargets_2": 0
+   },
+   "expect": {
+    "EffectBasePoints_1": 39,
+    "EffectDieSides_1": 1,
+    "EffectMiscValue_1": 4,
+    "Effect_1": 6,
+    "EffectBasePoints_2": 19,
+    "EffectDieSides_2": 1,
+    "EffectMiscValue_2": 126,
+    "Effect_2": 6
+   },
+   "texts": {
+    "NameSubtext_Lang_enUS": "Empowered",
+    "Description_Lang_enUS": "Imbue an ally with the spirit of Sen'jin for $d, increasing their Spirit by $s1 and their magic resistances by $s2."
+   },
+   "source_texts": {
+    "Description_Lang_enUS": "Imbue an ally with the spirit of Sen'jin for $d, increasing their Spirit by $s1 and their magic resistances by $s2.\r\n\r\nCan only have 1 |cffffffffWuju|r active on a target at a time.",
+    "NameSubtext_Lang_enUS": "Rank 4"
+   },
+   "tooltip": {
+    "Description_Lang_enUS": "Imbue an ally with the spirit of Sen'jin for 1 hour, increasing their Spirit by 60 and their magic resistances by 30.",
+    "AuraDescription_Lang_enUS": "Spirit increased by 60. Magic resistances increased by 30."
+   }
+  },
+  {
+   "id": 2032016,
+   "source": 707677,
+   "spell": 707677,
+   "key": "buff_power_wuju",
+   "class": "Witch Doctor",
+   "name": "Power Wuju",
+   "what": "Attack power +306 > +459, Ranged attack power +232 > +348",
+   "set": {
+    "Effect_1": 6,
+    "EffectDieSides_1": 1,
+    "EffectBasePoints_1": 458,
+    "EffectRealPointsPerLevel_1": 0.0,
+    "ImplicitTargetA_1": 1,
+    "ImplicitTargetB_1": 0,
+    "EffectRadiusIndex_1": 0,
+    "EffectChainTargets_1": 0,
+    "Effect_2": 6,
+    "EffectDieSides_2": 1,
+    "EffectBasePoints_2": 347,
+    "EffectRealPointsPerLevel_2": 0.0,
+    "ImplicitTargetA_2": 1,
+    "ImplicitTargetB_2": 0,
+    "EffectRadiusIndex_2": 0,
+    "EffectChainTargets_2": 0
+   },
+   "expect": {
+    "EffectBasePoints_1": 305,
+    "EffectDieSides_1": 1,
+    "EffectMiscValue_1": 0,
+    "Effect_1": 6,
+    "EffectBasePoints_2": 231,
+    "EffectDieSides_2": 1,
+    "EffectMiscValue_2": 0,
+    "Effect_2": 6
+   },
+   "texts": {
+    "NameSubtext_Lang_enUS": "Empowered",
+    "Description_Lang_enUS": "Give an ally some wuju mon, increasing their melee and ranged attack power by $s1. Lasts $d."
+   },
+   "source_texts": {
+    "Description_Lang_enUS": "Give an ally some wuju mon, increasing their melee and ranged attack power by $s1. Lasts $d.\r\n\r\nCan only have 1 |cffffffffWuju|r active on a target at a time.",
+    "NameSubtext_Lang_enUS": "Rank 7"
+   },
+   "tooltip": {
+    "Description_Lang_enUS": "Give an ally some wuju mon, increasing their melee and ranged attack power by 459. Lasts 1 hour.",
+    "AuraDescription_Lang_enUS": "Melee and ranged attack power increased by 459."
+   }
+  },
+  {
+   "id": 2032017,
+   "source": 523483,
+   "spell": 523483,
+   "key": "buff_man_ari_intuition",
+   "class": "Felsworn",
+   "name": "Man'ari Intuition",
+   "what": "Armor +290 > +435, all stats +12 > +18",
+   "set": {
+    "Effect_1": 6,
+    "EffectDieSides_1": 1,
+    "EffectBasePoints_1": 434,
+    "EffectRealPointsPerLevel_1": 0.0,
+    "ImplicitTargetA_1": 1,
+    "ImplicitTargetB_1": 0,
+    "EffectRadiusIndex_1": 0,
+    "EffectChainTargets_1": 0,
+    "Effect_2": 6,
+    "EffectDieSides_2": 1,
+    "EffectBasePoints_2": 17,
+    "EffectRealPointsPerLevel_2": 0.0,
+    "ImplicitTargetA_2": 1,
+    "ImplicitTargetB_2": 0,
+    "EffectRadiusIndex_2": 0,
+    "EffectChainTargets_2": 0
+   },
+   "expect": {
+    "EffectBasePoints_1": 284,
+    "EffectDieSides_1": 11,
+    "EffectMiscValue_1": 1,
+    "Effect_1": 6,
+    "EffectBasePoints_2": 11,
+    "EffectDieSides_2": 1,
+    "EffectMiscValue_2": -1,
+    "Effect_2": 6
+   },
+   "texts": {
+    "NameSubtext_Lang_enUS": "Empowered"
+   },
+   "source_texts": {
+    "NameSubtext_Lang_enUS": "Rank 6"
+   },
+   "tooltip": {
+    "Description_Lang_enUS": "Increase the friendly target's armor by 435 and all primary stats by 18 for 1 hour. /  / Does not stack with other similar effects.",
+    "AuraDescription_Lang_enUS": "Increases armor by 435 and all attributes by 18."
+   }
+  },
+  {
+   "id": 2032018,
+   "source": 501329,
+   "spell": 501329,
+   "key": "buff_illidari_intuition",
+   "class": "Felsworn",
+   "name": "Illidari Intuition",
+   "what": "Agility +77 > +116",
+   "set": {
+    "Effect_1": 6,
+    "EffectDieSides_1": 1,
+    "EffectBasePoints_1": 115,
+    "EffectRealPointsPerLevel_1": 0.0,
+    "ImplicitTargetA_1": 1,
+    "ImplicitTargetB_1": 0,
+    "EffectRadiusIndex_1": 0,
+    "EffectChainTargets_1": 0
+   },
+   "expect": {
+    "EffectBasePoints_1": 76,
+    "EffectDieSides_1": 1,
+    "EffectMiscValue_1": 1,
+    "Effect_1": 6
+   },
+   "texts": {
+    "NameSubtext_Lang_enUS": "Empowered"
+   },
+   "source_texts": {
+    "NameSubtext_Lang_enUS": "Rank 5"
+   },
+   "tooltip": {
+    "Description_Lang_enUS": "Empowers an ally with demonic energy, increasing their Agility by 116. Lasts 1 hour.",
+    "AuraDescription_Lang_enUS": "Blessed by the Illidari. Agility increased by 116."
+   }
+  },
+  {
+   "id": 2032019,
+   "source": 707687,
+   "spell": 707687,
+   "key": "buff_witching_edict",
+   "class": "Witch Hunter",
+   "name": "Witching Edict",
+   "what": "Spell power +62 > +93",
+   "set": {
+    "Effect_1": 6,
+    "EffectDieSides_1": 1,
+    "EffectBasePoints_1": 92,
+    "EffectRealPointsPerLevel_1": 0.0,
+    "ImplicitTargetA_1": 1,
+    "ImplicitTargetB_1": 0,
+    "EffectRadiusIndex_1": 0,
+    "EffectChainTargets_1": 0
+   },
+   "expect": {
+    "EffectBasePoints_1": 61,
+    "EffectDieSides_1": 1,
+    "EffectMiscValue_1": 127,
+    "Effect_1": 6
+   },
+   "texts": {
+    "NameSubtext_Lang_enUS": "Empowered"
+   },
+   "source_texts": {
+    "NameSubtext_Lang_enUS": "Rank 4"
+   },
+   "tooltip": {
+    "Description_Lang_enUS": "Create a magic edict with an ally, increasing their spell power by 93.",
+    "AuraDescription_Lang_enUS": "Spell power increased by 93."
+   }
+  },
+  {
+   "id": 2032020,
+   "source": 707355,
+   "spell": 707355,
+   "key": "buff_inquisitor_s_edict",
+   "class": "Witch Hunter",
+   "name": "Inquisitor's Edict",
+   "what": "Agility +77 > +116",
+   "set": {
+    "Effect_1": 6,
+    "EffectDieSides_1": 1,
+    "EffectBasePoints_1": 115,
+    "EffectRealPointsPerLevel_1": 0.0,
+    "ImplicitTargetA_1": 1,
+    "ImplicitTargetB_1": 0,
+    "EffectRadiusIndex_1": 0,
+    "EffectChainTargets_1": 0
+   },
+   "expect": {
+    "EffectBasePoints_1": 76,
+    "EffectDieSides_1": 1,
+    "EffectMiscValue_1": 1,
+    "Effect_1": 6
+   },
+   "texts": {
+    "NameSubtext_Lang_enUS": "Empowered"
+   },
+   "source_texts": {
+    "NameSubtext_Lang_enUS": "Rank 6"
+   },
+   "tooltip": {
+    "Description_Lang_enUS": "Convince your ally to make a deal with darkness, increasing Agility by 116.",
+    "AuraDescription_Lang_enUS": "Agility increased by 116."
+   }
+  },
+  {
+   "id": 2032021,
+   "source": 523488,
+   "spell": 523488,
+   "key": "buff_knight_s_edict",
+   "class": "Witch Hunter",
+   "name": "Knight's Edict",
+   "what": "Armor +285 > +428, all stats +12 > +18",
+   "set": {
+    "Effect_1": 6,
+    "EffectDieSides_1": 1,
+    "EffectBasePoints_1": 427,
+    "EffectRealPointsPerLevel_1": 0.0,
+    "ImplicitTargetA_1": 1,
+    "ImplicitTargetB_1": 0,
+    "EffectRadiusIndex_1": 0,
+    "EffectChainTargets_1": 0,
+    "Effect_2": 6,
+    "EffectDieSides_2": 1,
+    "EffectBasePoints_2": 17,
+    "EffectRealPointsPerLevel_2": 0.0,
+    "ImplicitTargetA_2": 1,
+    "ImplicitTargetB_2": 0,
+    "EffectRadiusIndex_2": 0,
+    "EffectChainTargets_2": 0
+   },
+   "expect": {
+    "EffectBasePoints_1": 284,
+    "EffectDieSides_1": 1,
+    "EffectMiscValue_1": 1,
+    "Effect_1": 6,
+    "EffectBasePoints_2": 11,
+    "EffectDieSides_2": 1,
+    "EffectMiscValue_2": -1,
+    "Effect_2": 6
+   },
+   "texts": {
+    "NameSubtext_Lang_enUS": "Empowered"
+   },
+   "source_texts": {
+    "NameSubtext_Lang_enUS": "Rank 4"
+   },
+   "tooltip": {
+    "Description_Lang_enUS": "Increase the friendly target's armor by 428 and all primary attributes by 18 for 1 hour. /  / Does not stack with other similar effects.",
+    "AuraDescription_Lang_enUS": "Increases armor by 428 and all attributes by 18."
+   }
+  },
+  {
+   "id": 2032022,
+   "source": 578315,
+   "spell": 578315,
+   "key": "buff_call_of_the_storm",
+   "class": "Stormbringer",
+   "name": "Call of the Storm",
+   "what": "Intellect +31 > +47",
+   "set": {
+    "Effect_1": 6,
+    "EffectDieSides_1": 1,
+    "EffectBasePoints_1": 46,
+    "EffectRealPointsPerLevel_1": 0.0,
+    "ImplicitTargetA_1": 1,
+    "ImplicitTargetB_1": 0,
+    "EffectRadiusIndex_1": 0,
+    "EffectChainTargets_1": 0
+   },
+   "expect": {
+    "EffectBasePoints_1": 30,
+    "EffectDieSides_1": 1,
+    "EffectMiscValue_1": 3,
+    "Effect_1": 6
+   },
+   "texts": {
+    "NameSubtext_Lang_enUS": "Empowered",
+    "Description_Lang_enUS": "Call upon the power of the storm to empower an allied player, increasing their Intellect by $s1 for $d."
+   },
+   "source_texts": {
+    "Description_Lang_enUS": "Call upon the power of the storm to empower an allied player, increasing their Intellect by $s1 for $d.\r\n\r\nDoes not stack with |cffffffffCall of the Wind|r.",
+    "NameSubtext_Lang_enUS": "Rank 5"
+   },
+   "tooltip": {
+    "Description_Lang_enUS": "Call upon the power of the storm to empower an allied player, increasing their Intellect by 47 for 1 hour.",
+    "AuraDescription_Lang_enUS": "Intellect increased by 47."
+   }
+  },
+  {
+   "id": 2032023,
+   "source": 503323,
+   "spell": 503323,
+   "key": "buff_call_of_the_wind",
+   "class": "Stormbringer",
+   "name": "Call of the Wind",
+   "what": "Mana per 5 s +33 > +50",
+   "set": {
+    "Effect_1": 6,
+    "EffectDieSides_1": 1,
+    "EffectBasePoints_1": 49,
+    "EffectRealPointsPerLevel_1": 0.0,
+    "ImplicitTargetA_1": 1,
+    "ImplicitTargetB_1": 0,
+    "EffectRadiusIndex_1": 0,
+    "EffectChainTargets_1": 0
+   },
+   "expect": {
+    "EffectBasePoints_1": 32,
+    "EffectDieSides_1": 1,
+    "EffectMiscValue_1": 0,
+    "Effect_1": 6
+   },
+   "texts": {
+    "NameSubtext_Lang_enUS": "Empowered",
+    "Description_Lang_enUS": "Call upon the power of the wind to empower an allied player, restoring $s1 mana every 5 seconds for $d."
+   },
+   "source_texts": {
+    "Description_Lang_enUS": "Call upon the power of the wind to empower an allied player, restoring $s1 mana every 5 seconds for $d.\r\n\r\nDoes not stack with |cffffffffCall of the Storm|r.",
+    "NameSubtext_Lang_enUS": "Rank 6"
+   },
+   "tooltip": {
+    "Description_Lang_enUS": "Call upon the power of the wind to empower an allied player, restoring 50 mana every 5 seconds for 1 hour.",
+    "AuraDescription_Lang_enUS": "Mana regeneration increased by 50."
+   }
+  },
+  {
+   "id": 2032024,
+   "source": 575845,
+   "spell": 575845,
+   "key": "buff_call_of_the_lightning",
+   "class": "Stormbringer",
+   "name": "Call of the Lightning",
+   "what": "All resistances +20 > +30",
+   "set": {
+    "Effect_3": 6,
+    "EffectDieSides_3": 1,
+    "EffectBasePoints_3": 29,
+    "EffectRealPointsPerLevel_3": 0.0,
+    "ImplicitTargetA_3": 1,
+    "ImplicitTargetB_3": 0,
+    "EffectRadiusIndex_3": 0,
+    "EffectChainTargets_3": 0
+   },
+   "expect": {
+    "EffectBasePoints_3": 19,
+    "EffectDieSides_3": 1,
+    "EffectMiscValue_3": 126,
+    "Effect_3": 6
+   },
+   "texts": {
+    "NameSubtext_Lang_enUS": "Empowered"
+   },
+   "source_texts": {
+    "NameSubtext_Lang_enUS": "Rank 3"
+   },
+   "tooltip": {
+    "Description_Lang_enUS": "Call upon the power of storms to empower an allied player, increasing their resistances by 30 for 1 hour.",
+    "AuraDescription_Lang_enUS": "Increases all resistances by 30."
+   }
+  },
+  {
+   "id": 2032025,
+   "source": 707696,
+   "spell": 707696,
+   "key": "buff_mark_of_blaumeux",
+   "class": "Knight of Xoroth",
+   "name": "Mark of Blaumeux",
+   "what": "Spell power +49 > +74, Shadow resistance +60 > +90",
+   "set": {
+    "Effect_1": 6,
+    "EffectDieSides_1": 1,
+    "EffectBasePoints_1": 73,
+    "EffectRealPointsPerLevel_1": 0.0,
+    "ImplicitTargetA_1": 1,
+    "ImplicitTargetB_1": 0,
+    "EffectRadiusIndex_1": 0,
+    "EffectChainTargets_1": 0,
+    "Effect_2": 6,
+    "EffectDieSides_2": 1,
+    "EffectBasePoints_2": 89,
+    "EffectRealPointsPerLevel_2": 0.0,
+    "ImplicitTargetA_2": 1,
+    "ImplicitTargetB_2": 0,
+    "EffectRadiusIndex_2": 0,
+    "EffectChainTargets_2": 0
+   },
+   "expect": {
+    "EffectBasePoints_1": 48,
+    "EffectDieSides_1": 1,
+    "EffectMiscValue_1": 127,
+    "Effect_1": 6,
+    "EffectBasePoints_2": 59,
+    "EffectDieSides_2": 1,
+    "EffectMiscValue_2": 32,
+    "Effect_2": 6
+   },
+   "texts": {
+    "NameSubtext_Lang_enUS": "Empowered"
+   },
+   "source_texts": {
+    "NameSubtext_Lang_enUS": "Rank 4"
+   },
+   "tooltip": {
+    "Description_Lang_enUS": "Mark an ally with the power of Blaumeux, increasing their spell power by 74 and Shadow Resist by 90 for 1 hour.",
+    "AuraDescription_Lang_enUS": "Spell power increased by 74. Shadow Resistance increased by 90."
+   }
+  },
+  {
+   "id": 2032026,
+   "source": 803671,
+   "spell": 803671,
+   "key": "buff_mark_of_zeliek",
+   "class": "Knight of Xoroth",
+   "name": "Mark of Zeliek",
+   "what": "Resource costs -5% > -7%, Arcane resistance +60 > +90",
+   "set": {
+    "Effect_2": 6,
+    "EffectDieSides_2": 1,
+    "EffectBasePoints_2": -8,
+    "EffectRealPointsPerLevel_2": 0.0,
+    "ImplicitTargetA_2": 1,
+    "ImplicitTargetB_2": 0,
+    "EffectRadiusIndex_2": 0,
+    "EffectChainTargets_2": 0,
+    "Effect_3": 6,
+    "EffectDieSides_3": 1,
+    "EffectBasePoints_3": 89,
+    "EffectRealPointsPerLevel_3": 0.0,
+    "ImplicitTargetA_3": 1,
+    "ImplicitTargetB_3": 0,
+    "EffectRadiusIndex_3": 0,
+    "EffectChainTargets_3": 0
+   },
+   "expect": {
+    "EffectBasePoints_2": -6,
+    "EffectDieSides_2": 1,
+    "EffectMiscValue_2": 127,
+    "Effect_2": 6,
+    "EffectBasePoints_3": 59,
+    "EffectDieSides_3": 1,
+    "EffectMiscValue_3": 64,
+    "Effect_3": 6
+   },
+   "texts": {
+    "NameSubtext_Lang_enUS": "Empowered",
+    "AuraDescription_Lang_enUS": "Resource costs reduced by $s2%. Arcane Resistance increased by $s3."
+   },
+   "source_texts": {
+    "AuraDescription_Lang_enUS": "Resource costs reduced by 5%. Arcane Resistance increased by $s3.",
+    "NameSubtext_Lang_enUS": ""
+   },
+   "tooltip": {
+    "Description_Lang_enUS": "Empower an ally with the mark of Zeliek, reducing their resource costs by 7% and increasing their Arcane Resistance by 90. Lasts 1 hour.",
+    "AuraDescription_Lang_enUS": "Resource costs reduced by 7%. Arcane Resistance increased by 90."
+   }
+  },
+  {
+   "id": 2032027,
+   "source": 707345,
+   "spell": 707345,
+   "key": "buff_mark_of_korth_azz",
+   "class": "Knight of Xoroth",
+   "name": "Mark of Korth'azz",
+   "what": "Fire resistance +54 > +81, Strength +77 > +116",
+   "set": {
+    "Effect_1": 6,
+    "EffectDieSides_1": 1,
+    "EffectBasePoints_1": 80,
+    "EffectRealPointsPerLevel_1": 0.0,
+    "ImplicitTargetA_1": 1,
+    "ImplicitTargetB_1": 0,
+    "EffectRadiusIndex_1": 0,
+    "EffectChainTargets_1": 0,
+    "Effect_2": 6,
+    "EffectDieSides_2": 1,
+    "EffectBasePoints_2": 115,
+    "EffectRealPointsPerLevel_2": 0.0,
+    "ImplicitTargetA_2": 1,
+    "ImplicitTargetB_2": 0,
+    "EffectRadiusIndex_2": 0,
+    "EffectChainTargets_2": 0
+   },
+   "expect": {
+    "EffectBasePoints_1": 53,
+    "EffectDieSides_1": 1,
+    "EffectMiscValue_1": 4,
+    "Effect_1": 6,
+    "EffectBasePoints_2": 76,
+    "EffectDieSides_2": 1,
+    "EffectMiscValue_2": 0,
+    "Effect_2": 6
+   },
+   "texts": {
+    "NameSubtext_Lang_enUS": "Empowered"
+   },
+   "source_texts": {
+    "NameSubtext_Lang_enUS": "Rank 6"
+   },
+   "tooltip": {
+    "Description_Lang_enUS": "Mark an ally with the power of Korth’azz, increasing Strength by 116 and Fire Resistance by 81 for 1 hour.",
+    "AuraDescription_Lang_enUS": "Strength increased by 116. Fire Resistance increased by 81."
+   }
+  },
+  {
+   "id": 2032028,
+   "source": 803670,
+   "spell": 803670,
+   "key": "buff_mark_of_rivendare",
+   "class": "Knight of Xoroth",
+   "name": "Mark of Rivendare",
+   "what": "Stamina +54 > +81, Frost resistance +60 > +90",
+   "set": {
+    "Effect_1": 6,
+    "EffectDieSides_1": 1,
+    "EffectBasePoints_1": 80,
+    "EffectRealPointsPerLevel_1": 0.0,
+    "ImplicitTargetA_1": 1,
+    "ImplicitTargetB_1": 0,
+    "EffectRadiusIndex_1": 0,
+    "EffectChainTargets_1": 0,
+    "Effect_2": 6,
+    "EffectDieSides_2": 1,
+    "EffectBasePoints_2": 89,
+    "EffectRealPointsPerLevel_2": 0.0,
+    "ImplicitTargetA_2": 1,
+    "ImplicitTargetB_2": 0,
+    "EffectRadiusIndex_2": 0,
+    "EffectChainTargets_2": 0
+   },
+   "expect": {
+    "EffectBasePoints_1": 53,
+    "EffectDieSides_1": 1,
+    "EffectMiscValue_1": 2,
+    "Effect_1": 6,
+    "EffectBasePoints_2": 59,
+    "EffectDieSides_2": 1,
+    "EffectMiscValue_2": 16,
+    "Effect_2": 6
+   },
+   "texts": {
+    "NameSubtext_Lang_enUS": "Empowered"
+   },
+   "source_texts": {
+    "NameSubtext_Lang_enUS": "Rank 4"
+   },
+   "tooltip": {
+    "Description_Lang_enUS": "Mark an ally with the guile of Rivendare increasing their Stamina by 81 and Frost Resistance by 90 for 1 hour. ",
+    "AuraDescription_Lang_enUS": "Increases Stamina by 81. Increases Frost Resistance by 90."
+   }
+  },
+  {
+   "id": 2032029,
+   "source": 301232,
+   "spell": 301232,
+   "key": "buff_honor",
+   "class": "Guardian",
+   "name": "Honor",
+   "what": "Strength +77 > +116",
+   "set": {
+    "Effect_2": 6,
+    "EffectDieSides_2": 1,
+    "EffectBasePoints_2": 115,
+    "EffectRealPointsPerLevel_2": 0.0,
+    "ImplicitTargetA_2": 1,
+    "ImplicitTargetB_2": 0,
+    "EffectRadiusIndex_2": 0,
+    "EffectChainTargets_2": 0
+   },
+   "expect": {
+    "EffectBasePoints_2": 76,
+    "EffectDieSides_2": 1,
+    "EffectMiscValue_2": 0,
+    "Effect_2": 6
+   },
+   "texts": {
+    "NameSubtext_Lang_enUS": "Empowered"
+   },
+   "source_texts": {
+    "NameSubtext_Lang_enUS": "Rank 6"
+   },
+   "tooltip": {
+    "Description_Lang_enUS": "Declare an ally honorable, increasing their Strength by 116 for 1 hour.",
+    "AuraDescription_Lang_enUS": "Strength increased by 116."
+   }
+  },
+  {
+   "id": 2032030,
+   "source": 582535,
+   "spell": 582535,
+   "key": "buff_fire_protection",
+   "class": "Guardian",
+   "name": "Fire Protection",
+   "what": "Fire resistance +60 > +90",
+   "set": {
+    "Effect_1": 6,
+    "EffectDieSides_1": 1,
+    "EffectBasePoints_1": 89,
+    "EffectRealPointsPerLevel_1": 0.0,
+    "ImplicitTargetA_1": 1,
+    "ImplicitTargetB_1": 0,
+    "EffectRadiusIndex_1": 0,
+    "EffectChainTargets_1": 0
+   },
+   "expect": {
+    "EffectBasePoints_1": 59,
+    "EffectDieSides_1": 1,
+    "EffectMiscValue_1": 4,
+    "Effect_1": 6
+   },
+   "texts": {
+    "NameSubtext_Lang_enUS": "Empowered"
+   },
+   "source_texts": {
+    "NameSubtext_Lang_enUS": "Rank 3"
+   },
+   "tooltip": {
+    "Description_Lang_enUS": "Increases the target's resistance to Fire spells by 90 for 1 hour.",
+    "AuraDescription_Lang_enUS": "Increases Fire resistance by 90."
+   }
+  },
+  {
+   "id": 2032031,
+   "source": 572629,
+   "spell": 572629,
+   "key": "buff_gift_of_fervor",
+   "class": "Templar",
+   "name": "Gift of Fervor",
+   "what": "Stats +10% > +15%",
+   "set": {
+    "Effect_1": 6,
+    "EffectDieSides_1": 1,
+    "EffectBasePoints_1": 14,
+    "EffectRealPointsPerLevel_1": 0.0,
+    "ImplicitTargetA_1": 1,
+    "ImplicitTargetB_1": 0,
+    "EffectRadiusIndex_1": 0,
+    "EffectChainTargets_1": 0
+   },
+   "expect": {
+    "EffectBasePoints_1": 9,
+    "EffectDieSides_1": 1,
+    "EffectMiscValue_1": -1,
+    "Effect_1": 6
+   },
+   "texts": {
+    "NameSubtext_Lang_enUS": "Empowered"
+   },
+   "source_texts": {
+    "NameSubtext_Lang_enUS": ""
+   },
+   "tooltip": {
+    "Description_Lang_enUS": "Places an |cffffffffGift|r on the friendly target, increasing total stats by 15% for 1 hour.",
+    "AuraDescription_Lang_enUS": "Increases stats by 15%."
+   }
+  },
+  {
+   "id": 2032032,
+   "source": 300923,
+   "spell": 300923,
+   "key": "buff_gift_of_zeal",
+   "class": "Templar",
+   "name": "Gift of Zeal",
+   "what": "Agility +77 > +116",
+   "set": {
+    "Effect_1": 6,
+    "EffectDieSides_1": 1,
+    "EffectBasePoints_1": 115,
+    "EffectRealPointsPerLevel_1": 0.0,
+    "ImplicitTargetA_1": 1,
+    "ImplicitTargetB_1": 0,
+    "EffectRadiusIndex_1": 0,
+    "EffectChainTargets_1": 0
+   },
+   "expect": {
+    "EffectBasePoints_1": 76,
+    "EffectDieSides_1": 1,
+    "EffectMiscValue_1": 1,
+    "Effect_1": 6
+   },
+   "texts": {
+    "NameSubtext_Lang_enUS": "Empowered"
+   },
+   "source_texts": {
+    "NameSubtext_Lang_enUS": "Rank 6"
+   },
+   "tooltip": {
+    "Description_Lang_enUS": "Places a |cffffffffGift|r on a friendly target, increasing Agility by 116 for 1 hour.",
+    "AuraDescription_Lang_enUS": "Agility increased by 116."
+   }
+  },
+  {
+   "id": 2032033,
+   "source": 572403,
+   "spell": 572403,
+   "key": "buff_bloodsoaked_offering",
+   "class": "Bloodmage",
+   "name": "Bloodsoaked Offering",
+   "what": "Spirit +40 > +60",
+   "set": {
+    "Effect_1": 6,
+    "EffectDieSides_1": 1,
+    "EffectBasePoints_1": 59,
+    "EffectRealPointsPerLevel_1": 0.0,
+    "ImplicitTargetA_1": 1,
+    "ImplicitTargetB_1": 0,
+    "EffectRadiusIndex_1": 0,
+    "EffectChainTargets_1": 0
+   },
+   "expect": {
+    "EffectBasePoints_1": 39,
+    "EffectDieSides_1": 1,
+    "EffectMiscValue_1": 4,
+    "Effect_1": 6
+   },
+   "texts": {
+    "NameSubtext_Lang_enUS": "Empowered"
+   },
+   "source_texts": {
+    "NameSubtext_Lang_enUS": "Rank 4"
+   },
+   "tooltip": {
+    "Description_Lang_enUS": "Blood magic infuses the target ally, increasing their Spirit by 60 for 1 hour.",
+    "AuraDescription_Lang_enUS": "Increases Spirit by 60."
+   }
+  },
+  {
+   "id": 2032034,
+   "source": 707340,
+   "spell": 707340,
+   "key": "buff_sanguinary_offering",
+   "class": "Bloodmage",
+   "name": "Sanguinary Offering",
+   "what": "Stamina +79 > +119",
+   "set": {
+    "Effect_1": 6,
+    "EffectDieSides_1": 1,
+    "EffectBasePoints_1": 118,
+    "EffectRealPointsPerLevel_1": 0.0,
+    "ImplicitTargetA_1": 1,
+    "ImplicitTargetB_1": 0,
+    "EffectRadiusIndex_1": 0,
+    "EffectChainTargets_1": 0
+   },
+   "expect": {
+    "EffectBasePoints_1": 78,
+    "EffectDieSides_1": 1,
+    "EffectMiscValue_1": 2,
+    "Effect_1": 6
+   },
+   "texts": {
+    "NameSubtext_Lang_enUS": "Empowered"
+   },
+   "source_texts": {
+    "NameSubtext_Lang_enUS": "Rank 6"
+   },
+   "tooltip": {
+    "Description_Lang_enUS": "Enact a sanguinary ritual with an ally, increasing their Stamina by 119. Lasts 1 hour.",
+    "AuraDescription_Lang_enUS": "Increases Stamina by 119."
+   }
+  },
+  {
+   "id": 2032035,
+   "source": 501670,
+   "spell": 501670,
+   "key": "buff_bloodthorns",
+   "class": "Bloodmage",
+   "name": "Bloodthorns",
+   "what": "Damage shield +73 > +110",
+   "set": {
+    "Effect_1": 6,
+    "EffectDieSides_1": 1,
+    "EffectBasePoints_1": 109,
+    "EffectRealPointsPerLevel_1": 0.0,
+    "ImplicitTargetA_1": 1,
+    "ImplicitTargetB_1": 0,
+    "EffectRadiusIndex_1": 0,
+    "EffectChainTargets_1": 0
+   },
+   "expect": {
+    "EffectBasePoints_1": 72,
+    "EffectDieSides_1": 1,
+    "EffectMiscValue_1": 0,
+    "Effect_1": 6
+   },
+   "texts": {
+    "NameSubtext_Lang_enUS": "Empowered"
+   },
+   "source_texts": {
+    "NameSubtext_Lang_enUS": "Rank 10"
+   },
+   "tooltip": {
+    "Description_Lang_enUS": "Bloodthorns sprout from an ally for 1 hour, causing 110 Shadow damage to attackers when hit. /  / Can occur only once every half a second.",
+    "AuraDescription_Lang_enUS": "Causes 110 Shadow damage to attackers."
+   }
+  },
+  {
+   "id": 2032036,
+   "source": 803666,
+   "spell": 803666,
+   "key": "buff_woodsman_s_adaptation",
+   "class": "Ranger",
+   "name": "Woodsman's Adaptation",
+   "what": "Attack power (melee and ranged) +232 > +348",
+   "set": {
+    "Effect_1": 6,
+    "EffectDieSides_1": 1,
+    "EffectBasePoints_1": 347,
+    "EffectRealPointsPerLevel_1": 0.0,
+    "ImplicitTargetA_1": 1,
+    "ImplicitTargetB_1": 0,
+    "EffectRadiusIndex_1": 0,
+    "EffectChainTargets_1": 0,
+    "Effect_2": 6,
+    "EffectDieSides_2": 1,
+    "EffectBasePoints_2": 347,
+    "EffectRealPointsPerLevel_2": 0.0,
+    "ImplicitTargetA_2": 1,
+    "ImplicitTargetB_2": 0,
+    "EffectRadiusIndex_2": 0,
+    "EffectChainTargets_2": 0
+   },
+   "expect": {
+    "EffectBasePoints_1": 231,
+    "EffectDieSides_1": 1,
+    "EffectMiscValue_1": 0,
+    "Effect_1": 6,
+    "EffectBasePoints_2": 231,
+    "EffectDieSides_2": 1,
+    "EffectMiscValue_2": 0,
+    "Effect_2": 6
+   },
+   "texts": {
+    "NameSubtext_Lang_enUS": "Empowered"
+   },
+   "source_texts": {
+    "NameSubtext_Lang_enUS": "Rank 7"
+   },
+   "tooltip": {
+    "Description_Lang_enUS": "Enhance an ally's focus, increasing their melee and ranged attack power by 348. Lasts 1 hour",
+    "AuraDescription_Lang_enUS": "Melee and ranged attack power increased by 348."
+   }
+  },
+  {
+   "id": 2032037,
+   "source": 523493,
+   "spell": 523493,
+   "key": "buff_footpad_s_adaptation",
+   "class": "Ranger",
+   "name": "Footpad's Adaptation",
+   "what": "Armor +285 > +428, all stats +12 > +18",
+   "set": {
+    "Effect_1": 6,
+    "EffectDieSides_1": 1,
+    "EffectBasePoints_1": 427,
+    "EffectRealPointsPerLevel_1": 0.0,
+    "ImplicitTargetA_1": 1,
+    "ImplicitTargetB_1": 0,
+    "EffectRadiusIndex_1": 0,
+    "EffectChainTargets_1": 0,
+    "Effect_2": 6,
+    "EffectDieSides_2": 1,
+    "EffectBasePoints_2": 17,
+    "EffectRealPointsPerLevel_2": 0.0,
+    "ImplicitTargetA_2": 1,
+    "ImplicitTargetB_2": 0,
+    "EffectRadiusIndex_2": 0,
+    "EffectChainTargets_2": 0
+   },
+   "expect": {
+    "EffectBasePoints_1": 284,
+    "EffectDieSides_1": 1,
+    "EffectMiscValue_1": 1,
+    "Effect_1": 6,
+    "EffectBasePoints_2": 11,
+    "EffectDieSides_2": 1,
+    "EffectMiscValue_2": -1,
+    "Effect_2": 6
+   },
+   "texts": {
+    "NameSubtext_Lang_enUS": "Empowered"
+   },
+   "source_texts": {
+    "NameSubtext_Lang_enUS": "Rank 5"
+   },
+   "tooltip": {
+    "Description_Lang_enUS": "Increase the friendly target's armor by 428 and all primary attributes by 18 for 1 hour. /  / Does not stack with other similar effects.",
+    "AuraDescription_Lang_enUS": "Increases armor by 428 and all attributes by 18."
+   }
+  },
+  {
+   "id": 2032038,
+   "source": 572395,
+   "spell": 572395,
+   "key": "buff_nozdormu_s_wisdom",
+   "class": "Chronomancer",
+   "name": "Nozdormu's Wisdom",
+   "what": "Intellect +31 > +47",
+   "set": {
+    "Effect_1": 6,
+    "EffectDieSides_1": 1,
+    "EffectBasePoints_1": 46,
+    "EffectRealPointsPerLevel_1": 0.0,
+    "ImplicitTargetA_1": 1,
+    "ImplicitTargetB_1": 0,
+    "EffectRadiusIndex_1": 0,
+    "EffectChainTargets_1": 0
+   },
+   "expect": {
+    "EffectBasePoints_1": 30,
+    "EffectDieSides_1": 1,
+    "EffectMiscValue_1": 3,
+    "Effect_1": 6
+   },
+   "texts": {
+    "NameSubtext_Lang_enUS": "Empowered",
+    "Description_Lang_enUS": "Share Nozdormu's Wisdom with an allied player, increasing their Intellect by $s1 for $d."
+   },
+   "source_texts": {
+    "Description_Lang_enUS": "Share Nozdormu's Wisdom with an allied player, increasing their Intellect by $s1 for $d.\r\n\r\nOnly one |cffffffffWisdom|r per Chronomancer can be active.",
+    "NameSubtext_Lang_enUS": "Rank 5"
+   },
+   "tooltip": {
+    "Description_Lang_enUS": "Share Nozdormu's Wisdom with an allied player, increasing their Intellect by 47 for 1 hour.",
+    "AuraDescription_Lang_enUS": "Intellect increased by 47."
+   }
+  },
+  {
+   "id": 2032039,
+   "source": 802829,
+   "spell": 802829,
+   "key": "buff_chromie_s_wisdom",
+   "class": "Chronomancer",
+   "name": "Chromie's Wisdom",
+   "what": "Spirit +40 > +60",
+   "set": {
+    "Effect_1": 6,
+    "EffectDieSides_1": 1,
+    "EffectBasePoints_1": 59,
+    "EffectRealPointsPerLevel_1": 0.0,
+    "ImplicitTargetA_1": 1,
+    "ImplicitTargetB_1": 0,
+    "EffectRadiusIndex_1": 0,
+    "EffectChainTargets_1": 0
+   },
+   "expect": {
+    "EffectBasePoints_1": 39,
+    "EffectDieSides_1": 1,
+    "EffectMiscValue_1": 4,
+    "Effect_1": 6
+   },
+   "texts": {
+    "NameSubtext_Lang_enUS": "Empowered",
+    "Description_Lang_enUS": "Share Chromie's wisdom with an allied player, increasing their Spirit by $s1. Lasts $d."
+   },
+   "source_texts": {
+    "Description_Lang_enUS": "Share Chromie's wisdom with an allied player, increasing their Spirit by $s1. Lasts $d.\r\n\r\nOnly one |cffffffffWisdom|r per Chronomancer can be active.",
+    "NameSubtext_Lang_enUS": "Rank 4"
+   },
+   "tooltip": {
+    "Description_Lang_enUS": "Share Chromie's wisdom with an allied player, increasing their Spirit by 60. Lasts 1 hour.",
+    "AuraDescription_Lang_enUS": "Spirit increased by 60."
+   }
+  },
+  {
+   "id": 2032040,
+   "source": 572176,
+   "spell": 572176,
+   "key": "buff_chill_of_the_tomb",
+   "class": "Necromancer",
+   "name": "Chill of the Tomb",
+   "what": "Frost resistance +60 > +90",
+   "set": {
+    "Effect_1": 6,
+    "EffectDieSides_1": 1,
+    "EffectBasePoints_1": 89,
+    "EffectRealPointsPerLevel_1": 0.0,
+    "ImplicitTargetA_1": 1,
+    "ImplicitTargetB_1": 0,
+    "EffectRadiusIndex_1": 0,
+    "EffectChainTargets_1": 0
+   },
+   "expect": {
+    "EffectBasePoints_1": 59,
+    "EffectDieSides_1": 1,
+    "EffectMiscValue_1": 16,
+    "Effect_1": 6
+   },
+   "texts": {
+    "NameSubtext_Lang_enUS": "Empowered"
+   },
+   "source_texts": {
+    "NameSubtext_Lang_enUS": "Rank 4"
+   },
+   "tooltip": {
+    "Description_Lang_enUS": "Increases the target's resistance to Frost spells by 90 for 1 hour.",
+    "AuraDescription_Lang_enUS": "Frost resistance increased by 90."
+   }
+  },
+  {
+   "id": 2032041,
+   "source": 572789,
+   "spell": 572789,
+   "key": "buff_grim_mandate",
+   "class": "Necromancer",
+   "name": "Grim Mandate",
+   "what": "Spell power +49 > +74",
+   "set": {
+    "Effect_1": 6,
+    "EffectDieSides_1": 1,
+    "EffectBasePoints_1": 73,
+    "EffectRealPointsPerLevel_1": 0.0,
+    "ImplicitTargetA_1": 1,
+    "ImplicitTargetB_1": 0,
+    "EffectRadiusIndex_1": 0,
+    "EffectChainTargets_1": 0
+   },
+   "expect": {
+    "EffectBasePoints_1": 48,
+    "EffectDieSides_1": 1,
+    "EffectMiscValue_1": 127,
+    "Effect_1": 6
+   },
+   "texts": {
+    "NameSubtext_Lang_enUS": "Empowered"
+   },
+   "source_texts": {
+    "NameSubtext_Lang_enUS": "Rank 3"
+   },
+   "tooltip": {
+    "Description_Lang_enUS": "Places a Mandate on the friendly target, increasing spell power by 74 for 1 hour.",
+    "AuraDescription_Lang_enUS": "Increases spell power by 74."
+   }
+  },
+  {
+   "id": 2032042,
+   "source": 573298,
+   "spell": 573298,
+   "key": "buff_foul_mandate",
+   "class": "Necromancer",
+   "name": "Foul Mandate",
+   "what": "Stamina +54 > +81",
+   "set": {
+    "Effect_1": 6,
+    "EffectDieSides_1": 1,
+    "EffectBasePoints_1": 80,
+    "EffectRealPointsPerLevel_1": 0.0,
+    "ImplicitTargetA_1": 1,
+    "ImplicitTargetB_1": 0,
+    "EffectRadiusIndex_1": 0,
+    "EffectChainTargets_1": 0
+   },
+   "expect": {
+    "EffectBasePoints_1": 53,
+    "EffectDieSides_1": 1,
+    "EffectMiscValue_1": 2,
+    "Effect_1": 6
+   },
+   "texts": {
+    "NameSubtext_Lang_enUS": "Empowered"
+   },
+   "source_texts": {
+    "NameSubtext_Lang_enUS": "Rank 5"
+   },
+   "tooltip": {
+    "Description_Lang_enUS": "Empowers an ally with a dark Mandate, increasing Stamina by 81 for 1 hour.",
+    "AuraDescription_Lang_enUS": "Increases Stamina by 81."
+   }
+  },
+  {
+   "id": 2032043,
+   "source": 802822,
+   "spell": 802822,
+   "key": "buff_seal_of_alysrazor",
+   "class": "Pyromancer",
+   "name": "Seal of Alysrazor",
+   "what": "Intellect +31 > +47",
+   "set": {
+    "Effect_1": 6,
+    "EffectDieSides_1": 1,
+    "EffectBasePoints_1": 46,
+    "EffectRealPointsPerLevel_1": 0.0,
+    "ImplicitTargetA_1": 1,
+    "ImplicitTargetB_1": 0,
+    "EffectRadiusIndex_1": 0,
+    "EffectChainTargets_1": 0
+   },
+   "expect": {
+    "EffectBasePoints_1": 30,
+    "EffectDieSides_1": 1,
+    "EffectMiscValue_1": 3,
+    "Effect_1": 6
+   },
+   "texts": {
+    "NameSubtext_Lang_enUS": "Empowered"
+   },
+   "source_texts": {
+    "NameSubtext_Lang_enUS": "Rank 5"
+   },
+   "tooltip": {
+    "Description_Lang_enUS": "Empowers an ally with the power of the eternal phoenix, increasing their Intellect by 47 for 1 hour.",
+    "AuraDescription_Lang_enUS": "Intellect increased by 47."
+   }
+  },
+  {
+   "id": 2032044,
+   "source": 808012,
+   "spell": 808012,
+   "key": "buff_seal_of_al_ar",
+   "class": "Pyromancer",
+   "name": "Seal of Al'ar",
+   "what": "Mana per 5 s +33 > +50",
+   "set": {
+    "Effect_1": 6,
+    "EffectDieSides_1": 1,
+    "EffectBasePoints_1": 49,
+    "EffectRealPointsPerLevel_1": 0.0,
+    "ImplicitTargetA_1": 1,
+    "ImplicitTargetB_1": 0,
+    "EffectRadiusIndex_1": 0,
+    "EffectChainTargets_1": 0
+   },
+   "expect": {
+    "EffectBasePoints_1": 32,
+    "EffectDieSides_1": 1,
+    "EffectMiscValue_1": 0,
+    "Effect_1": 6
+   },
+   "texts": {
+    "NameSubtext_Lang_enUS": "Empowered"
+   },
+   "source_texts": {
+    "NameSubtext_Lang_enUS": "Rank 5"
+   },
+   "tooltip": {
+    "Description_Lang_enUS": "Bless an ally with the power of Al'ar, restoring 50 mana every 5 sec.",
+    "AuraDescription_Lang_enUS": "Mana regeneration increased by 50."
+   }
+  },
+  {
+   "id": 2032045,
+   "source": 561386,
+   "spell": 561386,
+   "key": "buff_whispers_of_n_zoth",
+   "class": "Cultist",
+   "name": "Whispers of N'Zoth",
+   "what": "Stats +10% > +15%",
+   "set": {
+    "Effect_1": 6,
+    "EffectDieSides_1": 1,
+    "EffectBasePoints_1": 14,
+    "EffectRealPointsPerLevel_1": 0.0,
+    "ImplicitTargetA_1": 1,
+    "ImplicitTargetB_1": 0,
+    "EffectRadiusIndex_1": 0,
+    "EffectChainTargets_1": 0
+   },
+   "expect": {
+    "EffectBasePoints_1": 9,
+    "EffectDieSides_1": 1,
+    "EffectMiscValue_1": -1,
+    "Effect_1": 6
+   },
+   "texts": {
+    "NameSubtext_Lang_enUS": "Empowered"
+   },
+   "source_texts": {
+    "NameSubtext_Lang_enUS": ""
+   },
+   "tooltip": {
+    "Description_Lang_enUS": "Gift an ally with the madness of N'Zoth, increasing total stats by 15% for 1 hour.",
+    "AuraDescription_Lang_enUS": "Increases stats by 15%."
+   }
+  },
+  {
+   "id": 2032046,
+   "source": 561391,
+   "spell": 561391,
+   "key": "buff_whispers_of_y_shaarj",
+   "class": "Cultist",
+   "name": "Whispers of Y'shaarj",
+   "what": "Mana per 5 s +35 > +53",
+   "set": {
+    "Effect_1": 6,
+    "EffectDieSides_1": 1,
+    "EffectBasePoints_1": 52,
+    "EffectRealPointsPerLevel_1": 0.0,
+    "ImplicitTargetA_1": 1,
+    "ImplicitTargetB_1": 0,
+    "EffectRadiusIndex_1": 0,
+    "EffectChainTargets_1": 0
+   },
+   "expect": {
+    "EffectBasePoints_1": 34,
+    "EffectDieSides_1": 1,
+    "EffectMiscValue_1": 0,
+    "Effect_1": 6
+   },
+   "texts": {
+    "NameSubtext_Lang_enUS": "Empowered",
+    "Description_Lang_enUS": "Gift an ally with the madness of Y'shaarj, restoring $s1 mana every 5 seconds for $d."
+   },
+   "source_texts": {
+    "Description_Lang_enUS": "Gift an ally with the madness of Y'shaarj, restoring $s1 mana every 5 seconds for $d.  Players may only have one Whisper on them per Cultist at any one time.",
+    "NameSubtext_Lang_enUS": "Rank 3"
+   },
+   "tooltip": {
+    "Description_Lang_enUS": "Gift an ally with the madness of Y'shaarj, restoring 53 mana every 5 seconds for 1 hour.",
+    "AuraDescription_Lang_enUS": "Restores 53 mana every 5 seconds."
+   }
+  },
+  {
+   "id": 2032047,
+   "source": 572905,
+   "spell": 572905,
+   "key": "buff_whispers_of_c_thun",
+   "class": "Cultist",
+   "name": "Whispers of C'thun",
+   "what": "Spell power +62 > +93",
+   "set": {
+    "Effect_1": 6,
+    "EffectDieSides_1": 1,
+    "EffectBasePoints_1": 92,
+    "EffectRealPointsPerLevel_1": 0.0,
+    "ImplicitTargetA_1": 1,
+    "ImplicitTargetB_1": 0,
+    "EffectRadiusIndex_1": 0,
+    "EffectChainTargets_1": 0
+   },
+   "expect": {
+    "EffectBasePoints_1": 61,
+    "EffectDieSides_1": 1,
+    "EffectMiscValue_1": 127,
+    "Effect_1": 6
+   },
+   "texts": {
+    "NameSubtext_Lang_enUS": "Empowered"
+   },
+   "source_texts": {
+    "NameSubtext_Lang_enUS": "Rank 3"
+   },
+   "tooltip": {
+    "Description_Lang_enUS": "Gift an ally with the madness of C'thun, increasing spell power by 93 for 1 hour.",
+    "AuraDescription_Lang_enUS": "Increases spell power by 93."
+   }
+  },
+  {
+   "id": 2032048,
+   "source": 301225,
+   "spell": 301225,
+   "key": "buff_celestial_mind",
+   "class": "Starcaller",
+   "name": "Celestial Mind",
+   "what": "Intellect +31 > +47",
+   "set": {
+    "Effect_1": 6,
+    "EffectDieSides_1": 1,
+    "EffectBasePoints_1": 46,
+    "EffectRealPointsPerLevel_1": 0.0,
+    "ImplicitTargetA_1": 1,
+    "ImplicitTargetB_1": 0,
+    "EffectRadiusIndex_1": 0,
+    "EffectChainTargets_1": 0
+   },
+   "expect": {
+    "EffectBasePoints_1": 30,
+    "EffectDieSides_1": 1,
+    "EffectMiscValue_1": 3,
+    "Effect_1": 6
+   },
+   "texts": {
+    "NameSubtext_Lang_enUS": "Empowered"
+   },
+   "source_texts": {
+    "NameSubtext_Lang_enUS": "Rank 5"
+   },
+   "tooltip": {
+    "Description_Lang_enUS": "Enhance an ally with a blessing from Elune, increasing their Intellect by 47 for 1 hour.",
+    "AuraDescription_Lang_enUS": "Intellect increased by 47."
+   }
+  },
+  {
+   "id": 2032049,
+   "source": 573345,
+   "spell": 573345,
+   "key": "buff_arcane_protection",
+   "class": "Starcaller",
+   "name": "Arcane Protection",
+   "what": "Arcane resistance +60 > +90",
+   "set": {
+    "Effect_1": 6,
+    "EffectDieSides_1": 1,
+    "EffectBasePoints_1": 89,
+    "EffectRealPointsPerLevel_1": 0.0,
+    "ImplicitTargetA_1": 1,
+    "ImplicitTargetB_1": 0,
+    "EffectRadiusIndex_1": 0,
+    "EffectChainTargets_1": 0
+   },
+   "expect": {
+    "EffectBasePoints_1": 59,
+    "EffectDieSides_1": 1,
+    "EffectMiscValue_1": 64,
+    "Effect_1": 6
+   },
+   "texts": {
+    "NameSubtext_Lang_enUS": "Empowered"
+   },
+   "source_texts": {
+    "NameSubtext_Lang_enUS": "Rank 3"
+   },
+   "tooltip": {
+    "Description_Lang_enUS": "Increases the target's resistance to Arcane spells by 90 for 1 hour.",
+    "AuraDescription_Lang_enUS": "Arcane resistance increased by 90."
+   }
+  },
+  {
+   "id": 2032050,
+   "source": 572552,
+   "spell": 572552,
+   "key": "buff_devotion_of_emperors",
+   "class": "Sun Cleric",
+   "name": "Devotion of Emperors",
+   "what": "Stats +10% > +15%",
+   "set": {
+    "Effect_1": 6,
+    "EffectDieSides_1": 1,
+    "EffectBasePoints_1": 14,
+    "EffectRealPointsPerLevel_1": 0.0,
+    "ImplicitTargetA_1": 1,
+    "ImplicitTargetB_1": 0,
+    "EffectRadiusIndex_1": 0,
+    "EffectChainTargets_1": 0
+   },
+   "expect": {
+    "EffectBasePoints_1": 9,
+    "EffectDieSides_1": 1,
+    "EffectMiscValue_1": -1,
+    "Effect_1": 6
+   },
+   "texts": {
+    "NameSubtext_Lang_enUS": "Empowered",
+    "Description_Lang_enUS": "Places a |cffffffffDevotion|r on the friendly target, increasing total stats by $s1% for $d."
+   },
+   "source_texts": {
+    "Description_Lang_enUS": "Places a |cffffffffDevotion|r on the friendly target, increasing total stats by $s1% for $d.\r\n\r\nPlayers may only have one |cFFFFFFFFDevotion|r on them per Sun Cleric at any one time.",
+    "NameSubtext_Lang_enUS": ""
+   },
+   "tooltip": {
+    "Description_Lang_enUS": "Places a |cffffffffDevotion|r on the friendly target, increasing total stats by 15% for 1 hour.",
+    "AuraDescription_Lang_enUS": "Increases stats by 15%."
+   }
+  },
+  {
+   "id": 2032051,
+   "source": 572389,
+   "spell": 572389,
+   "key": "buff_devotion_of_dawn",
+   "class": "Sun Cleric",
+   "name": "Devotion of Dawn",
+   "what": "Attack power (melee and ranged) +232 > +348",
+   "set": {
+    "Effect_1": 6,
+    "EffectDieSides_1": 1,
+    "EffectBasePoints_1": 347,
+    "EffectRealPointsPerLevel_1": 0.0,
+    "ImplicitTargetA_1": 1,
+    "ImplicitTargetB_1": 0,
+    "EffectRadiusIndex_1": 0,
+    "EffectChainTargets_1": 0,
+    "Effect_2": 6,
+    "EffectDieSides_2": 1,
+    "EffectBasePoints_2": 347,
+    "EffectRealPointsPerLevel_2": 0.0,
+    "ImplicitTargetA_2": 1,
+    "ImplicitTargetB_2": 0,
+    "EffectRadiusIndex_2": 0,
+    "EffectChainTargets_2": 0
+   },
+   "expect": {
+    "EffectBasePoints_1": 231,
+    "EffectDieSides_1": 1,
+    "EffectMiscValue_1": 0,
+    "Effect_1": 6,
+    "EffectBasePoints_2": 231,
+    "EffectDieSides_2": 1,
+    "EffectMiscValue_2": 0,
+    "Effect_2": 6
+   },
+   "texts": {
+    "NameSubtext_Lang_enUS": "Empowered",
+    "Description_Lang_enUS": "Places a |cffffffffDevotion|r on the friendly target, increasing attack power by $s1 for $d."
+   },
+   "source_texts": {
+    "Description_Lang_enUS": "Places a |cffffffffDevotion|r on the friendly target, increasing attack power by $s1 for $d.\r\n\r\nPlayers may only have one |cFFFFFFFFDevotion|r on them per Sun Cleric at any one time.",
+    "NameSubtext_Lang_enUS": "Rank 6"
+   },
+   "tooltip": {
+    "Description_Lang_enUS": "Places a |cffffffffDevotion|r on the friendly target, increasing attack power by 348 for 1 hour.",
+    "AuraDescription_Lang_enUS": "Increases attack power by 348."
+   }
+  },
+  {
+   "id": 2032052,
+   "source": 300866,
+   "spell": 300866,
+   "key": "buff_devotion_of_grace",
+   "class": "Sun Cleric",
+   "name": "Devotion of Grace",
+   "what": "Mana per 5 s +41 > +62, Resource costs -5% > -7%",
+   "set": {
+    "Effect_1": 6,
+    "EffectDieSides_1": 1,
+    "EffectBasePoints_1": 61,
+    "EffectRealPointsPerLevel_1": 0.0,
+    "ImplicitTargetA_1": 1,
+    "ImplicitTargetB_1": 0,
+    "EffectRadiusIndex_1": 0,
+    "EffectChainTargets_1": 0,
+    "Effect_2": 6,
+    "EffectDieSides_2": 1,
+    "EffectBasePoints_2": -8,
+    "EffectRealPointsPerLevel_2": 0.0,
+    "ImplicitTargetA_2": 1,
+    "ImplicitTargetB_2": 0,
+    "EffectRadiusIndex_2": 0,
+    "EffectChainTargets_2": 0
+   },
+   "expect": {
+    "EffectBasePoints_1": 40,
+    "EffectDieSides_1": 1,
+    "EffectMiscValue_1": 0,
+    "Effect_1": 6,
+    "EffectBasePoints_2": -6,
+    "EffectDieSides_2": 1,
+    "EffectMiscValue_2": 127,
+    "Effect_2": 6
+   },
+   "texts": {
+    "NameSubtext_Lang_enUS": "Empowered",
+    "Description_Lang_enUS": "Places a |cffffffffDevotion|r on the friendly target, restoring $s1 mana every 5 seconds and reducing their costs by $s2% for $d."
+   },
+   "source_texts": {
+    "Description_Lang_enUS": "Places a |cffffffffDevotion|r on the friendly target, restoring $s1 mana every 5 seconds and reducing their costs by $s2% for $d.\r\n\r\nPlayers may only have one |cFFFFFFFFDevotion|r on them per Sun Cleric at any one time.",
+    "NameSubtext_Lang_enUS": "Rank 8"
+   },
+   "tooltip": {
+    "Description_Lang_enUS": "Places a |cffffffffDevotion|r on the friendly target, restoring 62 mana every 5 seconds and reducing their costs by 7% for 1 hour.",
+    "AuraDescription_Lang_enUS": "Restores 62 mana every 5 seconds. Resource costs reduced by 7%."
+   }
+  },
+  {
+   "id": 2032053,
+   "source": 575044,
+   "spell": 575044,
+   "key": "buff_devotion_of_radiance",
+   "class": "Sun Cleric",
+   "name": "Devotion of Radiance",
+   "what": "Spell power +73 > +110",
+   "set": {
+    "Effect_1": 6,
+    "EffectDieSides_1": 1,
+    "EffectBasePoints_1": 109,
+    "EffectRealPointsPerLevel_1": 0.0,
+    "ImplicitTargetA_1": 1,
+    "ImplicitTargetB_1": 0,
+    "EffectRadiusIndex_1": 0,
+    "EffectChainTargets_1": 0
+   },
+   "expect": {
+    "EffectBasePoints_1": 72,
+    "EffectDieSides_1": 1,
+    "EffectMiscValue_1": 127,
+    "Effect_1": 6
+   },
+   "texts": {
+    "NameSubtext_Lang_enUS": "Empowered",
+    "Description_Lang_enUS": "Places a |cffffffffDevotion|r on the friendly target, increasing spell power by $s1 for $d."
+   },
+   "source_texts": {
+    "Description_Lang_enUS": "Places a |cffffffffDevotion|r on the friendly target, increasing spell power by $s1 for $d.\r\n\r\nPlayers may only have one |cFFFFFFFFDevotion|r on them per Sun Cleric at any one time.",
+    "NameSubtext_Lang_enUS": "Rank 5"
+   },
+   "tooltip": {
+    "Description_Lang_enUS": "Places a |cffffffffDevotion|r on the friendly target, increasing spell power by 110 for 1 hour.",
+    "AuraDescription_Lang_enUS": "Increases spell power by 110."
+   }
+  },
+  {
+   "id": 2032054,
+   "source": 707688,
+   "spell": 707688,
+   "key": "buff_power_module",
+   "class": "Tinker",
+   "name": "Power Module",
+   "what": "Attack power (melee and ranged) +232 > +348",
+   "set": {
+    "Effect_1": 6,
+    "EffectDieSides_1": 1,
+    "EffectBasePoints_1": 347,
+    "EffectRealPointsPerLevel_1": 0.0,
+    "ImplicitTargetA_1": 1,
+    "ImplicitTargetB_1": 0,
+    "EffectRadiusIndex_1": 0,
+    "EffectChainTargets_1": 0,
+    "Effect_2": 6,
+    "EffectDieSides_2": 1,
+    "EffectBasePoints_2": 347,
+    "EffectRealPointsPerLevel_2": 0.0,
+    "ImplicitTargetA_2": 1,
+    "ImplicitTargetB_2": 0,
+    "EffectRadiusIndex_2": 0,
+    "EffectChainTargets_2": 0
+   },
+   "expect": {
+    "EffectBasePoints_1": 231,
+    "EffectDieSides_1": 1,
+    "EffectMiscValue_1": 0,
+    "Effect_1": 6,
+    "EffectBasePoints_2": 231,
+    "EffectDieSides_2": 1,
+    "EffectMiscValue_2": 0,
+    "Effect_2": 6
+   },
+   "texts": {
+    "NameSubtext_Lang_enUS": "Empowered",
+    "Description_Lang_enUS": "Activates power module on an allied player, increasing attack power by $s1 for $d."
+   },
+   "source_texts": {
+    "Description_Lang_enUS": "Activates power module on an allied player, increasing attack power by $s1 for $d.\r\n\r\nOnly one |cffffffffModule|r per Tinker can be active.",
+    "NameSubtext_Lang_enUS": "Rank 7"
+   },
+   "tooltip": {
+    "Description_Lang_enUS": "Activates power module on an allied player, increasing attack power by 348 for 1 hour.",
+    "AuraDescription_Lang_enUS": "Increases attack power by 348."
+   }
+  },
+  {
+   "id": 2032055,
+   "source": 803664,
+   "spell": 803664,
+   "key": "buff_mana_module",
+   "class": "Tinker",
+   "name": "Mana Module",
+   "what": "Mana per 5 s +41 > +62",
+   "set": {
+    "Effect_1": 6,
+    "EffectDieSides_1": 1,
+    "EffectBasePoints_1": 61,
+    "EffectRealPointsPerLevel_1": 0.0,
+    "ImplicitTargetA_1": 1,
+    "ImplicitTargetB_1": 0,
+    "EffectRadiusIndex_1": 0,
+    "EffectChainTargets_1": 0,
+    "Effect_3": 0,
+    "EffectDieSides_3": 0,
+    "EffectRealPointsPerLevel_3": 0.0,
+    "EffectBasePoints_3": 0,
+    "EffectMechanic_3": 0,
+    "ImplicitTargetA_3": 0,
+    "ImplicitTargetB_3": 0,
+    "EffectRadiusIndex_3": 0,
+    "EffectAura_3": 0,
+    "EffectAuraPeriod_3": 0,
+    "EffectMultipleValue_3": 0.0,
+    "EffectChainTargets_3": 0,
+    "EffectItemType_3": 0,
+    "EffectMiscValue_3": 0,
+    "EffectMiscValueB_3": 0,
+    "EffectTriggerSpell_3": 0,
+    "EffectPointsPerCombo_3": 0.0,
+    "EffectSpellClassMaskA_3": 0,
+    "EffectSpellClassMaskB_3": 0,
+    "EffectSpellClassMaskC_3": 0
+   },
+   "expect": {
+    "EffectBasePoints_1": 40,
+    "EffectDieSides_1": 1,
+    "EffectMiscValue_1": 0,
+    "Effect_1": 6
+   },
+   "texts": {
+    "NameSubtext_Lang_enUS": "Empowered",
+    "Description_Lang_enUS": "Empower an ally with a mana module, restoring $s1 mana every 5 seconds for $d."
+   },
+   "source_texts": {
+    "Description_Lang_enUS": "Empower an ally with a mana module, restoring $s1 mana every 5 seconds for $d.\r\n\r\nOnly one |cffffffffModule|r per Tinker can be active.",
+    "NameSubtext_Lang_enUS": "Rank 7"
+   },
+   "tooltip": {
+    "Description_Lang_enUS": "Empower an ally with a mana module, restoring 62 mana every 5 seconds for 1 hour.",
+    "AuraDescription_Lang_enUS": "Mana regeneration increased by 62."
+   }
+  },
+  {
+   "id": 2032056,
+   "source": 707692,
+   "spell": 707692,
+   "key": "buff_toxic_pheromones",
+   "class": "Venomancer",
+   "name": "Toxic Pheromones",
+   "what": "Spell power +62 > +93",
+   "set": {
+    "Effect_1": 6,
+    "EffectDieSides_1": 1,
+    "EffectBasePoints_1": 92,
+    "EffectRealPointsPerLevel_1": 0.0,
+    "ImplicitTargetA_1": 1,
+    "ImplicitTargetB_1": 0,
+    "EffectRadiusIndex_1": 0,
+    "EffectChainTargets_1": 0
+   },
+   "expect": {
+    "EffectBasePoints_1": 61,
+    "EffectDieSides_1": 1,
+    "EffectMiscValue_1": 127,
+    "Effect_1": 6
+   },
+   "texts": {
+    "NameSubtext_Lang_enUS": "Empowered"
+   },
+   "source_texts": {
+    "NameSubtext_Lang_enUS": "Rank 4"
+   },
+   "tooltip": {
+    "Description_Lang_enUS": "Create a magic edict with an ally, increasing their spell power by 93.",
+    "AuraDescription_Lang_enUS": "Spell power increased by 93."
+   }
+  },
+  {
+   "id": 2032057,
+   "source": 803650,
+   "spell": 803650,
+   "key": "buff_spider_pheromones",
+   "class": "Venomancer",
+   "name": "Spider Pheromones",
+   "what": "Agility +77 > +116",
+   "set": {
+    "Effect_1": 6,
+    "EffectDieSides_1": 1,
+    "EffectBasePoints_1": 115,
+    "EffectRealPointsPerLevel_1": 0.0,
+    "ImplicitTargetA_1": 1,
+    "ImplicitTargetB_1": 0,
+    "EffectRadiusIndex_1": 0,
+    "EffectChainTargets_1": 0
+   },
+   "expect": {
+    "EffectBasePoints_1": 76,
+    "EffectDieSides_1": 1,
+    "EffectMiscValue_1": 1,
+    "Effect_1": 6
+   },
+   "texts": {
+    "NameSubtext_Lang_enUS": "Empowered"
+   },
+   "source_texts": {
+    "NameSubtext_Lang_enUS": "Rank 6"
+   },
+   "tooltip": {
+    "Description_Lang_enUS": "Inject an ally with spider pheromones, increasing their Agility by 116. Lasts 1 hour.",
+    "AuraDescription_Lang_enUS": "Increases your Agility by 116."
+   }
+  },
+  {
+   "id": 2032058,
+   "source": 803655,
+   "spell": 803655,
+   "key": "buff_beetle_pheromones",
+   "class": "Venomancer",
+   "name": "Beetle Pheromones",
+   "what": "Armor +285 > +428, all stats +12 > +18",
+   "set": {
+    "Effect_1": 6,
+    "EffectDieSides_1": 1,
+    "EffectBasePoints_1": 427,
+    "EffectRealPointsPerLevel_1": 0.0,
+    "ImplicitTargetA_1": 1,
+    "ImplicitTargetB_1": 0,
+    "EffectRadiusIndex_1": 0,
+    "EffectChainTargets_1": 0,
+    "Effect_2": 6,
+    "EffectDieSides_2": 1,
+    "EffectBasePoints_2": 17,
+    "EffectRealPointsPerLevel_2": 0.0,
+    "ImplicitTargetA_2": 1,
+    "ImplicitTargetB_2": 0,
+    "EffectRadiusIndex_2": 0,
+    "EffectChainTargets_2": 0
+   },
+   "expect": {
+    "EffectBasePoints_1": 284,
+    "EffectDieSides_1": 1,
+    "EffectMiscValue_1": 1,
+    "Effect_1": 6,
+    "EffectBasePoints_2": 11,
+    "EffectDieSides_2": 1,
+    "EffectMiscValue_2": -1,
+    "Effect_2": 6
+   },
+   "texts": {
+    "NameSubtext_Lang_enUS": "Empowered"
+   },
+   "source_texts": {
+    "NameSubtext_Lang_enUS": "Rank 5"
+   },
+   "tooltip": {
+    "Description_Lang_enUS": "Increase the friendly target's armor by 428 and all primary stats by 18 for 1 hour. /  / Does not stack with other similar effects.",
+    "AuraDescription_Lang_enUS": "Increases armor by 428 and all attributes by 18."
+   }
+  },
+  {
+   "id": 2032059,
+   "source": 803314,
+   "spell": 803314,
+   "key": "buff_rite_of_resolve",
+   "class": "Reaper",
+   "name": "Rite of Resolve",
+   "what": "Stamina +54 > +81",
+   "set": {
+    "Effect_1": 6,
+    "EffectDieSides_1": 1,
+    "EffectBasePoints_1": 80,
+    "EffectRealPointsPerLevel_1": 0.0,
+    "ImplicitTargetA_1": 1,
+    "ImplicitTargetB_1": 0,
+    "EffectRadiusIndex_1": 0,
+    "EffectChainTargets_1": 0
+   },
+   "expect": {
+    "EffectBasePoints_1": 53,
+    "EffectDieSides_1": 1,
+    "EffectMiscValue_1": 2,
+    "Effect_1": 6
+   },
+   "texts": {
+    "NameSubtext_Lang_enUS": "Empowered"
+   },
+   "source_texts": {
+    "NameSubtext_Lang_enUS": "Rank 6"
+   },
+   "tooltip": {
+    "Description_Lang_enUS": "Perform a resolving rite upon an ally, increasing their Stamina by 81 for 1 hour.",
+    "AuraDescription_Lang_enUS": "Increases Stamina by 81."
+   }
+  },
+  {
+   "id": 2032060,
+   "source": 578129,
+   "spell": 578129,
+   "key": "buff_rite_of_power",
+   "class": "Reaper",
+   "name": "Rite of Power",
+   "what": "Strength +77 > +116",
+   "set": {
+    "Effect_2": 6,
+    "EffectDieSides_2": 1,
+    "EffectBasePoints_2": 115,
+    "EffectRealPointsPerLevel_2": 0.0,
+    "ImplicitTargetA_2": 1,
+    "ImplicitTargetB_2": 0,
+    "EffectRadiusIndex_2": 0,
+    "EffectChainTargets_2": 0
+   },
+   "expect": {
+    "EffectBasePoints_2": 76,
+    "EffectDieSides_2": 1,
+    "EffectMiscValue_2": 0,
+    "Effect_2": 6
+   },
+   "texts": {
+    "NameSubtext_Lang_enUS": "Empowered"
+   },
+   "source_texts": {
+    "NameSubtext_Lang_enUS": "Rank 4"
+   },
+   "tooltip": {
+    "Description_Lang_enUS": "Allied player passes through a rite, increasing their Strength by 116 for 1 hour.",
+    "AuraDescription_Lang_enUS": "Strength increased by 116."
+   }
+  },
+  {
+   "id": 2032061,
+   "source": 575841,
+   "spell": 575841,
+   "key": "buff_rite_of_perseverance",
+   "class": "Reaper",
+   "name": "Rite of Perseverance",
+   "what": "All resistances +20 > +30",
+   "set": {
+    "Effect_3": 6,
+    "EffectDieSides_3": 1,
+    "EffectBasePoints_3": 29,
+    "EffectRealPointsPerLevel_3": 0.0,
+    "ImplicitTargetA_3": 1,
+    "ImplicitTargetB_3": 0,
+    "EffectRadiusIndex_3": 0,
+    "EffectChainTargets_3": 0
+   },
+   "expect": {
+    "EffectBasePoints_3": 19,
+    "EffectDieSides_3": 1,
+    "EffectMiscValue_3": 126,
+    "Effect_3": 6
+   },
+   "texts": {
+    "NameSubtext_Lang_enUS": "Empowered"
+   },
+   "source_texts": {
+    "NameSubtext_Lang_enUS": "Rank 3"
+   },
+   "tooltip": {
+    "Description_Lang_enUS": "Allied player passes through a rite, increasing their resistances by 30 for 1 hour.",
+    "AuraDescription_Lang_enUS": "Increases all resistances by 30."
+   }
+  },
+  {
+   "id": 2032062,
+   "source": 572815,
+   "spell": 572815,
+   "key": "buff_grove_instinct",
+   "class": "Primalist",
+   "name": "Grove Instinct",
+   "what": "Mana per 5 s +33 > +50",
+   "set": {
+    "Effect_1": 6,
+    "EffectDieSides_1": 1,
+    "EffectBasePoints_1": 49,
+    "EffectRealPointsPerLevel_1": 0.0,
+    "ImplicitTargetA_1": 1,
+    "ImplicitTargetB_1": 0,
+    "EffectRadiusIndex_1": 0,
+    "EffectChainTargets_1": 0
+   },
+   "expect": {
+    "EffectBasePoints_1": 32,
+    "EffectDieSides_1": 1,
+    "EffectMiscValue_1": 0,
+    "Effect_1": 6
+   },
+   "texts": {
+    "NameSubtext_Lang_enUS": "Empowered",
+    "Description_Lang_enUS": "Invokes a calm and earthly instinct on the friendly target, restoring $s1 mana every 5 seconds."
+   },
+   "source_texts": {
+    "Description_Lang_enUS": "Invokes a calm and earthly instinct on the friendly target, restoring $s1 mana every 5 seconds. \r\n\r\nPlayers may only have one |cffffffffInstinct|r on them per Primalist at any one time.",
+    "NameSubtext_Lang_enUS": "Rank 6"
+   },
+   "tooltip": {
+    "Description_Lang_enUS": "Invokes a calm and earthly instinct on the friendly target, restoring 50 mana every 5 seconds.",
+    "AuraDescription_Lang_enUS": "Restores 50 mana every 5 seconds."
+   }
+  },
+  {
+   "id": 2032063,
+   "source": 573349,
+   "spell": 573349,
+   "key": "buff_primal_instinct",
+   "class": "Primalist",
+   "name": "Primal Instinct",
+   "what": "Attack power (melee and ranged) +232 > +348",
+   "set": {
+    "Effect_1": 6,
+    "EffectDieSides_1": 1,
+    "EffectBasePoints_1": 347,
+    "EffectRealPointsPerLevel_1": 0.0,
+    "ImplicitTargetA_1": 1,
+    "ImplicitTargetB_1": 0,
+    "EffectRadiusIndex_1": 0,
+    "EffectChainTargets_1": 0,
+    "Effect_2": 6,
+    "EffectDieSides_2": 1,
+    "EffectBasePoints_2": 347,
+    "EffectRealPointsPerLevel_2": 0.0,
+    "ImplicitTargetA_2": 1,
+    "ImplicitTargetB_2": 0,
+    "EffectRadiusIndex_2": 0,
+    "EffectChainTargets_2": 0
+   },
+   "expect": {
+    "EffectBasePoints_1": 231,
+    "EffectDieSides_1": 1,
+    "EffectMiscValue_1": 0,
+    "Effect_1": 6,
+    "EffectBasePoints_2": 231,
+    "EffectDieSides_2": 1,
+    "EffectMiscValue_2": 0,
+    "Effect_2": 6
+   },
+   "texts": {
+    "NameSubtext_Lang_enUS": "Empowered",
+    "Description_Lang_enUS": "Invokes a savage instinct on a friendly target, increasing attack power by $s1 for $d."
+   },
+   "source_texts": {
+    "Description_Lang_enUS": "Invokes a savage instinct on a friendly target, increasing attack power by $s1 for $d.\r\n\r\nPlayers may only have one |cffffffffInstinct|r on them per Primalist at any one time.",
+    "NameSubtext_Lang_enUS": "Rank 7"
+   },
+   "tooltip": {
+    "Description_Lang_enUS": "Invokes a savage instinct on a friendly target, increasing attack power by 348 for 1 hour.",
+    "AuraDescription_Lang_enUS": "Increases attack power by 348."
+   }
+  },
+  {
+   "id": 2032064,
+   "source": 570755,
+   "spell": 570755,
+   "key": "buff_earthen_endurance",
+   "class": "Primalist",
+   "name": "Earthen Endurance",
+   "what": "Armor +285 > +428, all stats +12 > +18, all resistances +20 > +30",
+   "set": {
+    "Effect_1": 6,
+    "EffectDieSides_1": 1,
+    "EffectBasePoints_1": 427,
+    "EffectRealPointsPerLevel_1": 0.0,
+    "ImplicitTargetA_1": 1,
+    "ImplicitTargetB_1": 0,
+    "EffectRadiusIndex_1": 0,
+    "EffectChainTargets_1": 0,
+    "Effect_2": 6,
+    "EffectDieSides_2": 1,
+    "EffectBasePoints_2": 17,
+    "EffectRealPointsPerLevel_2": 0.0,
+    "ImplicitTargetA_2": 1,
+    "ImplicitTargetB_2": 0,
+    "EffectRadiusIndex_2": 0,
+    "EffectChainTargets_2": 0,
+    "Effect_3": 6,
+    "EffectDieSides_3": 1,
+    "EffectBasePoints_3": 29,
+    "EffectRealPointsPerLevel_3": 0.0,
+    "ImplicitTargetA_3": 1,
+    "ImplicitTargetB_3": 0,
+    "EffectRadiusIndex_3": 0,
+    "EffectChainTargets_3": 0
+   },
+   "expect": {
+    "EffectBasePoints_1": 284,
+    "EffectDieSides_1": 1,
+    "EffectMiscValue_1": 1,
+    "Effect_1": 6,
+    "EffectBasePoints_2": 11,
+    "EffectDieSides_2": 1,
+    "EffectMiscValue_2": -1,
+    "Effect_2": 6,
+    "EffectBasePoints_3": 19,
+    "EffectDieSides_3": 1,
+    "EffectMiscValue_3": 126,
+    "Effect_3": 6
+   },
+   "texts": {
+    "NameSubtext_Lang_enUS": "Empowered"
+   },
+   "source_texts": {
+    "NameSubtext_Lang_enUS": "Rank 4"
+   },
+   "tooltip": {
+    "Description_Lang_enUS": "Increases the friendly target's armor by 428, all stats by 18 and all resistances by 30 for 1 hour.",
+    "AuraDescription_Lang_enUS": "Increases armor by 428, all attributes by 18 and all resistances by 30."
+   }
+  },
+  {
+   "id": 2032065,
+   "source": 581315,
+   "spell": 581315,
+   "key": "buff_essence_of_nature",
+   "class": "Primalist",
+   "name": "Essence of Nature",
+   "what": "Nature resistance +60 > +90",
+   "set": {
+    "Effect_1": 6,
+    "EffectDieSides_1": 1,
+    "EffectBasePoints_1": 89,
+    "EffectRealPointsPerLevel_1": 0.0,
+    "ImplicitTargetA_1": 1,
+    "ImplicitTargetB_1": 0,
+    "EffectRadiusIndex_1": 0,
+    "EffectChainTargets_1": 0
+   },
+   "expect": {
+    "EffectBasePoints_1": 59,
+    "EffectDieSides_1": 1,
+    "EffectMiscValue_1": 8,
+    "Effect_1": 6
+   },
+   "texts": {
+    "NameSubtext_Lang_enUS": "Empowered"
+   },
+   "source_texts": {
+    "NameSubtext_Lang_enUS": "Rank 2"
+   },
+   "tooltip": {
+    "Description_Lang_enUS": "Increases the Nature resistance of targeted party member by 90. Lasts 1 hour.",
+    "AuraDescription_Lang_enUS": "Nature resistance increased by 90."
+   }
+  },
+  {
+   "id": 2032066,
+   "source": 561236,
+   "spell": 561236,
+   "key": "buff_etching_of_the_leylines",
+   "class": "Runemaster",
+   "name": "Etching of the Leylines",
+   "what": "Stats +10% > +15%",
+   "set": {
+    "Effect_1": 6,
+    "EffectDieSides_1": 1,
+    "EffectBasePoints_1": 14,
+    "EffectRealPointsPerLevel_1": 0.0,
+    "ImplicitTargetA_1": 1,
+    "ImplicitTargetB_1": 0,
+    "EffectRadiusIndex_1": 0,
+    "EffectChainTargets_1": 0
+   },
+   "expect": {
+    "EffectBasePoints_1": 9,
+    "EffectDieSides_1": 1,
+    "EffectMiscValue_1": -1,
+    "Effect_1": 6
+   },
+   "texts": {
+    "NameSubtext_Lang_enUS": "Empowered"
+   },
+   "source_texts": {
+    "NameSubtext_Lang_enUS": ""
+   },
+   "tooltip": {
+    "Description_Lang_enUS": "Enhance an ally, increasing their total stats by 15%.",
+    "AuraDescription_Lang_enUS": "Stats increased by 15%."
+   }
+  },
+  {
+   "id": 2032067,
+   "source": 561240,
+   "spell": 561240,
+   "key": "buff_etching_of_the_dextrous",
+   "class": "Runemaster",
+   "name": "Etching of the Dextrous",
+   "what": "Agility +77 > +116",
+   "set": {
+    "Effect_1": 6,
+    "EffectDieSides_1": 1,
+    "EffectBasePoints_1": 115,
+    "EffectRealPointsPerLevel_1": 0.0,
+    "ImplicitTargetA_1": 1,
+    "ImplicitTargetB_1": 0,
+    "EffectRadiusIndex_1": 0,
+    "EffectChainTargets_1": 0
+   },
+   "expect": {
+    "EffectBasePoints_1": 76,
+    "EffectDieSides_1": 1,
+    "EffectMiscValue_1": 1,
+    "Effect_1": 6
+   },
+   "texts": {
+    "NameSubtext_Lang_enUS": "Empowered"
+   },
+   "source_texts": {
+    "NameSubtext_Lang_enUS": "Rank 4"
+   },
+   "tooltip": {
+    "Description_Lang_enUS": "Enhance an ally, increasing their Agility by 116. Lasts 1 hour.",
+    "AuraDescription_Lang_enUS": "Agility increased by 116."
+   }
+  }
+ ]
+}
