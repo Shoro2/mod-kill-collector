@@ -1,0 +1,63 @@
+name    mod-kill-collector: only real enemies count (KillCollector.OnlyEnemies)
+# Server-side test bot run (mod-fl-testbots), T1. Needs KillCollector.Enable = 1, KillCollector.OnlyEnemies = 1
+# and this folder in TestBots.ScenarioDirs.
+#
+# A human mage (an Alliance character of its own, slot 1):
+# 1. A Tarren Mill Deathguard (2405, a Horde guard, faction 71, flags_extra GUARD) pays no token and is not
+#    collected.
+# 2. A Snapjaw (2408, a neutral beast of the Hillsbrad river) still pays a token and is collected.
+# The kill (three triggered Arcane Explosions, 42921) and the respawn-then-pick-again pattern are the ones of
+# kill_collector_tokens.
+timeout 180s
+
+bot a mage race=human
+
+place 0 -217.3 -1112.8 36.5
+require a alive
+require a team alliance
+do gm target a
+as gm .killcollector reset
+expect output has "collection reset"
+do a destroy 920200
+
+log 1 - a guard of the other team pays nothing
+place 0 -160.0 -905.0 55.0
+pick g1 creature:2405 near a
+do gm target g1
+as gm .respawn
+wait 6s
+pick g1 creature:2405 near a
+require g1 alive
+do a approach g1
+wait 1s
+do a cast 42921 triggered
+do a cast 42921 triggered
+do a cast 42921 triggered
+waitfor g1 dead timeout 5s
+wait 1s
+expect a item 920200 == 0
+as a .killcollector status
+expect output has "0 different creatures killed"
+
+log 2 - a wild beast still pays
+place 0 -217.3 -1112.8 36.5
+pick t1 creature:2408 near a
+do gm target t1
+as gm .respawn
+wait 6s
+pick t1 creature:2408 near a
+require t1 alive
+do a approach t1
+wait 1s
+do a cast 42921 triggered
+do a cast 42921 triggered
+do a cast 42921 triggered
+waitfor t1 dead timeout 5s
+wait 1s
+expect a item 920200 == 1
+as a .killcollector status
+expect output has "1 different creatures killed"
+
+cleanup
+do a destroy 920200
+log kill collector enemies done

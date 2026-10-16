@@ -29,8 +29,6 @@
   they reset the character's achievements themselves, so they can run again; `_meta` is the only test of the
   title, stacking and the login path ("N3rd" and the title bit 143 in `characters.knownTitles` are saved at
   logout: check it after the run).
-- (medium) Operator: what the tokens buy (token vendor), and whether creatures of the other team's cities
-  (guards without an NPC flag) belong in the humanoid lists.
 - (medium) Host: MIG-118 (module) and MIG-119 (the client rows in the host patch-9) together in a window the
   operator approves; check first that `item_template` 920200 is free on the host; `AchievementsEnable = 1`
   only with both. The rewards add: the SQL rows `achievement_dbc` 30051, `chartitles_dbc` 178 (bit 143),

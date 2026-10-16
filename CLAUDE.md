@@ -19,6 +19,7 @@ operator decided on 2026-10-10 to adopt the May 2026 prototype ("mod-kill-collec
 | Title | `CharTitles` **178** "N3rd %s", `Mask_ID` **143** (the bit in the known-titles field; stock: 142 rows, max ID 177, max bit 142): server `chartitles_dbc`, client `CharTitles.dbc` (209) |
 | Damage bonus | each earned bucket achievement = +`KillCollector.DamageBonusPct` (5) percent damage against its creature type, everywhere; own damage and what the player controls or owns, only against creatures no player controls; spells with `SPELL_ATTR3_IGNORE_CASTER_MODIFIERS` get none (no double bonus on procs and copies) |
 | Continents | 0, 1, 530, 571 and 727 (Forgotten Land): its own maps 727-753, 760 and 770 by override; every other map by its Map.dbc / `map_dbc` entrance map |
+| Only enemies | `KillCollector.OnlyEnemies` (default 1, the operator 2026-10-16): no guard (`flags_extra` 0x8000), no creature friendly to either team, no neutral member of a reputation faction - in no list, no token (`IsEnemyCreature`) |
 | Never counts | maps 13 (class test area), 451, 609 (death knight start), 754 (dev), every transport, battlegrounds and arenas |
 | Characters DB | `mod_kill_collector_kills` (guid, entry, map_id, creature_type, first_kill_time) |
 | World DB | `mod_kill_collector_continent_maps` (map_id, continent_id, comment; -1 = never counts), `mod_kill_collector_achievements` (continent_id, creature_type, achievement_id), three `command` rows |
@@ -64,7 +65,7 @@ operator decided on 2026-10-10 to adopt the May 2026 prototype ("mod-kill-collec
    groups, client rows through fl-pipeline 214), see functions.md; offline-verified only (the SQL applied to a scratch MySQL,
    generator `--verify` identical, the Lua mocks), T1 owed. Same day, second round: the copies follow every stacking rule of their
    originals (one blessing per caster, same-effect groups, ...) and Blessing of Sanctuary's copy carries the -5% damage reduction,
-   see functions.md; the scenario has three more mage bots (same-effect case by max health). Open for the operator: whether enemy-city creatures belong in the lists.
+   see functions.md; the scenario has three more mage bots (same-effect case by max health).
 2. T1 of the rewards, then the host: MIG-118 and MIG-119 together in a window the operator approves
    (achievements on only with both; the rewards add SQL, a conf key and the CharTitles row).
 
@@ -78,5 +79,5 @@ Open points in full: [todo.md](todo.md).
   (smallint in the characters DB). Client DBC rows reach players only through the combined patch-9 builder.
 - Restart the workbench only with `scripts\worldserver_restart.ps1`; any host deployment needs a MIG entry
   in share-public `docs/World of Warcraft/forgotten-land/15-host-migration-log.md`.
-- Tests (bots, TBOT accounts): `tests/kill_collector_tokens.tbs`, `_edges`, `_achievement`, `_bonus`, `_meta`, `_shop`, `_shop_buffs`.
+- Tests (bots, TBOT accounts): `tests/kill_collector_tokens.tbs`, `_edges`, `_achievement`, `_bonus`, `_meta`, `_shop`, `_shop_buffs`, `_enemies`.
 - Doc set: INDEX.md, CLAUDE.md, data_structure.md, functions.md, log.md (newest first), todo.md.

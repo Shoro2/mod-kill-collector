@@ -30,7 +30,10 @@ the player who holds them all is a "N3rd".
   world database: every creature entry spawned on the continent - its dungeons and raids included - that
   the player's team can attack. Spawns that only exist during a game event or outside the normal phase,
   unattackable creatures, triggers and (by default) creatures with an NPC flag stay out, so every list can
-  be completed.
+  be completed. Only real enemies count (`KillCollector.OnlyEnemies`, on by default; the operator, 2026-10-16):
+  guards (also the neutral town guards), the people of either team (guards, citizens, soldiers, their pets and
+  mounts) and the neutral members of reputation factions (Booty Bay, Argent Crusade, Kirin Tor, ...) are in no
+  list and their kills pay no token. Wild beasts and other neutral monsters still count.
 - **Rewards.**
   - *Damage.* Every earned achievement pays `KillCollector.DamageBonusPct` (default 5) percent damage against
     creatures of its creature type, everywhere - not only on its continent. The bonuses add up: all five

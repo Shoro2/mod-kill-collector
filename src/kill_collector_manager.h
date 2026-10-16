@@ -13,6 +13,7 @@
 
 class Creature;
 class Player;
+struct FactionTemplateEntry;
 
 class KillCollectorMgr
 {
@@ -86,6 +87,9 @@ private:
     };
 
     static int32 ResolveContinent(Data const& data, uint32 mapId);
+    // A real enemy (KillCollector.OnlyEnemies): no guard, no person of either team (a faction template friendly
+    // to the Alliance's or the Horde's player template) and no neutral member of a faction with reputation.
+    static bool IsEnemyCreature(FactionTemplateEntry const& creatureFaction, uint32 flagsExtra);
     bool PassesKillFilters(Player* player, Creature* killed) const;
     static void ComputeProgress(Data const& data, PlayerState& state);
     static std::vector<uint32> CompletedAchievements(Data const& data, PlayerState const& state);
@@ -109,6 +113,7 @@ private:
     bool _includeNonCombatPets = false;
     int32 _minLevelDelta = -100;
     bool _skipNpcFlagCreatures = true;
+    bool _onlyEnemies = true;
     bool _achievementsEnable = false;
     uint32 _damageBonusPct = KillCollector::DEFAULT_DAMAGE_BONUS_PCT;
     uint32 _metaAchievementId = KillCollector::META_ACHIEVEMENT_ID;

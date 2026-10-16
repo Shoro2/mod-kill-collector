@@ -58,6 +58,16 @@ KillCollector.IncludeTotems = 0
 KillCollector.IncludeNonCombatPets = 0
 KillCollector.MinLevelDelta = -100
 
+#    KillCollector.OnlyEnemies
+#        Description: Only real enemies count: the kill pays no token and the creature stays out of the achievement
+#                     lists when it is a guard (also the neutral town guards), a person of either team (its guards,
+#                     citizens, soldiers, pets and mounts) or a neutral member of a faction players earn
+#                     reputation with (Booty Bay, Argent Crusade, Kirin Tor, Sha'tar, ...). Wild beasts and other
+#                     neutral monsters still count.
+#        Default:     1 - Enabled
+
+KillCollector.OnlyEnemies = 1
+
 ########################################
 #  Achievements
 ########################################

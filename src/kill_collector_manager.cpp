@@ -42,6 +42,7 @@ void KillCollectorMgr::LoadConfig()
     _minLevelDelta        = sConfigMgr->GetOption<int32>("KillCollector.MinLevelDelta", -100);
 
     _skipNpcFlagCreatures = sConfigMgr->GetOption<bool>("KillCollector.Expected.SkipNpcFlagCreatures", true);
+    _onlyEnemies          = sConfigMgr->GetOption<bool>("KillCollector.OnlyEnemies", true);
     _achievementsEnable   = sConfigMgr->GetOption<bool>("KillCollector.AchievementsEnable", false);
     _damageBonusPct       = std::min<uint32>(sConfigMgr->GetOption<uint32>("KillCollector.DamageBonusPct", DEFAULT_DAMAGE_BONUS_PCT), 100);
     _metaAchievementId    = sConfigMgr->GetOption<uint32>("KillCollector.MetaAchievementId", META_ACHIEVEMENT_ID);
@@ -67,6 +68,29 @@ int32 KillCollectorMgr::ResolveContinent(Data const& data, uint32 mapId)
         return map->entrance_map;
 
     return EXCLUDED_MAP;
+}
+
+bool KillCollectorMgr::IsEnemyCreature(FactionTemplateEntry const& creatureFaction, uint32 flagsExtra)
+{
+    // Guards of every town, also the neutral ones (Booty Bay, Everlook, Cenarion Hold, ...).
+    if (flagsExtra & CREATURE_FLAG_EXTRA_GUARD)
+        return false;
+
+    // The people of either team: its guards, citizens, soldiers, pets and mounts.
+    FactionTemplateEntry const* alliance = sFactionTemplateStore.LookupEntry(ALLIANCE_PLAYER_FACTION_TEMPLATE);
+    FactionTemplateEntry const* horde = sFactionTemplateStore.LookupEntry(HORDE_PLAYER_FACTION_TEMPLATE);
+    if (!alliance || !horde || creatureFaction.IsFriendlyTo(*alliance) || creatureFaction.IsFriendlyTo(*horde))
+        return false;
+
+    // Neutral members of a faction players earn reputation with (Steamwheedle Cartel, Argent Crusade, Kirin Tor,
+    // Sha'tar, ...). Neutral creatures of other factions (wild beasts, kobolds) and hostile reputation factions
+    // (Bloodsail Buccaneers) stay enemies.
+    if (!creatureFaction.IsHostileTo(*alliance) && !creatureFaction.IsHostileTo(*horde))
+        if (FactionEntry const* faction = sFactionStore.LookupEntry(creatureFaction.faction))
+            if (faction->CanHaveReputation())
+                return false;
+
+    return true;
 }
 
 void KillCollectorMgr::LoadData()
@@ -105,7 +129,8 @@ void KillCollectorMgr::LoadData()
     // The expected set of a bucket: every creature entry spawned on the continent (its dungeons and raids
     // included) that a player of the team can attack. Spawns that only exist during a game event or outside
     // the normal phase, triggers, unattackable creatures and (by default) NPCs with a service flag are left
-    // out: nobody could ever complete a bucket that holds them.
+    // out: nobody could ever complete a bucket that holds them. With OnlyEnemies (the default) the people of
+    // either team, guards and the neutral members of reputation factions are left out, too (IsEnemyCreature).
     std::unordered_map<uint64, std::unordered_set<uint32>> sets[TEAM_COUNT];
     if (teamFaction[0] && teamFaction[1])
     {
@@ -142,6 +167,8 @@ void KillCollectorMgr::LoadData()
 
                 FactionTemplateEntry const* creatureFaction = sFactionTemplateStore.LookupEntry(faction);
                 if (!creatureFaction)
+                    continue;
+                if (_onlyEnemies && !IsEnemyCreature(*creatureFaction, flagsExtra))
                     continue;
 
                 for (uint8 team = 0; team < TEAM_COUNT; ++team)
@@ -310,6 +337,12 @@ bool KillCollectorMgr::PassesKillFilters(Player* player, Creature* killed) const
         return false;
     if (ct->type == CREATURE_TYPE_NON_COMBAT_PET && !_includeNonCombatPets)
         return false;
+    if (_onlyEnemies)
+    {
+        FactionTemplateEntry const* faction = sFactionTemplateStore.LookupEntry(ct->faction);
+        if (!faction || !IsEnemyCreature(*faction, ct->flags_extra))
+            return false;
+    }
 
     Map const* map = killed->GetMap();
     if (!map || map->IsBattlegroundOrArena())

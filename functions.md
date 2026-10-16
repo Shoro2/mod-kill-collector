@@ -21,7 +21,12 @@
 3. Per spawn: continent = override, else the map itself if it is a tracked continent, else its entrance map
    (`MapEntry::entrance_map`) if that is one; battleground and arena maps never count. The bucket must exist.
    Skipped: `UNIT_FLAG_NON_ATTACKABLE | IMMUNE_TO_PC | NOT_SELECTABLE`, `CREATURE_FLAG_EXTRA_TRIGGER`,
-   any `npcflag` (unless `Expected.SkipNpcFlagCreatures = 0`), a faction template that does not exist.
+   any `npcflag` (unless `Expected.SkipNpcFlagCreatures = 0`), a faction template that does not exist,
+   and (with `OnlyEnemies`, the default) every creature `IsEnemyCreature` refuses: `CREATURE_FLAG_EXTRA_GUARD`;
+   a faction template friendly to template 1 or 2 (the people of either team); a faction template hostile to
+   neither team whose faction has a reputation index (`FactionEntry::CanHaveReputation`: Steamwheedle, Argent
+   Crusade, Kirin Tor, Sha'tar, ...). Neutral templates of factions without reputation (wild beasts, kobolds)
+   and hostile reputation factions stay. Since this rule the lists of both teams are the same.
 4. Per team (Alliance = player faction template 1, Horde = 2): the entry joins the bucket when its faction
    template is not friendly to the team's (`FactionTemplateEntry::IsFriendlyTo`).
 5. Builds per team `expectedSize[bucket]` and `bucketsByEntry[entry]` (an entry spawned on two continents
@@ -34,8 +39,9 @@
 reward distance, the owner of a pet or totem); the victim must be a creature. `OnKillCredit`:
 
 1. Filters: not in GM mode; not a pet, totem or player-charmed creature; not a gas cloud, nor a critter /
-   totem / non-combat pet unless configured; not in a battleground or arena; open world / instance
-   switches; `MinLevelDelta`.
+   totem / non-combat pet unless configured; with `OnlyEnemies`, `IsEnemyCreature` on the template's faction
+   and `flags_extra` (the list rule above: a guard or the other team's citizen is not collected and pays no
+   token); not in a battleground or arena; open world / instance switches; `MinLevelDelta`.
 2. Under the lock: the entry joins the player's collection - nothing more happens if it was there; each
    bucket of the player's team that holds the entry counts one up; a bucket that reaches its size names its
    achievement (achievements on).
