@@ -6,7 +6,7 @@ name    mod-kill-collector: only real enemies count (KillCollector.OnlyEnemies)
 # 1. A Tarren Mill Deathguard (2405, a Horde guard, faction 71, flags_extra GUARD) pays no token and is not
 #    collected.
 # 2. A Snapjaw (2408, a neutral beast of the Hillsbrad river) still pays a token and is collected.
-# The kill (three triggered Arcane Explosions, 42921) and the respawn-then-pick-again pattern are the ones of
+# The kill (triggered Arcane Explosions, 42921: three for the Snapjaw, nine for the guard's 3696 health) and the respawn-then-pick-again pattern are the ones of
 # kill_collector_tokens.
 timeout 180s
 
@@ -33,7 +33,13 @@ wait 1s
 do a cast 42921 triggered
 do a cast 42921 triggered
 do a cast 42921 triggered
-waitfor g1 dead timeout 5s
+do a cast 42921 triggered
+do a cast 42921 triggered
+do a cast 42921 triggered
+do a cast 42921 triggered
+do a cast 42921 triggered
+do a cast 42921 triggered
+waitfor g1 dead timeout 10s
 wait 1s
 expect a item 920200 == 0
 as a .killcollector status
