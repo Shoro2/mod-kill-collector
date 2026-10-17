@@ -1,11 +1,10 @@
 # mod-kill-collector
 
-AzerothCore WotLK module for Forgotten Land: players collect creatures. The first kill of every creature
-entry pays a token, and - once the client patch is out - killing every creature of one creature type on a
-continent grants an achievement. Every earned achievement raises the damage against that creature type, and
-the player who holds them all is a "N3rd".
+AzerothCore WotLK module: players collect creatures. The first kill of every creature entry pays a token, and
+killing every creature of one creature type on a continent grants an achievement. Every earned achievement
+raises the damage against that creature type, and the player who holds them all is a "N3rd".
 
-## What it does
+## Features
 
 - **Unique kills.** Each (character, creature entry) pair counts once. Every player the kill rewards
   collects the creature: the killer, the members of the tapping group within reward distance, also when a
@@ -13,42 +12,38 @@ the player who holds them all is a "N3rd".
   and kills by a game master in GM mode do not count.
 - **Tokens.** A first kill pays `KillCollector.TokensPerFirstKill` Hunter's Tokens (item 920200). What does
   not fit into the bags arrives by mail.
-- **Token shop.** Tokens are spent in Forgotten Land's token shop (fl-lua-scripts `TokenShop/`: window `/tokenshop`,
-  chat `.tokenshop`): Leveling = the Potion of Experience (item 920201, +25% experience for an hour through CoA's
-  spell 818046) and the 37 classic heirlooms a character's class can use, 25 tokens each (two-handed 50);
-  General = Apprentice / Journeyman / Expert / Artisan Riding for 50 / 100 / 150 / 250 (Expert also teaches Cold
-  Weather Flying) and the class buffs: every buff of the stock classes and of the 21 CoA classes that can be cast on another
-  player, each a spell of its own (a copy of the class buff at +50% strength for one hour, ids 2032000-2032067), 10 tokens
-  each; a normal cast of the class buff cannot override it ("A more powerful spell is already active"), and a copy follows the
-  stacking rules of its original (one blessing per caster, same-effect groups, ...). The shop is Lua;
-  this module owns the token, the potion item, the buff spells' SQL (`mod_kill_collector_shop_buffs.sql`), the generator
-  `tools/gen_shop_buffs.py` and the scenarios.
 - **Achievements** (category "Kill Collector", 10 points each). One per continent and creature type: Eastern
-  Kingdoms, Kalimdor, Outland, Northrend and Forgotten Land (Azealia, its dungeons and raids, the Forgotten
-  Depths and the Endless Chronicle), each with beasts, dragonkin, demons, elementals, giants, undead,
-  humanoids, mechanicals and unspecified creatures. The list of a bucket is computed at startup from the
-  world database: every creature entry spawned on the continent - its dungeons and raids included - that
-  the player's team can attack. Spawns that only exist during a game event or outside the normal phase,
-  unattackable creatures, triggers and (by default) creatures with an NPC flag stay out, so every list can
-  be completed. Only real enemies count (`KillCollector.OnlyEnemies`, on by default; the operator, 2026-10-16):
-  guards (also the neutral town guards), the people of either team (guards, citizens, soldiers, their pets and
-  mounts) and the neutral members of reputation factions (Booty Bay, Argent Crusade, Kirin Tor, ...) are in no
-  list and their kills pay no token. Wild beasts and other neutral monsters still count.
+  Kingdoms, Kalimdor, Outland, Northrend and the Forgotten Land custom maps, each with beasts, dragonkin,
+  demons, elementals, giants, undead, humanoids, mechanicals and unspecified creatures. The list of a bucket
+  is computed at startup from the world database: every creature entry spawned on the continent (dungeons and
+  raids included) that the player's team can attack. Spawns that only exist during a game event or outside the
+  normal phase, unattackable creatures, triggers and (by default) creatures with an NPC flag stay out, so every
+  list can be completed. Only real enemies count (`KillCollector.OnlyEnemies`, on by default): guards, the
+  people of either team (citizens, soldiers, their pets and mounts) and the neutral members of reputation
+  factions are in no list and their kills pay no token. Wild beasts and other neutral monsters still count.
 - **Rewards.**
   - *Damage.* Every earned achievement pays `KillCollector.DamageBonusPct` (default 5) percent damage against
-    creatures of its creature type, everywhere - not only on its continent. The bonuses add up: all five
-    continents' beast lists make +25% against beasts. It counts for the player's own damage and for what it
-    controls or owns (pets, guardians, totems): melee swings, direct spells and damage over time. Never
-    against players or units a player controls, and not for spells that ignore the caster's modifiers (procs
-    and copies of damage that already got the bonus), as with the game's own creature-type damage auras. The bonus reads the earned achievements, so it works without
-    `AchievementsEnable`.
+    creatures of its creature type, everywhere. The bonuses add up: all five continents' beast lists make
+    +25% against beasts. It counts for the player's own damage and for what it controls or owns (pets,
+    guardians, totems): melee swings, direct spells and damage over time. Never against players or units a
+    player controls, and not for spells that ignore the caster's modifiers (procs and copies of damage that
+    already got the bonus). The bonus reads the earned achievements, so it works without `AchievementsEnable`.
   - *"N3rd".* The meta achievement 30051 completes once the player has earned every bucket achievement its
-    team can earn (today all 45) and rewards the title "N3rd %s" (CharTitles 178, a prefix). Players who
-    already hold them all get it at their next login.
-- **`.killcollector status`** shows the number of collected creatures, the progress per continent, the damage
-  bonus ("Damage bonus: +10% beasts, +5% undead") and the progress to "N3rd";
-  `.killcollector reset [name]` (administrators) empties a collection, `.killcollector reload` rebuilds the
-  lists.
+    team can earn and rewards the title "N3rd %s" (CharTitles 178, a prefix). Players who already hold them
+    all get it at their next login.
+- **Optional token shop content.** The module ships SQL for a token shop: the Potion of Experience (item
+  920201, which casts spell 818046 and so needs that spell in your Spell.dbc) and 68 class-buff copy spells
+  (2032000-2032067, generated by `tools/gen_shop_buffs.py` from the stock and CoA class buffs). The shop window
+  and logic itself is a Lua script of the Forgotten Land server and is not part of this module; without it
+  these rows are unused.
+
+## Requirements
+
+- AzerothCore (WotLK 3.3.5a). The module uses only hooks that exist in upstream AzerothCore (player, unit and
+  world script hooks, `KillRewarder`); it was developed against the
+  [Shoro2/azerothcore-wotlk](https://github.com/Shoro2/azerothcore-wotlk) fork and has not been built
+  against vanilla upstream.
+- Achievements are optional (`KillCollector.AchievementsEnable`) and need client rows, see Installation.
 
 ## Installation
 
@@ -56,15 +51,25 @@ the player who holds them all is a "N3rd".
    build the worldserver.
 2. The SQL under `data/sql/db-characters/base/` and `data/sql/db-world/base/` is applied by the core's
    updater at the next start.
-3. Copy `conf/mod_kill_collector.conf.dist` to `mod_kill_collector.conf` and adjust it.
+3. Copy `conf/mod_kill_collector.conf.dist` to your `configs/modules/` folder as `mod_kill_collector.conf`
+   and adjust it.
 4. Achievements: the server rows come with this module's SQL (`achievement_dbc` 30001-30051, `chartitles_dbc`
-   178, `achievement_reward` 30051); the clients need the `Achievement.dbc` / `Achievement_Category.dbc` rows
-   (ids 30001-30051, category 15100) and the `CharTitles.dbc` row 178 in their patch - Forgotten Land builds
-   them with fl-pipeline `209_kill_collector_achievements.py`. Then set `KillCollector.AchievementsEnable = 1`.
+   178, `achievement_reward` 30051); the clients need matching `Achievement.dbc` / `Achievement_Category.dbc`
+   rows (ids 30001-30051, category 15100) and the `CharTitles.dbc` row 178 in a client patch. Then set
+   `KillCollector.AchievementsEnable = 1`. The tokens and the damage bonus work without this step.
 
 ## Configuration
 
-See `conf/mod_kill_collector.conf.dist` for every option.
+See `conf/mod_kill_collector.conf.dist` for every option. The main ones: `KillCollector.Enable`,
+`TokenItemId`, `TokensPerFirstKill`, `OnlyEnemies`, `IncludeOpenWorld` / `IncludeInstances` / `IncludeCritters`,
+`AchievementsEnable`, `DamageBonusPct`, `MetaAchievementId`.
+
+## Commands
+
+- `.killcollector status` (everyone): number of collected creatures, progress per continent, the damage
+  bonus ("Damage bonus: +10% beasts, +5% undead") and the progress to "N3rd".
+- `.killcollector reset [name]` (administrator): empties a collection.
+- `.killcollector reload` (administrator): rebuilds the achievement lists.
 
 ## Schema
 
@@ -72,5 +77,9 @@ Characters DB: `mod_kill_collector_kills` - one row per (character, entry).
 
 World DB: `mod_kill_collector_continent_maps` (maps whose continent the Map.dbc entrance does not give, or
 that never count), `mod_kill_collector_achievements` (continent, creature type -> achievement id),
-`item_template` 920200, three `command` rows, and the reward rows `achievement_dbc`, `chartitles_dbc`,
+`item_template` 920200 and 920201, the `command` rows, and the reward rows `achievement_dbc`, `chartitles_dbc`,
 `achievement_reward`.
+
+## Part of the Forgotten Land project
+
+Developed for the Forgotten Land server project.
