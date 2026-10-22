@@ -13,7 +13,8 @@ namespace KillCollector
     constexpr uint32 DEFAULT_TOKEN_ITEM_ID = 920200;
 
     // The meta achievement "N3rd": earned once every bucket achievement the player's team can earn is
-    // (KillCollector.MetaAchievementId, 0 = none). Its reward is the title "N3rd %s" (CharTitles 178, bit 143).
+    // (KillCollector.MetaAchievementId, 0 = none). Its reward is the title "N3rd %s" (CharTitles 195, bit 160;
+    // 178 / 143 until 2026-10-22, now the old Forgotten Land's own title again).
     constexpr uint32 META_ACHIEVEMENT_ID = 30051;
 
     // Every earned bucket achievement pays this many percent damage against its creature type

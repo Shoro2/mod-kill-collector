@@ -13,8 +13,8 @@ name    mod-kill-collector: the achievements stack to +25% damage, the 45th comp
 #
 # Part 2, the login path: the character is reset and gets all 45 from the game master. Nothing completes the
 # meta achievement on that path ("N3rd: not yet (45 of 45 achievements)"), the next login does (`relog`): the
-# status line says "N3rd: earned". The title itself (CharTitles 178, bit 143 = bit 15 of the 5th number of
-# `characters.knownTitles`) is saved at logout: check it after the run.
+# status line says "N3rd: earned". The title itself (CharTitles 195, bit 160 = bit 0 of the 6th number of
+# `characters.knownTitles`; 178 / bit 143 until 2026-10-22) is saved at logout: check it after the run.
 #
 # The character must hold none of the achievements when the run starts: the first step resets them (`do c
 # resetachievements`, mod-fl-testbots: the core's achievement reset; `.reset achievements` is console-only). Each

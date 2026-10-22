@@ -29,7 +29,7 @@ raises the damage against that creature type, and the player who holds them all 
     player controls, and not for spells that ignore the caster's modifiers (procs and copies of damage that
     already got the bonus). The bonus reads the earned achievements, so it works without `AchievementsEnable`.
   - *"N3rd".* The meta achievement 30051 completes once the player has earned every bucket achievement its
-    team can earn and rewards the title "N3rd %s" (CharTitles 178, a prefix). Players who already hold them
+    team can earn and rewards the title "N3rd %s" (CharTitles 195, bit 160, a prefix). Players who already hold them
     all get it at their next login.
 - **Optional token shop content.** The module ships SQL for a token shop: the Potion of Experience (item
   920201, which casts spell 818046 and so needs that spell in your Spell.dbc) and 68 class-buff copy spells
@@ -54,8 +54,10 @@ raises the damage against that creature type, and the player who holds them all 
 3. Copy `conf/mod_kill_collector.conf.dist` to your `configs/modules/` folder as `mod_kill_collector.conf`
    and adjust it.
 4. Achievements: the server rows come with this module's SQL (`achievement_dbc` 30001-30051, `chartitles_dbc`
-   178, `achievement_reward` 30051); the clients need matching `Achievement.dbc` / `Achievement_Category.dbc`
-   rows (ids 30001-30051, category 15100) and the `CharTitles.dbc` row 178 in a client patch. Then set
+   195, `achievement_reward` 30051); the clients need matching `Achievement.dbc` / `Achievement_Category.dbc`
+   rows (ids 30001-30051, category 15100) and the `CharTitles.dbc` row 195 in a client patch. CharTitles 178-194
+   (bits 143-159) are Forgotten Land's own older titles; on another server any free title id and bit will do
+   (the SQL and the client row must agree). Then set
    `KillCollector.AchievementsEnable = 1`. The tokens and the damage bonus work without this step.
 
 ## Configuration

@@ -51,11 +51,14 @@ INSERT INTO `achievement_dbc` (`ID`, `Faction`, `Instance_Id`, `Supercedes`, `Ti
 (30050, -1, -1, 0, 'Oddities of the Forgotten Land', 'Kill every creature of no known kind in the Forgotten Land, its dungeons and raids included.', 15100, 10, 45, 0, 1776, 0, 0),
 (30051, -1, -1, 0, 'N3rd', 'Earn every Kill Collector achievement.', 15100, 10, 46, 0, 2610, 0, 0);
 
--- the title of achievement 30051 (CharTitles.dbc has 142 rows, max ID 177, max Mask_ID 142)
-DELETE FROM `chartitles_dbc` WHERE `ID` = 178;
+-- the title of achievement 30051 (CharTitles.dbc has 142 rows, max ID 177, max Mask_ID 142;
+-- 178-194 / 143-159 are the old Forgotten Land's titles). Until 2026-10-22 it was 178: that row goes
+-- by its name, so FL1's own row there (fl-pipeline 232) stays.
+DELETE FROM `chartitles_dbc` WHERE `ID` = 178 AND `Name_Lang_enUS` = 'N3rd %s';
+DELETE FROM `chartitles_dbc` WHERE `ID` = 195;
 INSERT INTO `chartitles_dbc` (`ID`, `Condition_ID`, `Name_Lang_enUS`, `Name1_Lang_enUS`, `Mask_ID`) VALUES
-(178, 0, 'N3rd %s', 'N3rd %s', 143);
+(195, 0, 'N3rd %s', 'N3rd %s', 160);
 
 DELETE FROM `achievement_reward` WHERE `ID` = 30051;
 INSERT INTO `achievement_reward` (`ID`, `TitleA`, `TitleH`, `ItemID`, `Sender`, `Subject`, `Body`, `MailTemplateID`) VALUES
-(30051, 178, 178, 0, 0, '', '', 0);
+(30051, 195, 195, 0, 0, '', '', 0);
